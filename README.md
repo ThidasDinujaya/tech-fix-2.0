@@ -44,6 +44,17 @@ To get a local copy up and running, follow these steps.
 
 ## 📜 Git & Commits
 
+### Commit Message Convention
+We use **Conventional Commits** to keep our history readable and professional. Please follow this format: `<type>: <description>`
+
+*   **feat**: A new feature (e.g., `feat: add login screen`)
+*   **fix**: A bug fix (e.g., `fix: resolve crash on map load`)
+*   **docs**: Documentation changes (e.g., `docs: update readme with git flow`)
+*   **style**: Changes that do not affect the meaning of the code (white-space, formatting)
+*   **refactor**: A code change that neither fixes a bug nor adds a feature
+*   **chore**: Updating build tasks, folder structures, etc. (e.g., `chore: move models to common package`)
+*   **build**: Changes that affect the build system or external dependencies
+
 ### Industry Standard Workflow
 This project uses a root-level `.gitignore` that follows industry standards for Android development.
 

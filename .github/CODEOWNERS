@@ -1,0 +1,4 @@
+# This file defines who must approve changes to the main branch.
+# The asterisk (*) means every file in the repository.
+
+* @ThidasDinujaya
