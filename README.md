@@ -15,7 +15,7 @@ To get a local copy up and running, follow these steps.
 
 1.  **Clone the repository**:
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/ThidasDinujaya/tech-fix-2.0.git
     ```
 
 2.  **Configure API Keys (Mandatory)**:
