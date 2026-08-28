@@ -1,0 +1,40 @@
+package com.example.techfix.features.services.data;
+
+import java.io.Serializable;
+
+/**
+ * Data model for a Repair Service offered by TechFix.
+ */
+public class Service implements Serializable {
+    private int id;
+    private String name;
+    private String description;
+    private double price;
+    private String warranty;
+    private int iconResId;
+
+    public Service(int id, String name, String description, double price, String warranty, int iconResId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.warranty = warranty;
+        this.iconResId = iconResId;
+    }
+
+    // Getters
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public double getPrice() { return price; }
+    public String getWarranty() { return warranty; }
+    public int getIconResId() { return iconResId; }
+
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPrice(double price) { this.price = price; }
+    public void setWarranty(String warranty) { this.warranty = warranty; }
+    public void setIconResId(int iconResId) { this.iconResId = iconResId; }
+}
