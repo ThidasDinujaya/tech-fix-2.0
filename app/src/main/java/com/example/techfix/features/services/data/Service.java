@@ -2,24 +2,23 @@ package com.example.techfix.features.services.data;
 
 import java.io.Serializable;
 
-/**
- * Data model for a Repair Service offered by TechFix.
- */
+// Data model representing a repair service
 public class Service implements Serializable {
     private int id;
     private String name;
     private String description;
     private double price;
     private String warranty;
-    private int iconResId;
+    private String imageUrl; // Changed from iconResId to imageUrl
 
-    public Service(int id, String name, String description, double price, String warranty, int iconResId) {
+    // Initializes the service with all required details including a web image URL
+    public Service(int id, String name, String description, double price, String warranty, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.warranty = warranty;
-        this.iconResId = iconResId;
+        this.imageUrl = imageUrl;
     }
 
     // Getters
@@ -28,7 +27,7 @@ public class Service implements Serializable {
     public String getDescription() { return description; }
     public double getPrice() { return price; }
     public String getWarranty() { return warranty; }
-    public int getIconResId() { return iconResId; }
+    public String getImageUrl() { return imageUrl; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -36,5 +35,5 @@ public class Service implements Serializable {
     public void setDescription(String description) { this.description = description; }
     public void setPrice(double price) { this.price = price; }
     public void setWarranty(String warranty) { this.warranty = warranty; }
-    public void setIconResId(int iconResId) { this.iconResId = iconResId; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
