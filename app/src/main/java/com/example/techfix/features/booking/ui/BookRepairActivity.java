@@ -60,8 +60,7 @@ public class BookRepairActivity extends AppCompatActivity {
         // Listen for successful booking
         viewModel.getBookingStatus().observe(this, success -> {
             if (Boolean.TRUE.equals(success)) {
-                Toast.makeText(this, "Booking Successful!", Toast.LENGTH_LONG).show();
-                finish(); // Close the screen and go back
+                showSuccessDialog();
             }
         });
 
@@ -71,6 +70,16 @@ public class BookRepairActivity extends AppCompatActivity {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Shows a professional success dialog before closing the screen
+    private void showSuccessDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Booking Successful!")
+            .setMessage("Your repair request has been submitted. You can track its status in 'My Bookings'.")
+            .setPositiveButton("OK", (dialog, which) -> finish())
+            .setCancelable(false)
+            .show();
     }
 
     // Collects all data from the form and sends it to the ViewModel

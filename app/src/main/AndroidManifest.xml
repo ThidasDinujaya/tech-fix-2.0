@@ -32,6 +32,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".features.identity.AdminDashboardActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".features.booking.ui.BookRepairActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
