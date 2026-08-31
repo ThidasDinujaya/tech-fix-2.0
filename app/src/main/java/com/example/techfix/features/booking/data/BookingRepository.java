@@ -2,8 +2,11 @@ package com.example.techfix.features.booking.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.techfix.common.data.DatabaseHelper;
+import java.util.ArrayList;
+import java.util.List;
 
 // Handles database operations specifically for Repair Bookings
 public class BookingRepository {
@@ -40,5 +43,58 @@ public class BookingRepository {
 
         // Returns the ID of the new row or -1 if an error occurred
         return db.insert(DatabaseHelper.TABLE_BOOKINGS, null, values);
+    }
+
+    // Fetches all bookings from the database, ordered by newest first
+    public List<Booking> getAllBookings() {
+        List<Booking> bookingList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, null, null, null, null, DatabaseHelper.COL_BOOKING_ID + " DESC");
+        
+        if (cursor.moveToFirst()) {
+            do {
+                bookingList.add(new Booking(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DEVICE_TYPE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRAND)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bookingList;
+    }
+
+    // Fetches bookings filtered by their current status
+    public List<Booking> getBookingsByStatus(String status) {
+        List<Booking> bookingList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, DatabaseHelper.COL_BOOKING_STATUS + "=?", 
+                new String[]{status}, null, null, DatabaseHelper.COL_BOOKING_ID + " DESC");
+        
+        if (cursor.moveToFirst()) {
+            do {
+                bookingList.add(new Booking(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DEVICE_TYPE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRAND)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bookingList;
     }
 }
