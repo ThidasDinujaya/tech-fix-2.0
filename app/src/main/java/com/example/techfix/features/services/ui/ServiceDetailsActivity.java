@@ -1,5 +1,6 @@
 package com.example.techfix.features.services.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.techfix.R;
+import com.example.techfix.features.booking.ui.BookRepairActivity;
 import com.example.techfix.features.services.data.Service;
 
 // Detailed view for a service using web image loading
@@ -25,7 +27,11 @@ public class ServiceDetailsActivity extends AppCompatActivity {
         }
 
         Button btnBook = findViewById(R.id.btnBookService);
-        btnBook.setOnClickListener(v -> Toast.makeText(this, "Opening Booking...", Toast.LENGTH_SHORT).show());
+        btnBook.setOnClickListener(v -> {
+            // Opens the booking form for this specific service
+            Intent intent = new Intent(this, BookRepairActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void populateDetails(Service service) {
