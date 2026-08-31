@@ -28,8 +28,11 @@ public class ServiceDetailsActivity extends AppCompatActivity {
 
         Button btnBook = findViewById(R.id.btnBookService);
         btnBook.setOnClickListener(v -> {
-            // Opens the booking form for this specific service
+            // Opens the booking form and passes the selected service ID
             Intent intent = new Intent(this, BookRepairActivity.class);
+            if (service != null) {
+                intent.putExtra("selected_service_id", service.getId());
+            }
             startActivity(intent);
         });
     }

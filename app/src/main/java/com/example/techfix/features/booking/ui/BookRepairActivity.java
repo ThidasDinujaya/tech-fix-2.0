@@ -11,39 +11,77 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.example.techfix.R;
+import com.example.techfix.features.booking.viewmodel.BookRepairViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.Calendar;
 
-// Handles the repair booking form and camera integration for device photos
+// Handles the repair booking form, camera integration, and data submission
 public class BookRepairActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private AutoCompleteTextView autoDeviceType, autoBrand;
-    private TextInputEditText etAppointmentDate;
+    private TextInputEditText etModel, etProblemDesc, etAppointmentDate;
     private ImageView ivDevicePhoto;
+    private BookRepairViewModel viewModel;
+    private int selectedServiceId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_repair);
 
+        // Get the selected service ID from the previous screen
+        selectedServiceId = getIntent().getIntExtra("selected_service_id", -1);
+
         initializeViews();
         setupDropdowns();
         setupDatePicker();
         setupCamera();
+        setupViewModel();
         
-        findViewById(R.id.btnSubmitBooking).setOnClickListener(v -> {
-            Toast.makeText(this, "Booking feature coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        findViewById(R.id.btnSubmitBooking).setOnClickListener(v -> submitForm());
     }
 
-    // Connects the UI elements to the Java variables
     private void initializeViews() {
         autoDeviceType = findViewById(R.id.autoDeviceType);
         autoBrand = findViewById(R.id.autoBrand);
+        etModel = findViewById(R.id.etModel);
+        etProblemDesc = findViewById(R.id.etProblemDesc);
         etAppointmentDate = findViewById(R.id.etAppointmentDate);
         ivDevicePhoto = findViewById(R.id.ivDevicePhoto);
+    }
+
+    // Connects the UI to the ViewModel for form validation and submission
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this).get(BookRepairViewModel.class);
+
+        // Listen for successful booking
+        viewModel.getBookingStatus().observe(this, success -> {
+            if (Boolean.TRUE.equals(success)) {
+                Toast.makeText(this, "Booking Successful!", Toast.LENGTH_LONG).show();
+                finish(); // Close the screen and go back
+            }
+        });
+
+        // Listen for validation or database errors
+        viewModel.getErrorMessage().observe(this, error -> {
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Collects all data from the form and sends it to the ViewModel
+    private void submitForm() {
+        String type = autoDeviceType.getText().toString();
+        String brand = autoBrand.getText().toString();
+        String model = etModel.getText().toString();
+        String desc = etProblemDesc.getText().toString();
+        String date = etAppointmentDate.getText().toString();
+
+        viewModel.submitBooking(selectedServiceId, type, brand, model, desc, date);
     }
 
     // Sets up the click listener to open the system camera
