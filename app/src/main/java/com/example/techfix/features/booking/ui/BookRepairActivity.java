@@ -1,21 +1,27 @@
 package com.example.techfix.features.booking.ui;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.techfix.R;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.Calendar;
 
-// Handles the repair booking form where users enter device details
+// Handles the repair booking form and camera integration for device photos
 public class BookRepairActivity extends AppCompatActivity {
 
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private AutoCompleteTextView autoDeviceType, autoBrand;
     private TextInputEditText etAppointmentDate;
+    private ImageView ivDevicePhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +31,9 @@ public class BookRepairActivity extends AppCompatActivity {
         initializeViews();
         setupDropdowns();
         setupDatePicker();
+        setupCamera();
         
         findViewById(R.id.btnSubmitBooking).setOnClickListener(v -> {
-            // Submission logic will be handled by the ViewModel in Phase 4
             Toast.makeText(this, "Booking feature coming soon!", Toast.LENGTH_SHORT).show();
         });
     }
@@ -37,6 +43,31 @@ public class BookRepairActivity extends AppCompatActivity {
         autoDeviceType = findViewById(R.id.autoDeviceType);
         autoBrand = findViewById(R.id.autoBrand);
         etAppointmentDate = findViewById(R.id.etAppointmentDate);
+        ivDevicePhoto = findViewById(R.id.ivDevicePhoto);
+    }
+
+    // Sets up the click listener to open the system camera
+    private void setupCamera() {
+        ivDevicePhoto.setOnClickListener(v -> {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } else {
+                Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Receives the photo from the camera app and displays it in the ImageView
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ivDevicePhoto.setImageBitmap(imageBitmap);
+            ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        }
     }
 
     // Fills the dropdown menus with predefined device and brand options
