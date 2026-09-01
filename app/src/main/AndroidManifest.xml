@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,8 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix">
 
+        <!-- ============================== -->
+        <!-- SPLASH SCREEN - STARTING PAGE -->
+        <!-- ============================== -->
+
         <activity
-            android:name=".features.services.ui.ServicesActivity"
+            android:name=".features.auth.data.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,22 +26,80 @@
             </intent-filter>
         </activity>
 
+        <!-- CUSTOMER LOGIN -->
+
+        <activity
+            android:name=".features.auth.data.LoginActivity"
+            android:exported="false" />
+
+        <!-- CUSTOMER REGISTER -->
+
+        <activity
+            android:name=".features.auth.data.RegisterActivity"
+            android:exported="false" />
+
+        <!-- CUSTOMER HOME -->
+
+        <activity
+            android:name=".features.auth.data.CustomerHomeActivity"
+            android:exported="false" />
+
+        <!-- CUSTOMER PROFILE -->
+
+        <activity
+            android:name=".features.auth.data.ProfileActivity"
+            android:exported="false" />
+
+        <!-- ADMIN LOGIN -->
+
+        <activity
+            android:name=".features.admin.data.AdminLoginActivity"
+            android:exported="false" />
+
+        <!-- MAIN ACTIVITY -->
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+
+        <!-- ADMIN DASHBOARD -->
+
+        <activity
+            android:name=".features.admin.data.AdminDashboardActivity"
+            android:exported="false" />
+
+        <!-- ADMIN PROFILE -->
+
+        <activity
+            android:name=".features.admin.data.AdminProfileActivity"
+            android:exported="false" />
+
+        <!-- SERVICES -->
+
+        <activity
+            android:name=".features.services.ui.ServicesActivity"
+            android:exported="false" />
+
+        <!-- SERVICE DETAILS -->
 
         <activity
             android:name=".features.services.ui.ServiceDetailsActivity"
             android:exported="false" />
 
+        <!-- ADMIN DASHBOARD FROM DEVELOP BRANCH -->
+
         <activity
             android:name=".features.identity.AdminDashboardActivity"
             android:exported="false" />
+
+        <!-- BOOK REPAIR -->
 
         <activity
             android:name=".features.booking.ui.BookRepairActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- ADMIN MANAGE BOOKINGS -->
 
         <activity
             android:name=".features.booking.ui.AdminManageBookingsActivity"
