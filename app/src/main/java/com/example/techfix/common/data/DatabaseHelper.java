@@ -5,31 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-/**
- * Central Database Helper for the TechFix application.
- *
- * Handles:
- * 1. Customer/User registration and login
- * 2. Customer profile
- * 3. Services
- * 4. Service images
- */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // =========================================================
-    // DATABASE
-    // =========================================================
+    // Database
+    private static final String DATABASE_NAME = "techfix.db";
+    private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 6;
-
-
-    // =========================================================
-    // USERS TABLE
-    // =========================================================
-
+    // User table
     public static final String TABLE_USERS = "users";
 
     public static final String COL_ID = "id";
@@ -39,92 +22,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_PASSWORD = "password";
 
 
-    // =========================================================
-    // SERVICES TABLE
-    // =========================================================
-
-    public static final String TABLE_SERVICES = "services";
-
-    public static final String COL_SERVICE_ID = "id";
-    public static final String COL_SERVICE_NAME = "name";
-    public static final String COL_SERVICE_DESC = "description";
-    public static final String COL_SERVICE_PRICE = "price";
-    public static final String COL_SERVICE_WARRANTY = "warranty";
-    public static final String COL_SERVICE_IMAGE = "image_url";
-
-
-    // =========================================================
-    // CONSTRUCTOR
-    // =========================================================
-
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
-    // =========================================================
-    // CREATE DATABASE TABLES
-    // =========================================================
+    // =========================================
+    // CREATE TABLE
+    // =========================================
 
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        Log.d("DatabaseHelper", "Creating TechFix database");
-
-
-        // -----------------------------------------------------
-        // USERS TABLE
-        // -----------------------------------------------------
-
         String createUserTable =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
-
+                "CREATE TABLE " + TABLE_USERS + " (" +
                         COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-
                         COL_NAME + " TEXT NOT NULL, " +
-
                         COL_EMAIL + " TEXT UNIQUE NOT NULL, " +
-
                         COL_PHONE + " TEXT NOT NULL, " +
-
                         COL_PASSWORD + " TEXT NOT NULL" +
-
                         ")";
 
         db.execSQL(createUserTable);
-
-
-        // -----------------------------------------------------
-        // SERVICES TABLE
-        // -----------------------------------------------------
-
-        String createServicesTable =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_SERVICES + " (" +
-
-                        COL_SERVICE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-
-                        COL_SERVICE_NAME + " TEXT, " +
-
-                        COL_SERVICE_DESC + " TEXT, " +
-
-                        COL_SERVICE_PRICE + " REAL, " +
-
-                        COL_SERVICE_WARRANTY + " TEXT, " +
-
-                        COL_SERVICE_IMAGE + " TEXT" +
-
-                        ")";
-
-        db.execSQL(createServicesTable);
-
-
-        Log.d("DatabaseHelper", "Users and Services tables created");
     }
 
 
-    // =========================================================
+    // =========================================
     // DATABASE UPGRADE
-    // =========================================================
+    // =========================================
 
     @Override
     public void onUpgrade(
@@ -133,62 +58,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int newVersion
     ) {
 
-        Log.d(
-                "DatabaseHelper",
-                "Upgrading database from version "
-                        + oldVersion
-                        + " to "
-                        + newVersion
-        );
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 
-        /*
-         * IMPORTANT:
-         * Do NOT DROP existing tables here.
-         *
-         * Using CREATE TABLE IF NOT EXISTS prevents
-         * existing customer data from being deleted.
-         */
-
-        db.execSQL(
-                "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
-
-                        COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-
-                        COL_NAME + " TEXT NOT NULL, " +
-
-                        COL_EMAIL + " TEXT UNIQUE NOT NULL, " +
-
-                        COL_PHONE + " TEXT NOT NULL, " +
-
-                        COL_PASSWORD + " TEXT NOT NULL" +
-
-                        ")"
-        );
-
-
-        db.execSQL(
-                "CREATE TABLE IF NOT EXISTS " + TABLE_SERVICES + " (" +
-
-                        COL_SERVICE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-
-                        COL_SERVICE_NAME + " TEXT, " +
-
-                        COL_SERVICE_DESC + " TEXT, " +
-
-                        COL_SERVICE_PRICE + " REAL, " +
-
-                        COL_SERVICE_WARRANTY + " TEXT, " +
-
-                        COL_SERVICE_IMAGE + " TEXT" +
-
-                        ")"
-        );
+        onCreate(db);
     }
 
 
-    // =========================================================
+    // =========================================
     // INSERT / REGISTER USER
-    // =========================================================
+    // =========================================
 
     public boolean insertUser(
             String name,
@@ -216,22 +94,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
+    // =========================================
     // CHECK DUPLICATE EMAIL
-    // =========================================================
+    // =========================================
 
     public boolean checkEmail(String email) {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(
-                "SELECT " + COL_ID +
-                        " FROM " + TABLE_USERS +
+                "SELECT * FROM " + TABLE_USERS +
                         " WHERE " + COL_EMAIL + " = ?",
                 new String[]{email}
         );
 
-        boolean exists = cursor.moveToFirst();
+        boolean exists = cursor.getCount() > 0;
 
         cursor.close();
 
@@ -239,9 +116,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
+    // =========================================
     // LOGIN CHECK
-    // =========================================================
+    // =========================================
 
     public boolean checkUser(
             String email,
@@ -251,18 +128,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(
-                "SELECT " + COL_ID +
-                        " FROM " + TABLE_USERS +
+                "SELECT * FROM " + TABLE_USERS +
                         " WHERE " + COL_EMAIL + " = ?" +
                         " AND " + COL_PASSWORD + " = ?",
-
                 new String[]{
                         email,
                         password
                 }
         );
 
-        boolean validUser = cursor.moveToFirst();
+        boolean validUser = cursor.getCount() > 0;
 
         cursor.close();
 
@@ -270,9 +145,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
+    // =========================================
     // GET USER DETAILS FOR PROFILE
-    // =========================================================
+    // =========================================
 
     public Cursor getUserByEmail(String email) {
 
@@ -281,15 +156,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(
                 "SELECT * FROM " + TABLE_USERS +
                         " WHERE " + COL_EMAIL + " = ?",
-
                 new String[]{email}
         );
     }
 
 
-    // =========================================================
-    // UPDATE USER PROFILE
-    // =========================================================
+    // =========================================
+    // UPDATE PROFILE
+    // =========================================
 
     public boolean updateUserProfile(
             String email,
@@ -315,9 +189,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
+    // =========================================
     // GET USER NAME
-    // =========================================================
+    // =========================================
 
     public String getUserName(String email) {
 
@@ -327,7 +201,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "SELECT " + COL_NAME +
                         " FROM " + TABLE_USERS +
                         " WHERE " + COL_EMAIL + " = ?",
-
                 new String[]{email}
         );
 
@@ -338,14 +211,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int index = cursor.getColumnIndex(COL_NAME);
 
             if (index >= 0) {
-
-                String databaseName = cursor.getString(index);
-
-                if (databaseName != null &&
-                        !databaseName.trim().isEmpty()) {
-
-                    name = databaseName;
-                }
+                name = cursor.getString(index);
             }
         }
 
@@ -355,9 +221,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
-    // DELETE USER ACCOUNT
-    // =========================================================
+    // =========================================
+    // DELETE ACCOUNT - OPTIONAL
+    // =========================================
 
     public boolean deleteUser(String email) {
 
@@ -370,137 +236,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
 
         return result > 0;
-    }
-
-
-    // =========================================================
-    // INSERT SERVICE
-    // =========================================================
-
-    public long insertService(
-            String name,
-            String description,
-            double price,
-            String warranty,
-            String imageUrl
-    ) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-
-        values.put(COL_SERVICE_NAME, name);
-        values.put(COL_SERVICE_DESC, description);
-        values.put(COL_SERVICE_PRICE, price);
-        values.put(COL_SERVICE_WARRANTY, warranty);
-        values.put(COL_SERVICE_IMAGE, imageUrl);
-
-        return db.insert(
-                TABLE_SERVICES,
-                null,
-                values
-        );
-    }
-
-
-    // =========================================================
-    // GET ALL SERVICES
-    // =========================================================
-
-    public Cursor getAllServices() {
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        return db.rawQuery(
-                "SELECT * FROM " + TABLE_SERVICES +
-                        " ORDER BY " + COL_SERVICE_ID + " ASC",
-                null
-        );
-    }
-
-
-    // =========================================================
-    // GET SERVICE BY ID
-    // =========================================================
-
-    public Cursor getServiceById(int serviceId) {
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        return db.rawQuery(
-                "SELECT * FROM " + TABLE_SERVICES +
-                        " WHERE " + COL_SERVICE_ID + " = ?",
-
-                new String[]{
-                        String.valueOf(serviceId)
-                }
-        );
-    }
-
-
-    // =========================================================
-    // UPDATE SERVICE
-    // =========================================================
-
-    public boolean updateService(
-            int serviceId,
-            String name,
-            String description,
-            double price,
-            String warranty,
-            String imageUrl
-    ) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-
-        values.put(COL_SERVICE_NAME, name);
-        values.put(COL_SERVICE_DESC, description);
-        values.put(COL_SERVICE_PRICE, price);
-        values.put(COL_SERVICE_WARRANTY, warranty);
-        values.put(COL_SERVICE_IMAGE, imageUrl);
-
-        int result = db.update(
-                TABLE_SERVICES,
-                values,
-                COL_SERVICE_ID + " = ?",
-                new String[]{
-                        String.valueOf(serviceId)
-                }
-        );
-
-        return result > 0;
-    }
-
-
-    // =========================================================
-    // DELETE SERVICE
-    // =========================================================
-
-    public boolean deleteService(int serviceId) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        int result = db.delete(
-                TABLE_SERVICES,
-                COL_SERVICE_ID + " = ?",
-                new String[]{
-                        String.valueOf(serviceId)
-                }
-        );
-
-        return result > 0;
-    }
-
-
-    // =========================================================
-    // CLOSE DATABASE
-    // =========================================================
-
-    @Override
-    public synchronized void close() {
-
-        super.close();
     }
 }

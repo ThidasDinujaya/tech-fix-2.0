@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText edtFullName;

@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.core.view.GravityCompat;
+
+import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
 
 public class CustomerHomeActivity extends AppCompatActivity {
 

@@ -7,6 +7,8 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.techfix.R;
+
 public class SplashActivity extends AppCompatActivity {
 
     private static final int SPLASH_TIME = 3000;

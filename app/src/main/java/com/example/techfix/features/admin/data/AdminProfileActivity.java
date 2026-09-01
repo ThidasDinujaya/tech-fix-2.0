@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.techfix.R;
+
 public class AdminProfileActivity extends AppCompatActivity {
 
     private TextView btnBackAdminProfile;

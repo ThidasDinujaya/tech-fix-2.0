@@ -15,6 +15,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
+
 public class ProfileActivity extends AppCompatActivity {
 
     private ImageView imgProfile;
