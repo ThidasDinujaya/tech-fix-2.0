@@ -11,12 +11,6 @@
     <!-- MAIN DASHBOARD CONTENT -->
     <!-- ========================= -->
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="git status" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -77,7 +71,9 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
-                <!-- Statistics Row 1 -->
+                <!-- ========================= -->
+                <!-- STATISTICS ROW 1 -->
+                <!-- ========================= -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -146,7 +142,9 @@
                 </LinearLayout>
 
 
-                <!-- Statistics Row 2 -->
+                <!-- ========================= -->
+                <!-- STATISTICS ROW 2 -->
+                <!-- ========================= -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -216,6 +214,8 @@
                 </LinearLayout>
 
 
+                <!-- DIVIDER -->
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -223,6 +223,8 @@
                     android:layout_marginTop="22dp"
                     android:layout_marginBottom="20dp" />
 
+
+                <!-- QUICK ACCESS -->
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -234,12 +236,16 @@
                     android:layout_marginBottom="18dp" />
 
 
-                <!-- Quick Access Row 1 -->
+                <!-- ========================= -->
+                <!-- QUICK ACCESS ROW 1 -->
+                <!-- ========================= -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
+                    <!-- BOOKINGS -->
 
                     <LinearLayout
                         android:id="@+id/cardBookings"
@@ -269,6 +275,8 @@
                     </LinearLayout>
 
 
+                    <!-- SERVICES -->
+
                     <LinearLayout
                         android:id="@+id/cardServices"
                         android:layout_width="0dp"
@@ -296,6 +304,8 @@
 
                     </LinearLayout>
 
+
+                    <!-- TECHNICIANS -->
 
                     <LinearLayout
                         android:id="@+id/cardTechnicians"
@@ -327,13 +337,17 @@
                 </LinearLayout>
 
 
-                <!-- Quick Access Row 2 -->
+                <!-- ========================= -->
+                <!-- QUICK ACCESS ROW 2 -->
+                <!-- ========================= -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="10dp">
+
+                    <!-- PARTS -->
 
                     <LinearLayout
                         android:id="@+id/cardParts"
@@ -363,6 +377,8 @@
                     </LinearLayout>
 
 
+                    <!-- BRANCHES -->
+
                     <LinearLayout
                         android:id="@+id/cardBranches"
                         android:layout_width="0dp"
@@ -390,6 +406,8 @@
 
                     </LinearLayout>
 
+
+                    <!-- PAYMENTS -->
 
                     <LinearLayout
                         android:id="@+id/cardPayments"
@@ -419,6 +437,47 @@
                     </LinearLayout>
 
                 </LinearLayout>
+
+
+                <!-- ========================= -->
+                <!-- MANAGE BOOKINGS -->
+                <!-- ========================= -->
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardManageBookings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="18dp">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@android:drawable/ic_menu_agenda"
+                            android:contentDescription="Manage Bookings"
+                            app:tint="@color/brand_blue" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:text="Manage Bookings"
+                            android:textColor="#212121"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
