@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F9FC"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- TOP HEADER -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#0867D9"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <TextView
+                android:id="@+id/btnBackAdminProfile"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:gravity="center"
+                android:text="←"
+                android:textSize="28sp"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Admin Profile"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <Space
+                android:layout_width="45dp"
+                android:layout_height="45dp" />
+
+        </LinearLayout>
+
+
+        <!-- CONTENT -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+
+            <!-- PROFILE IMAGE -->
+
+            <ImageView
+                android:id="@+id/imgAdminProfile"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_profile"
+                android:background="@drawable/bg_profile_circle"
+                android:padding="22dp"
+                android:scaleType="centerInside"
+                android:contentDescription="Admin Profile Picture" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TechFix Administrator"
+                android:textColor="#0B3A6E"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="15dp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Administrator"
+                android:textColor="#777777"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="30dp" />
+
+
+            <!-- FULL NAME -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Full Name"
+                android:textColor="#333333"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edtAdminName"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Admin Name"
+                android:inputType="textPersonName"
+                android:padding="15dp" />
+
+
+            <!-- EMAIL -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp" />
+
+            <EditText
+                android:id="@+id/edtAdminProfileEmail"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_background"
+                android:inputType="textEmailAddress"
+                android:padding="15dp"
+                android:enabled="false" />
+
+
+            <!-- PHONE -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phone Number"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp" />
+
+            <EditText
+                android:id="@+id/edtAdminPhone"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:padding="15dp" />
+
+
+            <!-- ROLE -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Role"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginTop="18dp" />
+
+            <EditText
+                android:id="@+id/edtAdminRole"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_background"
+                android:padding="15dp"
+                android:enabled="false" />
+
+
+            <!-- UPDATE -->
+
+            <Button
+                android:id="@+id/btnUpdateAdminProfile"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="30dp"
+                android:text="Update Profile"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="#1565C0" />
+
+
+            <!-- CHANGE PASSWORD -->
+
+            <Button
+                android:id="@+id/btnChangeAdminPassword"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="15dp"
+                android:text="Change Password"
+                android:textColor="#1565C0"
+                android:textStyle="bold"
+                android:backgroundTint="#E3F2FD" />
+
+
+            <!-- LOGOUT -->
+
+            <Button
+                android:id="@+id/btnAdminProfileLogout"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="30dp"
+                android:text="Logout"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#D32F2F" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
