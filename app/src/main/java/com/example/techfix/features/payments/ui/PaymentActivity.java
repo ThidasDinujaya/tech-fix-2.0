@@ -1,0 +1,111 @@
+package com.example.techfix.features.payments.ui;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.techfix.R;
+import com.example.techfix.features.payments.viewmodel.PaymentViewModel;
+import com.google.android.material.textfield.TextInputEditText;
+
+public class PaymentActivity extends AppCompatActivity {
+
+    private TextView tvBookingId, tvServiceName, tvAmount;
+    private RadioGroup rgPaymentMethod;
+    private RadioButton rbCard;
+    private LinearLayout layoutCardDetails;
+    private TextInputEditText etCardNumber, etExpiryDate, etCvv;
+    private Button btnPayNow;
+
+    private PaymentViewModel viewModel;
+    private int bookingId;
+    private double amount = 2500.00; // Default demo amount
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_payment);
+
+        bookingId = getIntent().getIntExtra("booking_id", -1);
+
+        initViews();
+        setupListeners();
+        setupViewModel();
+        
+        tvBookingId.setText("Booking ID: TF" + String.format("%04d", bookingId));
+    }
+
+    private void initViews() {
+        tvBookingId = findViewById(R.id.tvBookingId);
+        tvServiceName = findViewById(R.id.tvServiceName);
+        tvAmount = findViewById(R.id.tvAmount);
+        rgPaymentMethod = findViewById(R.id.rgPaymentMethod);
+        rbCard = findViewById(R.id.rbCard);
+        layoutCardDetails = findViewById(R.id.layoutCardDetails);
+        etCardNumber = findViewById(R.id.etCardNumber);
+        etExpiryDate = findViewById(R.id.etExpiryDate);
+        etCvv = findViewById(R.id.etCvv);
+        btnPayNow = findViewById(R.id.btnPayNow);
+
+        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
+    }
+
+    private void setupListeners() {
+        rgPaymentMethod.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbCard) {
+                layoutCardDetails.setVisibility(View.VISIBLE);
+            } else {
+                layoutCardDetails.setVisibility(View.GONE);
+            }
+        });
+
+        btnPayNow.setOnClickListener(v -> processPayment());
+    }
+
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this).get(PaymentViewModel.class);
+
+        viewModel.getPaymentSuccess().observe(this, success -> {
+            if (Boolean.TRUE.equals(success)) {
+                showSuccessDialog();
+            }
+        });
+
+        viewModel.getErrorMessage().observe(this, error -> {
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void processPayment() {
+        String method = "Cash";
+        if (rbCard.isChecked()) {
+            method = "Card";
+        } else if (findViewById(R.id.rbTransfer).getId() == rgPaymentMethod.getCheckedRadioButtonId()) {
+            method = "Online Transfer";
+        }
+
+        String cardNumber = etCardNumber.getText().toString().trim();
+        String expiry = etExpiryDate.getText().toString().trim();
+        String cvv = etCvv.getText().toString().trim();
+
+        viewModel.processPayment(bookingId, amount, method, cardNumber, expiry, cvv);
+    }
+
+    private void showSuccessDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Payment Successful!")
+                .setMessage("Thank you for your payment. Your receipt has been generated.")
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+}

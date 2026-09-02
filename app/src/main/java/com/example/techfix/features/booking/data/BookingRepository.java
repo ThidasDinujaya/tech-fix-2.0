@@ -75,26 +75,88 @@ public class BookingRepository {
     public List<Booking> getBookingsByStatus(String status) {
         List<Booking> bookingList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, DatabaseHelper.COL_BOOKING_STATUS + "=?", 
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, DatabaseHelper.COL_BOOKING_STATUS + "=?",
                 new String[]{status}, null, null, DatabaseHelper.COL_BOOKING_ID + " DESC");
-        
+
         if (cursor.moveToFirst()) {
             do {
-                bookingList.add(new Booking(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DEVICE_TYPE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRAND)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
-                ));
+                bookingList.add(mapCursorToBooking(cursor));
             } while (cursor.moveToNext());
         }
         cursor.close();
         return bookingList;
+    }
+
+    // Fetches bookings for a specific user
+    public List<Booking> getBookingsByUser(int userId) {
+        List<Booking> bookingList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, DatabaseHelper.COL_BOOKING_USER_ID + "=?",
+                new String[]{String.valueOf(userId)}, null, null, DatabaseHelper.COL_BOOKING_ID + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                bookingList.add(mapCursorToBooking(cursor));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bookingList;
+    }
+
+    // Fetches bookings for a specific user and status
+    public List<Booking> getBookingsByUserAndStatus(int userId, String[] statuses) {
+        List<Booking> bookingList = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        
+        StringBuilder selection = new StringBuilder(DatabaseHelper.COL_BOOKING_USER_ID + "=? AND " + DatabaseHelper.COL_BOOKING_STATUS + " IN (");
+        String[] selectionArgs = new String[statuses.length + 1];
+        selectionArgs[0] = String.valueOf(userId);
+        for (int i = 0; i < statuses.length; i++) {
+            selection.append("?");
+            if (i < statuses.length - 1) selection.append(",");
+            selectionArgs[i + 1] = statuses[i];
+        }
+        selection.append(")");
+
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, selection.toString(),
+                selectionArgs, null, null, DatabaseHelper.COL_BOOKING_ID + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                bookingList.add(mapCursorToBooking(cursor));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bookingList;
+    }
+
+    // Fetches a single booking by its ID
+    public Booking getBookingById(int bookingId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, null, DatabaseHelper.COL_BOOKING_ID + "=?",
+                new String[]{String.valueOf(bookingId)}, null, null, null);
+
+        Booking booking = null;
+        if (cursor.moveToFirst()) {
+            booking = mapCursorToBooking(cursor);
+        }
+        cursor.close();
+        return booking;
+    }
+
+    // Helper method to map a cursor row to a Booking object
+    private Booking mapCursorToBooking(Cursor cursor) {
+        return new Booking(
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DEVICE_TYPE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRAND)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
+        );
     }
 }

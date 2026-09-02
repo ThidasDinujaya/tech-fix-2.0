@@ -303,14 +303,9 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navMyRepairs.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "My Repairs",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Member 4 activity can be connected later.
+            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -319,12 +314,9 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navHistory.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Repair History",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -369,16 +361,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         menuCustomerRepairs.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "My Repairs",
-                    Toast.LENGTH_SHORT
-            ).show();
+            customerDrawerLayout.closeDrawer(Gravity.START);
+            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -387,16 +373,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         menuCustomerHistory.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Repair History",
-                    Toast.LENGTH_SHORT
-            ).show();
+            customerDrawerLayout.closeDrawer(Gravity.START);
+            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
