@@ -1,14 +1,13 @@
-package com.example.management_new.Activity;
+package com.example.techfix.features.branches.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.management_new.R;
-import com.example.management_new.Adapter.BranchAdapter;
-import com.example.management_new.Database.DatabaseHelper;
-import com.example.management_new.model.Branch;
+import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.branches.data.Branch;
 
 import java.util.List;
 

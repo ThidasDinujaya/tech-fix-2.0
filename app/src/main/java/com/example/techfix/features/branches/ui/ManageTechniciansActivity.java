@@ -1,4 +1,4 @@
-package com.example.management_new.Activity;
+package com.example.techfix.features.branches.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,10 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.management_new.Adapter.TechnicianAdapter;
-import com.example.management_new.Database.DatabaseHelper;
-import com.example.management_new.R;
-import com.example.management_new.model.Technician;
+import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.branches.data.Technician;
 
 import java.util.List;
 

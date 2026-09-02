@@ -1,4 +1,4 @@
-package com.example.management_new.Adapter;
+package com.example.techfix.features.branches.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.example.management_new.R;
-import com.example.management_new.model.SparePart;
+import com.example.techfix.R;
+import com.example.techfix.features.branches.data.SparePart;
 
 import java.util.List;
 

@@ -29,10 +29,10 @@
         </activity>
 
         <!-- Branch management -->
-        <activity android:name=".Activity.BranchesActivity" />
-        <activity android:name=".Activity.ManageSparePartsActivity" />
-        <activity android:name=".Activity.ManageTechniciansActivity" />
-        <activity android:name=".Activity.MapNearestBranchActivity" />
+        <activity android:name=".features.branches.ui.BranchesActivity" />
+        <activity android:name=".features.branches.ui.ManageSparePartsActivity" />
+        <activity android:name=".features.branches.ui.ManageTechniciansActivity" />
+        <activity android:name=".features.branches.ui.MapNearestBranchActivity" />
 
         <!-- Authentication -->
         <activity
@@ -75,6 +75,10 @@
 
         <activity
             android:name=".features.services.ui.ServiceDetailsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.identity.AdminDashboardActivity"
             android:exported="false" />
 
         <!-- Booking -->

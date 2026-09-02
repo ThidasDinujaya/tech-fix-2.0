@@ -1,4 +1,4 @@
-package com.example.management_new.Adapter;
+package com.example.techfix.features.branches.ui;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.example.management_new.R;
-import com.example.management_new.model.Technician;
+import com.example.techfix.R;
+import com.example.techfix.features.branches.data.Technician;
 
 import java.util.List;
 
