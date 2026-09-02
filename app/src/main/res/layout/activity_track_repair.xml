@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginStart="-20dp"
+            android:layout_marginEnd="-20dp"
+            app:title="Track Repair"
+            app:titleTextColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tvBookingId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Booking ID\nTF1024"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvServiceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Screen Repair"
+            android:textColor="@color/gray_700"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20 May 2024 • 10:00 AM"
+            android:textColor="@color/gray_700" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Repair Progress"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Timeline -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical">
+
+            <!-- Step 1: Submitted -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepSubmitted" />
+
+            <!-- Step 2: Assigned -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepAssigned" />
+
+            <!-- Step 3: Received -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepReceived" />
+
+            <!-- Step 4: Repairing -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepRepairing" />
+
+            <!-- Step 5: Ready -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepReady" />
+
+            <!-- Step 6: Completed -->
+            <include layout="@layout/item_timeline_step"
+                android:id="@+id/stepCompleted" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnPayNow"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/brand_blue"
+            android:text="Pay Now"
+            android:visibility="gone"
+            app:cornerRadius="8dp" />
+
+    </LinearLayout>
+</ScrollView>
