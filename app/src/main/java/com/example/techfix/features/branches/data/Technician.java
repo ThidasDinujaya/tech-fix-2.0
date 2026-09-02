@@ -1,4 +1,4 @@
-package com.example.management_new.model;
+package com.example.techfix.features.branches.data;
 
 public class Technician {
     private int id;
