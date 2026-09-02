@@ -1,0 +1,142 @@
+package com.example.techfix.features.booking.ui;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.techfix.R;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingStatus;
+import com.example.techfix.features.booking.viewmodel.TrackRepairViewModel;
+import com.example.techfix.features.payments.ui.PaymentActivity;
+
+public class TrackRepairActivity extends AppCompatActivity {
+
+    private TextView tvBookingId, tvServiceName, tvDate;
+    private View stepSubmitted, stepAssigned, stepReceived, stepRepairing, stepReady, stepCompleted;
+    private Button btnPayNow;
+    private TrackRepairViewModel viewModel;
+    private int bookingId;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_track_repair);
+
+        int bookingId = getIntent().getIntExtra("booking_id", -1);
+        this.bookingId = bookingId;
+
+        initViews();
+        setupViewModel(bookingId);
+    }
+
+    private void initViews() {
+        tvBookingId = findViewById(R.id.tvBookingId);
+        tvServiceName = findViewById(R.id.tvServiceName);
+        tvDate = findViewById(R.id.tvDate);
+        btnPayNow = findViewById(R.id.btnPayNow);
+
+        stepSubmitted = findViewById(R.id.stepSubmitted);
+        stepAssigned = findViewById(R.id.stepAssigned);
+        stepReceived = findViewById(R.id.stepReceived);
+        stepRepairing = findViewById(R.id.stepRepairing);
+        stepReady = findViewById(R.id.stepReady);
+        stepCompleted = findViewById(R.id.stepCompleted);
+
+        setupStep(stepSubmitted, "Booking Submitted");
+        setupStep(stepAssigned, "Technician Assigned");
+        setupStep(stepReceived, "Device Received");
+        setupStep(stepRepairing, "Repairing");
+        setupStep(stepReady, "Ready for Collection");
+        setupStep(stepCompleted, "Completed");
+
+        btnPayNow.setOnClickListener(v -> {
+            Intent intent = new Intent(TrackRepairActivity.this, PaymentActivity.class);
+            intent.putExtra("booking_id", bookingId);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
+    }
+
+    private void setupStep(View view, String title) {
+        TextView tvTitle = view.findViewById(R.id.tvStepTitle);
+        tvTitle.setText(title);
+    }
+
+    private void setupViewModel(int bookingId) {
+        viewModel = new ViewModelProvider(this).get(TrackRepairViewModel.class);
+        viewModel.loadBooking(bookingId);
+        viewModel.getBookingDetails().observe(this, this::updateUI);
+    }
+
+    private void updateUI(Booking booking) {
+        if (booking == null) return;
+
+        tvBookingId.setText("Booking ID\nTF" + String.format("%04d", booking.getId()));
+        tvServiceName.setText("Repair Service");
+        tvDate.setText(booking.getAppointmentDate());
+
+        if (BookingStatus.READY.equals(booking.getStatus()) || BookingStatus.COMPLETED.equals(booking.getStatus())) {
+            btnPayNow.setVisibility(View.VISIBLE);
+        } else {
+            btnPayNow.setVisibility(View.GONE);
+        }
+
+        updateTimeline(booking.getStatus());
+    }
+
+    private void updateTimeline(String status) {
+        // Reset all
+        resetStep(stepSubmitted);
+        resetStep(stepAssigned);
+        resetStep(stepReceived);
+        resetStep(stepRepairing);
+        resetStep(stepReady);
+        resetStep(stepCompleted);
+
+        // Highlight based on status
+        setStepActive(stepSubmitted); // Always active if it exists
+        
+        if (BookingStatus.ASSIGNED.equals(status) || BookingStatus.REPAIRING.equals(status) || 
+            BookingStatus.READY.equals(status) || BookingStatus.COMPLETED.equals(status)) {
+            setStepActive(stepAssigned);
+        }
+        
+        if (BookingStatus.REPAIRING.equals(status) || BookingStatus.READY.equals(status) || 
+            BookingStatus.COMPLETED.equals(status)) {
+            setStepActive(stepReceived);
+            setStepActive(stepRepairing);
+        }
+        
+        if (BookingStatus.READY.equals(status) || BookingStatus.COMPLETED.equals(status)) {
+            setStepActive(stepReady);
+        }
+        
+        if (BookingStatus.COMPLETED.equals(status)) {
+            setStepActive(stepCompleted);
+        }
+    }
+
+    private void setStepActive(View view) {
+        ImageView iv = view.findViewById(R.id.ivIndicator);
+        iv.setImageResource(android.R.drawable.checkbox_on_background);
+        iv.setColorFilter(getResources().getColor(R.color.brand_blue));
+        
+        View line = view.findViewById(R.id.viewLine);
+        line.setBackgroundColor(getResources().getColor(R.color.brand_blue));
+    }
+
+    private void resetStep(View view) {
+        ImageView iv = view.findViewById(R.id.ivIndicator);
+        iv.setImageResource(android.R.drawable.checkbox_off_background);
+        iv.setColorFilter(getResources().getColor(R.color.gray_400));
+        
+        View line = view.findViewById(R.id.viewLine);
+        line.setBackgroundColor(getResources().getColor(R.color.gray_400));
+    }
+}

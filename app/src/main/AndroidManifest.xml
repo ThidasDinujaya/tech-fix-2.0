@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions required for location & maps -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,25 +13,79 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Managementnew">
+        android:theme="@style/Theme.TechFix">
 
-
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".features.auth.data.SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Registered Activities -->
+        <!-- Branch management -->
         <activity android:name=".Activity.BranchesActivity" />
         <activity android:name=".Activity.ManageSparePartsActivity" />
         <activity android:name=".Activity.ManageTechniciansActivity" />
         <activity android:name=".Activity.MapNearestBranchActivity" />
+
+        <!-- Authentication -->
+        <activity
+            android:name=".features.auth.data.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.auth.data.RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.auth.data.CustomerHomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.auth.data.ProfileActivity"
+            android:exported="false" />
+
+        <!-- Admin -->
+        <activity
+            android:name=".features.admin.data.AdminLoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.admin.data.AdminDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.admin.data.AdminProfileActivity"
+            android:exported="false" />
+
+        <!-- Services -->
+        <activity
+            android:name=".features.services.ui.ServicesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.services.ui.ServiceDetailsActivity"
+            android:exported="false" />
+
+        <!-- Booking -->
+        <activity
+            android:name=".features.booking.ui.BookRepairActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".features.booking.ui.AdminManageBookingsActivity"
+            android:exported="false" />
 
     </application>
 
