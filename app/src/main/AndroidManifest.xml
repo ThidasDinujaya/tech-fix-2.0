@@ -19,6 +19,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
+        <!-- Application Entry Point (Phase 1) -->
         <activity
             android:name=".features.auth.data.SplashActivity"
             android:exported="true">
@@ -28,68 +29,31 @@
             </intent-filter>
         </activity>
 
-        <!-- Branch management -->
+        <!-- Authentication & User Management (Dimalya) -->
+        <activity android:name=".features.auth.data.LoginActivity" android:exported="false" />
+        <activity android:name=".features.auth.data.RegisterActivity" android:exported="false" />
+        <activity android:name=".features.auth.data.CustomerHomeActivity" android:exported="false" />
+        <activity android:name=".features.auth.data.ProfileActivity" android:exported="false" />
+        <activity android:name=".features.admin.data.AdminLoginActivity" android:exported="false" />
+        <activity android:name=".features.admin.data.AdminDashboardActivity" android:exported="false" />
+        <activity android:name=".features.admin.data.AdminProfileActivity" android:exported="false" />
+
+        <!-- Services (Thidas) -->
+        <activity android:name=".features.services.ui.ServicesActivity" android:exported="false" />
+        <activity android:name=".features.services.ui.ServiceDetailsActivity" android:exported="false" />
+
+        <!-- Booking & Requests (Thidas) -->
+        <activity android:name=".features.booking.ui.BookRepairActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".features.booking.ui.AdminManageBookingsActivity" android:exported="false" />
+
+        <!-- Branch Management & Resources (Stephani) -->
         <activity android:name=".features.branches.ui.BranchesActivity" />
         <activity android:name=".features.branches.ui.ManageSparePartsActivity" />
         <activity android:name=".features.branches.ui.ManageTechniciansActivity" />
         <activity android:name=".features.branches.ui.MapNearestBranchActivity" />
 
-        <!-- Authentication -->
-        <activity
-            android:name=".features.auth.data.LoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.auth.data.RegisterActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.auth.data.CustomerHomeActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.auth.data.ProfileActivity"
-            android:exported="false" />
-
-        <!-- Admin -->
-        <activity
-            android:name=".features.admin.data.AdminLoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.admin.data.AdminDashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.admin.data.AdminProfileActivity"
-            android:exported="false" />
-
-        <!-- Services -->
-        <activity
-            android:name=".features.services.ui.ServicesActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.services.ui.ServiceDetailsActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".features.identity.AdminDashboardActivity"
-            android:exported="false" />
-
-        <!-- Booking -->
-        <activity
-            android:name=".features.booking.ui.BookRepairActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".features.booking.ui.AdminManageBookingsActivity"
-            android:exported="false" />
+        <!-- Root Support (Leader) -->
+        <activity android:name=".MainActivity" android:exported="false" />
 
     </application>
 

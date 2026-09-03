@@ -36,6 +36,13 @@ android {
     }
 }
 
+secrets {
+    // This allows you to put your API keys in either file.
+    // It will check secrets.properties first, then local.properties.
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.properties"
+}
+
 dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
