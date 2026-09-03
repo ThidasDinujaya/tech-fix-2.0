@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
+import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.auth.data.LoginActivity;
 
 public class AdminLoginActivity extends AppCompatActivity {
@@ -29,6 +30,7 @@ public class AdminLoginActivity extends AppCompatActivity {
     private static final String KEY_ADMIN_PASSWORD = "ADMIN_PASSWORD";
 
     private SharedPreferences sharedPreferences;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class AdminLoginActivity extends AppCompatActivity {
                 PREF_NAME,
                 MODE_PRIVATE
         );
+        sessionManager = new SessionManager(this);
 
         edtAdminEmail = findViewById(R.id.edtAdminEmail);
         edtAdminPassword = findViewById(R.id.edtAdminPassword);
@@ -120,6 +123,9 @@ public class AdminLoginActivity extends AppCompatActivity {
 
         if (email.equals(ADMIN_EMAIL)
                 && password.equals(savedPassword)) {
+
+            // Save admin session
+            sessionManager.createSession(email, SessionManager.ROLE_ADMIN);
 
             Toast.makeText(
                     AdminLoginActivity.this,
