@@ -15,6 +15,10 @@ import androidx.core.view.GravityCompat;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.booking.ui.MyBookingsActivity;
+import com.example.techfix.features.booking.ui.RepairHistoryActivity;
+import com.example.techfix.features.branches.ui.BranchesActivity;
+import com.example.techfix.features.services.ui.ServicesActivity;
 
 public class CustomerHomeActivity extends AppCompatActivity {
 
@@ -217,14 +221,9 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         txtViewAll.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "View All Services",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Member 2 can connect ServicesActivity later.
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -233,12 +232,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardPhoneRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Phone Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Phone");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -247,12 +244,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardLaptopRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Laptop Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Laptop");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -261,12 +256,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardDesktopRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Desktop Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Desktop");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -275,12 +268,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardTabletRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Tablet Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Tablet");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -303,7 +294,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navMyRepairs.setOnClickListener(v -> {
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
+            Intent intent = new Intent(CustomerHomeActivity.this, MyBookingsActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
             startActivity(intent);
         });
@@ -314,7 +305,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
+            Intent intent = new Intent(CustomerHomeActivity.this, RepairHistoryActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
             startActivity(intent);
         });
@@ -362,7 +353,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         menuCustomerRepairs.setOnClickListener(v -> {
             customerDrawerLayout.closeDrawer(Gravity.START);
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
+            Intent intent = new Intent(CustomerHomeActivity.this, MyBookingsActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
             startActivity(intent);
         });
@@ -374,7 +365,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         menuCustomerHistory.setOnClickListener(v -> {
             customerDrawerLayout.closeDrawer(Gravity.START);
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
+            Intent intent = new Intent(CustomerHomeActivity.this, RepairHistoryActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
             startActivity(intent);
         });
@@ -385,18 +376,9 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         menuCustomerBranches.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Branches",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Member 3 can connect BranchActivity later.
+            customerDrawerLayout.closeDrawer(Gravity.START);
+            Intent intent = new Intent(CustomerHomeActivity.this, BranchesActivity.class);
+            startActivity(intent);
         });
 
 

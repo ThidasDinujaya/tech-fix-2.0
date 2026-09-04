@@ -13,6 +13,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.techfix.R;
 import com.example.techfix.features.auth.data.LoginActivity;
+import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
+import com.example.techfix.features.branches.ui.BranchesActivity;
+import com.example.techfix.features.branches.ui.ManageSparePartsActivity;
+import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
+import com.example.techfix.features.payments.ui.PaymentActivity;
+import com.example.techfix.features.services.ui.ServicesActivity;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
@@ -130,79 +136,48 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // QUICK ACCESS - BOOKINGS
         // =========================
         cardBookings.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Bookings",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Later:
-            // Intent intent = new Intent(
-            //        AdminDashboardActivity.this,
-            //        ManageBookingsActivity.class
-            // );
-            // startActivity(intent);
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminManageBookingsActivity.class);
+            startActivity(intent);
         });
 
         // =========================
         // QUICK ACCESS - SERVICES
         // =========================
         cardServices.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Services",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, ServicesActivity.class);
+            startActivity(intent);
         });
 
         // =========================
         // QUICK ACCESS - TECHNICIANS
         // =========================
         cardTechnicians.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Technicians",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, ManageTechniciansActivity.class);
+            startActivity(intent);
         });
 
         // =========================
         // QUICK ACCESS - PARTS
         // =========================
         cardParts.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Spare Parts",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, ManageSparePartsActivity.class);
+            startActivity(intent);
         });
 
         // =========================
         // QUICK ACCESS - BRANCHES
         // =========================
         cardBranches.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Branches",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, BranchesActivity.class);
+            startActivity(intent);
         });
 
         // =========================
         // QUICK ACCESS - PAYMENTS
         // =========================
         cardPayments.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    AdminDashboardActivity.this,
-                    "Manage Payments",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, PaymentActivity.class);
+            startActivity(intent);
         });
 
         // =========================

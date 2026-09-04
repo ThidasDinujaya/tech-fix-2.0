@@ -42,15 +42,21 @@
         <activity android:name=".features.services.ui.ServicesActivity" android:exported="false" />
         <activity android:name=".features.services.ui.ServiceDetailsActivity" android:exported="false" />
 
-        <!-- Booking & Requests (Thidas) -->
+        <!-- Booking & Requests (Thidas & Vinu) -->
         <activity android:name=".features.booking.ui.BookRepairActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".features.booking.ui.AdminManageBookingsActivity" android:exported="false" />
+        <activity android:name=".features.booking.ui.MyBookingsActivity" android:exported="false" />
+        <activity android:name=".features.booking.ui.RepairHistoryActivity" android:exported="false" />
+        <activity android:name=".features.booking.ui.TrackRepairActivity" android:exported="false" />
+
+        <!-- Payments (Vinu) -->
+        <activity android:name=".features.payments.ui.PaymentActivity" android:exported="false" />
 
         <!-- Branch Management & Resources (Stephani) -->
-        <activity android:name=".features.branches.ui.BranchesActivity" />
-        <activity android:name=".features.branches.ui.ManageSparePartsActivity" />
-        <activity android:name=".features.branches.ui.ManageTechniciansActivity" />
-        <activity android:name=".features.branches.ui.MapNearestBranchActivity" />
+        <activity android:name=".features.branches.ui.BranchesActivity" android:exported="false" />
+        <activity android:name=".features.branches.ui.ManageSparePartsActivity" android:exported="false" />
+        <activity android:name=".features.branches.ui.ManageTechniciansActivity" android:exported="false" />
+        <activity android:name=".features.branches.ui.MapNearestBranchActivity" android:exported="false" />
 
         <!-- Root Support (Leader) -->
         <activity android:name=".MainActivity" android:exported="false" />

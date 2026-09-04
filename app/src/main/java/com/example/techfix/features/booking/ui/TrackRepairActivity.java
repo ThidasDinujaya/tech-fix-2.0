@@ -59,8 +59,6 @@ public class TrackRepairActivity extends AppCompatActivity {
             intent.putExtra("booking_id", bookingId);
             startActivity(intent);
         });
-
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
     }
 
     private void setupStep(View view, String title) {

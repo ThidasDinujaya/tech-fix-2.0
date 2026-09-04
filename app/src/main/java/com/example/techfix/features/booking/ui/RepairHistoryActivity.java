@@ -37,7 +37,6 @@ public class RepairHistoryActivity extends AppCompatActivity {
     private void initViews() {
         rvHistory = findViewById(R.id.rvHistory);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
     }
 
     private void setupRecyclerView() {

@@ -53,8 +53,6 @@ public class PaymentActivity extends AppCompatActivity {
         etExpiryDate = findViewById(R.id.etExpiryDate);
         etCvv = findViewById(R.id.etCvv);
         btnPayNow = findViewById(R.id.btnPayNow);
-
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
     }
 
     private void setupListeners() {

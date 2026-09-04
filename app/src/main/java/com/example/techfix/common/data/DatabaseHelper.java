@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 11;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -126,6 +126,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 9) {
             createBranchManagementTables(db);
         }
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Drop all tables and recreate them if a downgrade is requested
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
+        onCreate(db);
     }
 
     private void createBranchManagementTables(SQLiteDatabase db) {

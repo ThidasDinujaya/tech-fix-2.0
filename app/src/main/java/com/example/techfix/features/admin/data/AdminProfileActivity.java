@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,8 +18,7 @@ import com.example.techfix.R;
 
 public class AdminProfileActivity extends AppCompatActivity {
 
-    private TextView btnBackAdminProfile;
-
+    private ImageView btnBackAdminProfile;
     private EditText edtAdminName;
     private EditText edtAdminProfileEmail;
     private EditText edtAdminPhone;
@@ -84,9 +84,7 @@ public class AdminProfileActivity extends AppCompatActivity {
 
         loadAdminProfile();
 
-        btnBackAdminProfile.setOnClickListener(v ->
-                finish()
-        );
+        btnBackAdminProfile.setOnClickListener(v -> finish());
 
         btnUpdateAdminProfile.setOnClickListener(v ->
                 updateAdminProfile()
