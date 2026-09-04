@@ -17,10 +17,10 @@ public class ServicesViewModel extends AndroidViewModel {
         super(application);
     }
 
-    // Fetches the services list from the repository in a background thread
-    public void loadServices() {
+    // Fetches the services list from the repository in a background thread with category filter
+    public void loadServices(String category) {
         new Thread(() -> {
-            List<Service> result = ServiceRepository.getInstance(getApplication()).getAllServices();
+            List<Service> result = ServiceRepository.getInstance(getApplication()).getServicesByCategory(category);
             // Use postValue to update the LiveData from a background thread
             services.postValue(result);
         }).start();

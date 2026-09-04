@@ -1,7 +1,8 @@
 package com.example.techfix.features.services.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,19 +11,31 @@ import com.example.techfix.R;
 import com.example.techfix.features.services.ServiceAdapter;
 import com.example.techfix.features.services.viewmodel.ServicesViewModel;
 
-// Screen that displays the list of repair services
+import java.util.ArrayList;
+
+// Screen that displays the list of repair services filtered by category
 public class ServicesActivity extends AppCompatActivity {
 
     private ServicesViewModel viewModel;
     private ServiceAdapter adapter;
+    private String category;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_services);
 
+        category = getIntent().getStringExtra("CATEGORY");
+        updateTitle();
         setupRecyclerView();
         setupViewModel();
+    }
+
+    private void updateTitle() {
+        TextView tvTitle = findViewById(R.id.toolbarServices).findViewById(R.id.tvToolbarTitle);
+        if (tvTitle != null && category != null) {
+            tvTitle.setText(category + " Services");
+        }
     }
 
     // Configures the list layout and click behavior
@@ -30,9 +43,9 @@ public class ServicesActivity extends AppCompatActivity {
         RecyclerView rv = findViewById(R.id.rvServices);
         rv.setLayoutManager(new LinearLayoutManager(this));
         
-        adapter = new ServiceAdapter(new java.util.ArrayList<>(), service -> {
+        adapter = new ServiceAdapter(new ArrayList<>(), service -> {
             // Opens the detailed view for the selected service
-            android.content.Intent intent = new android.content.Intent(this, ServiceDetailsActivity.class);
+            Intent intent = new Intent(this, ServiceDetailsActivity.class);
             intent.putExtra("service_data", service);
             startActivity(intent);
         });
@@ -45,10 +58,9 @@ public class ServicesActivity extends AppCompatActivity {
         
         // Observe the services list and update the adapter when it changes
         viewModel.getServices().observe(this, services -> {
-            android.util.Log.d("ServicesActivity", "Observer received " + (services != null ? services.size() : "null") + " items");
             if (services != null) {
                 adapter = new ServiceAdapter(services, service -> {
-                    android.content.Intent intent = new android.content.Intent(this, ServiceDetailsActivity.class);
+                    Intent intent = new Intent(this, ServiceDetailsActivity.class);
                     intent.putExtra("service_data", service);
                     startActivity(intent);
                 });
@@ -59,6 +71,6 @@ public class ServicesActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.loadServices();
+        viewModel.loadServices(category);
     }
 }

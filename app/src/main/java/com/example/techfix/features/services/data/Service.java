@@ -9,16 +9,18 @@ public class Service implements Serializable {
     private String description;
     private double price;
     private String warranty;
-    private String imageUrl; // Changed from iconResId to imageUrl
+    private String imageUrl;
+    private String category; // Added category field
 
-    // Initializes the service with all required details including a web image URL
-    public Service(int id, String name, String description, double price, String warranty, String imageUrl) {
+    // Initializes the service with all required details
+    public Service(int id, String name, String description, double price, String warranty, String imageUrl, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.warranty = warranty;
         this.imageUrl = imageUrl;
+        this.category = category;
     }
 
     // Getters
@@ -28,6 +30,7 @@ public class Service implements Serializable {
     public double getPrice() { return price; }
     public String getWarranty() { return warranty; }
     public String getImageUrl() { return imageUrl; }
+    public String getCategory() { return category; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -36,4 +39,5 @@ public class Service implements Serializable {
     public void setPrice(double price) { this.price = price; }
     public void setWarranty(String warranty) { this.warranty = warranty; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setCategory(String category) { this.category = category; }
 }

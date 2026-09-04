@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 13;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -32,6 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_SERVICE_PRICE = "price";
     public static final String COL_SERVICE_WARRANTY = "warranty";
     public static final String COL_SERVICE_IMAGE = "image_url";
+    public static final String COL_SERVICE_CATEGORY = "category";
 
     public static final String TABLE_BOOKINGS = "bookings";
     public static final String COL_BOOKING_ID = "id";
@@ -90,7 +91,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_SERVICE_DESC + " TEXT, " +
                 COL_SERVICE_PRICE + " REAL, " +
                 COL_SERVICE_WARRANTY + " TEXT, " +
-                COL_SERVICE_IMAGE + " TEXT)";
+                COL_SERVICE_IMAGE + " TEXT, " +
+                COL_SERVICE_CATEGORY + " TEXT)";
 
         String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS + " (" +
                 COL_BOOKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -123,9 +125,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 9) {
-            createBranchManagementTables(db);
-        }
+        // Drop old tables to ensure the new schema and mock data are applied
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
+        onCreate(db);
     }
 
     @Override
