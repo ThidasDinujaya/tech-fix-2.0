@@ -3,25 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA">
+    android:background="@color/bg_light">
 
     <!-- Top Action Bar -->
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#0D6EFD"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp">
+        android:layout_height="80dp"
+        android:background="@color/brand_blue"
+        android:paddingTop="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:text="Nearest Branch"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:textSize="20sp"
             android:textStyle="bold" />
-    </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <!-- Location Search Bar -->
     <LinearLayout
@@ -31,7 +32,7 @@
         android:layout_below="@id/topBar"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="#FFFFFF"
+        android:background="@color/white"
         android:elevation="4dp">
 
         <EditText
@@ -48,10 +49,10 @@
             android:id="@+id/btnSearchLocation"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:backgroundTint="#0D6EFD"
+            android:backgroundTint="@color/brand_blue"
             android:text="Search"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <!-- Google Map View -->
@@ -103,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="0.0 km away"
-                    android:textColor="#0D6EFD"
+                    android:textColor="@color/brand_blue"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -114,10 +115,10 @@
             android:id="@+id/btnGetLocation"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:backgroundTint="#0D6EFD"
+            android:backgroundTint="@color/brand_blue"
             android:text="Get My GPS Location"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="16sp" />
     </LinearLayout>
 

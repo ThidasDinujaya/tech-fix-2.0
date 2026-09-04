@@ -219,7 +219,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
 
         // =====================================
-        // BOTTOM - MY REPAIRS
+        // BOTTOM - REPAIRS
         // =====================================
 
         navMyRepairs.setOnClickListener(v -> {

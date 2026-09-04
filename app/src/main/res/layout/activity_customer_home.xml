@@ -2,42 +2,49 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F7F9FC">
+    android:background="@color/bg_light">
 
     <!-- BLUE HEADER -->
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarHome"
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="#0867D9"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp">
+        android:layout_height="80dp"
+        android:background="@color/brand_blue"
+        android:paddingTop="20dp"
+        app:contentInsetStart="0dp">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TechFix"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginStart="30dp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="18dp">
 
-        <ImageView
-            android:id="@+id/imgCustomerNotification"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_notification"
-            android:padding="4dp"
-            android:contentDescription="Notifications" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="TechFix"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/imgCustomerNotification"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_notification"
+                android:padding="4dp"
+                android:contentDescription="Notifications" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
 
     <!-- MAIN CONTENT -->
@@ -61,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hello, Customer 👋"
-                android:textColor="#14213D"
+                android:textColor="@color/brand_blue_dark"
                 android:textSize="23sp"
                 android:textStyle="bold" />
 
@@ -69,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="What can we fix for you today?"
-                android:textColor="#666666"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:layout_marginTop="4dp" />
 
@@ -106,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Quick Services"
-                    android:textColor="#14213D"
+                    android:textColor="@color/brand_blue_dark"
                     android:textSize="19sp"
                     android:textStyle="bold" />
 
@@ -115,7 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="View All"
-                    android:textColor="#0867D9"
+                    android:textColor="@color/brand_blue"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:padding="5dp" />
@@ -153,7 +160,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Phone Repair"
-                        android:textColor="#14213D"
+                        android:textColor="@color/brand_blue_dark"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginTop="8dp" />
@@ -187,7 +194,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Laptop Repair"
-                        android:textColor="#14213D"
+                        android:textColor="@color/brand_blue_dark"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginTop="8dp" />
@@ -228,7 +235,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Desktop Repair"
-                        android:textColor="#14213D"
+                        android:textColor="@color/brand_blue_dark"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginTop="8dp" />
@@ -262,7 +269,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tablet Repair"
-                        android:textColor="#14213D"
+                        android:textColor="@color/brand_blue_dark"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginTop="8dp" />
@@ -307,7 +314,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
-                android:textColor="#0867D9"
+                android:textColor="@color/brand_blue"
                 android:textStyle="bold"
                 android:textSize="11sp" />
 
@@ -328,13 +335,13 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:src="@drawable/ic_myrepairs"
-                android:contentDescription="My Repairs" />
+                android:contentDescription="Repairs" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Repairs"
-                android:textColor="#555555"
+                android:text="Repairs"
+                android:textColor="@color/brand_blue"
                 android:textSize="11sp" />
 
         </LinearLayout>
@@ -360,7 +367,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Branches"
-                android:textColor="#555555"
+                android:textColor="@color/brand_blue"
                 android:textSize="11sp" />
 
         </LinearLayout>
@@ -386,7 +393,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Profile"
-                android:textColor="#555555"
+                android:textColor="@color/brand_blue"
                 android:textSize="11sp" />
 
         </LinearLayout>
