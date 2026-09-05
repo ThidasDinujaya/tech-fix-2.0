@@ -131,4 +131,33 @@ public class ServiceRepository {
     public List<Service> getAllServices() {
         return getServicesByCategory(null);
     }
+
+    public boolean addService(String name, String desc, double price, String warranty, String url, String category) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_SERVICE_NAME, name);
+        values.put(DatabaseHelper.COL_SERVICE_DESC, desc);
+        values.put(DatabaseHelper.COL_SERVICE_PRICE, price);
+        values.put(DatabaseHelper.COL_SERVICE_WARRANTY, warranty);
+        values.put(DatabaseHelper.COL_SERVICE_IMAGE, url);
+        values.put(DatabaseHelper.COL_SERVICE_CATEGORY, category);
+        return db.insert(DatabaseHelper.TABLE_SERVICES, null, values) != -1;
+    }
+
+    public boolean updateService(int id, String name, String desc, double price, String warranty, String url, String category) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_SERVICE_NAME, name);
+        values.put(DatabaseHelper.COL_SERVICE_DESC, desc);
+        values.put(DatabaseHelper.COL_SERVICE_PRICE, price);
+        values.put(DatabaseHelper.COL_SERVICE_WARRANTY, warranty);
+        values.put(DatabaseHelper.COL_SERVICE_IMAGE, url);
+        values.put(DatabaseHelper.COL_SERVICE_CATEGORY, category);
+        return db.update(DatabaseHelper.TABLE_SERVICES, values, DatabaseHelper.COL_SERVICE_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteService(int id) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(DatabaseHelper.TABLE_SERVICES, DatabaseHelper.COL_SERVICE_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
 }
