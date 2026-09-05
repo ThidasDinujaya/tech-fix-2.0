@@ -35,34 +35,70 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         loadData();
 
-        findViewById(R.id.fabAddTechnician).setOnClickListener(v -> showAddTechnicianDialog());
+        findViewById(R.id.fabAddTechnician).setOnClickListener(v -> showAddEditDialog(null));
     }
 
     private void loadData() {
         technicianList = dbHelper.getAllTechnicians();
-        adapter = new TechnicianAdapter(technicianList);
+        adapter = new TechnicianAdapter(technicianList, new TechnicianAdapter.OnTechnicianActionListener() {
+            @Override
+            public void onEdit(Technician technician) {
+                showAddEditDialog(technician);
+            }
+
+            @Override
+            public void onDelete(Technician technician) {
+                new AlertDialog.Builder(ManageTechniciansActivity.this)
+                        .setTitle("Delete Technician")
+                        .setMessage("Are you sure you want to delete " + technician.getName() + "?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            if (dbHelper.deleteTechnician(technician.getId())) {
+                                loadData();
+                                Toast.makeText(ManageTechniciansActivity.this, "Technician deleted", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
         recyclerView.setAdapter(adapter);
     }
 
-    private void showAddTechnicianDialog() {
+    private void showAddEditDialog(Technician tech) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add New Technician");
+        builder.setTitle(tech == null ? "Add New Technician" : "Edit Technician");
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_technician, null);
         EditText etName = view.findViewById(R.id.etTechName);
         EditText etRole = view.findViewById(R.id.etTechRole);
         EditText etBranch = view.findViewById(R.id.etTechBranch);
 
+        if (tech != null) {
+            etName.setText(tech.getName());
+            etRole.setText(tech.getRole());
+            etBranch.setText(tech.getBranchName());
+        }
+
         builder.setView(view);
-        builder.setPositiveButton("Add", (dialog, which) -> {
+        builder.setPositiveButton(tech == null ? "Add" : "Update", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String role = etRole.getText().toString().trim();
             String branch = etBranch.getText().toString().trim();
 
             if (!name.isEmpty() && !role.isEmpty()) {
-                dbHelper.addTechnician(name, role, branch.isEmpty() ? "Colombo Branch" : branch, "Available");
-                loadData();
-                Toast.makeText(this, "Technician added successfully!", Toast.LENGTH_SHORT).show();
+                boolean success;
+                if (tech == null) {
+                    success = dbHelper.addTechnician(name, role, branch.isEmpty() ? "Colombo Branch" : branch, "Available");
+                } else {
+                    success = dbHelper.updateTechnician(tech.getId(), name, role, branch, tech.getStatus());
+                }
+
+                if (success) {
+                    loadData();
+                    Toast.makeText(this, tech == null ? "Technician added" : "Technician updated", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Name and Role are required", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);

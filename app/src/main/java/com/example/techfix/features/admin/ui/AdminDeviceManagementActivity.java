@@ -3,6 +3,7 @@ package com.example.techfix.features.admin.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import com.example.techfix.R;
 
 public class AdminDeviceManagementActivity extends AppCompatActivity {
@@ -18,6 +19,7 @@ public class AdminDeviceManagementActivity extends AppCompatActivity {
         findViewById(R.id.cardManageModels).setOnClickListener(v -> 
             startActivity(new Intent(this, AdminManageModelsActivity.class)));
             
-        findViewById(R.id.toolbarDeviceMgmt).setNavigationOnClickListener(v -> finish());
+        Toolbar toolbar = findViewById(R.id.toolbarDeviceMgmt);
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 }

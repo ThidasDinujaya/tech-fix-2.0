@@ -24,13 +24,28 @@ public class AdminManageBookingsViewModel extends AndroidViewModel {
     // Loads bookings from the database based on the selected filter
     public void fetchBookings(String filter) {
         new Thread(() -> {
-            List<List<Booking>> resultList = new java.util.ArrayList<>();
             if (filter.equals("All")) {
                 bookings.postValue(repository.getAllBookings());
             } else if (filter.equals("Pending")) {
                 bookings.postValue(repository.getBookingsByStatus(BookingStatus.PENDING));
             } else if (filter.equals("Completed")) {
                 bookings.postValue(repository.getBookingsByStatus(BookingStatus.COMPLETED));
+            }
+        }).start();
+    }
+
+    public void updateBookingStatus(int bookingId, String status, String currentFilter) {
+        new Thread(() -> {
+            if (repository.updateBookingStatus(bookingId, status)) {
+                fetchBookings(currentFilter);
+            }
+        }).start();
+    }
+
+    public void deleteBooking(int bookingId, String currentFilter) {
+        new Thread(() -> {
+            if (repository.deleteBooking(bookingId)) {
+                fetchBookings(currentFilter);
             }
         }).start();
     }

@@ -5,25 +5,25 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="10dp"
-    app:cardElevation="1dp">
+    app:cardElevation="2dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
         <ImageView
             android:id="@+id/imgAvatar"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:src="@android:drawable/ic_menu_myplaces" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/imgAvatar"
+            android:layout_weight="1"
             android:layout_marginStart="12dp"
             android:orientation="vertical">
 
@@ -33,7 +33,8 @@
                 android:layout_height="wrap_content"
                 android:text="John Perera"
                 android:textColor="#000000"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvTechRole"
@@ -50,17 +51,35 @@
                 android:text="Colombo Branch"
                 android:textColor="#999999"
                 android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvTechStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Available"
+                android:textColor="#28A745"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTechStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:text="Available"
-            android:textColor="#28A745"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+        <ImageView
+            android:id="@+id/btnEditTech"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="@color/brand_blue"
+            android:contentDescription="Edit" />
+
+        <ImageView
+            android:id="@+id/btnDeleteTech"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@color/error"
+            android:contentDescription="Delete" />
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

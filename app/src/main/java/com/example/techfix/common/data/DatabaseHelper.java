@@ -414,6 +414,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(TABLE_TECHNICIANS, null, values) != -1;
     }
 
+    public boolean updateTechnician(int id, String name, String role, String branch, String status) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_TECHNICIAN_ROLE, role);
+        values.put(COL_TECHNICIAN_BRANCH, branch);
+        values.put(COL_TECHNICIAN_STATUS, status);
+        return getWritableDatabase().update(TABLE_TECHNICIANS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteTechnician(int id) {
+        return getWritableDatabase().delete(TABLE_TECHNICIANS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
     public List<SparePart> getAllSpareParts() {
         List<SparePart> spareParts = new ArrayList<>();
         try (Cursor cursor = getReadableDatabase().query(TABLE_SPARE_PARTS, null,
@@ -427,6 +440,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return spareParts;
+    }
+
+    public boolean addSparePart(String name, int stock, double price) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_SPARE_PART_STOCK, stock);
+        values.put(COL_SPARE_PART_PRICE, price);
+        return getWritableDatabase().insert(TABLE_SPARE_PARTS, null, values) != -1;
+    }
+
+    public boolean updateSparePart(int id, String name, int stock, double price) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_SPARE_PART_STOCK, stock);
+        values.put(COL_SPARE_PART_PRICE, price);
+        return getWritableDatabase().update(TABLE_SPARE_PARTS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteSparePart(int id) {
+        return getWritableDatabase().delete(TABLE_SPARE_PARTS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean addBranch(String name, String address, String phone, String hours, double lat, double lon) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRANCH_ADDRESS, address);
+        values.put(COL_PHONE, phone);
+        values.put(COL_BRANCH_HOURS, hours);
+        values.put(COL_BRANCH_LATITUDE, lat);
+        values.put(COL_BRANCH_LONGITUDE, lon);
+        return getWritableDatabase().insert(TABLE_BRANCHES, null, values) != -1;
+    }
+
+    public boolean updateBranch(int id, String name, String address, String phone, String hours, double lat, double lon) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRANCH_ADDRESS, address);
+        values.put(COL_PHONE, phone);
+        values.put(COL_BRANCH_HOURS, hours);
+        values.put(COL_BRANCH_LATITUDE, lat);
+        values.put(COL_BRANCH_LONGITUDE, lon);
+        return getWritableDatabase().update(TABLE_BRANCHES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteBranch(int id) {
+        return getWritableDatabase().delete(TABLE_BRANCHES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
     
     // ==========================================

@@ -1,33 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/bg_light">
 
-    <!-- Top Action Bar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarSpareParts"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@color/brand_blue"
-        android:paddingTop="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Spare Parts"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-    </androidx.appcompat.widget.Toolbar>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSpareParts"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp" />
+        android:orientation="vertical">
 
-</LinearLayout>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarSpareParts"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/brand_blue"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Spare Parts"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSpareParts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddSparePart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:src="@android:drawable/ic_input_add"
+        app:tint="@color/white"
+        app:backgroundTint="@color/brand_blue"
+        android:contentDescription="Add Part" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

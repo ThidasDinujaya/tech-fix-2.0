@@ -159,4 +159,16 @@ public class BookingRepository {
                 cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
         );
     }
+
+    public boolean updateBookingStatus(int bookingId, String status) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_BOOKING_STATUS, status);
+        return db.update(DatabaseHelper.TABLE_BOOKINGS, values, DatabaseHelper.COL_BOOKING_ID + " = ?", new String[]{String.valueOf(bookingId)}) > 0;
+    }
+
+    public boolean deleteBooking(int bookingId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(DatabaseHelper.TABLE_BOOKINGS, DatabaseHelper.COL_BOOKING_ID + " = ?", new String[]{String.valueOf(bookingId)}) > 0;
+    }
 }
