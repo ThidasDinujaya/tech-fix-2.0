@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 16;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -121,6 +121,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBookingsTable);
         db.execSQL(createPaymentsTable);
         createBranchManagementTables(db);
+        populateInitialData(db);
+    }
+
+    private void populateInitialData(SQLiteDatabase db) {
+        // Populate Branches
+        insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "08:00 AM - 06:00 PM", 6.9271, 79.8612);
+        insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "08:30 AM - 05:30 PM", 7.2906, 80.6337);
+        insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "09:00 AM - 05:00 PM", 6.0367, 80.2170);
+        insertBranch(db, "Negombo Center", "78 Main Street, Negombo", "0312345678", "08:00 AM - 07:00 PM", 7.2089, 79.8355);
+
+        // Populate Technicians
+        insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
+        insertTechnician(db, "Amara Silva", "Mobile Expert", "Kandy Branch", "Busy");
+        insertTechnician(db, "John Doe", "Laptop Specialist", "Galle Fort", "Available");
+        insertTechnician(db, "Nimal Gamage", "Desktop Support", "Negombo Center", "Available");
+
+        // Populate Spare Parts
+        insertSparePart(db, "iPhone 13 Screen", 50, 15000.0);
+        insertSparePart(db, "Samsung S22 Battery", 30, 8500.0);
+        insertSparePart(db, "500GB SSD", 100, 12500.0);
+        insertSparePart(db, "8GB DDR4 RAM", 200, 7500.0);
+    }
+
+    private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String hours, double lat, double lon) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, addr);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_HOURS, hours);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        db.insert(TABLE_BRANCHES, null, v);
+    }
+
+    private void insertTechnician(SQLiteDatabase db, String name, String role, String branch, String status) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_TECHNICIAN_ROLE, role);
+        v.put(COL_TECHNICIAN_BRANCH, branch);
+        v.put(COL_TECHNICIAN_STATUS, status);
+        db.insert(TABLE_TECHNICIANS, null, v);
+    }
+
+    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_SPARE_PART_STOCK, stock);
+        v.put(COL_SPARE_PART_PRICE, price);
+        db.insert(TABLE_SPARE_PARTS, null, v);
     }
 
     @Override
