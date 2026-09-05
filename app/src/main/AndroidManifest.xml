@@ -30,17 +30,17 @@
         </activity>
 
         <!-- Authentication & User Management (Dimalya) -->
-        <activity android:name=".features.auth.data.LoginActivity" android:exported="false" />
-        <activity android:name=".features.auth.data.RegisterActivity" android:exported="false" />
+        <activity android:name=".features.auth.data.LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".features.auth.data.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".features.auth.data.CustomerHomeActivity" android:exported="false" />
-        <activity android:name=".features.auth.data.ProfileActivity" android:exported="false" />
-        <activity android:name=".features.admin.data.AdminLoginActivity" android:exported="false" />
+        <activity android:name=".features.auth.data.ProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".features.admin.data.AdminLoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".features.admin.data.AdminDashboardActivity" android:exported="false" />
-        <activity android:name=".features.admin.data.AdminProfileActivity" android:exported="false" />
+        <activity android:name=".features.admin.data.AdminProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
         <!-- Services (Thidas) -->
         <activity android:name=".features.services.ui.ServicesActivity" android:exported="false" />
-        <activity android:name=".features.services.ui.ServiceDetailsActivity" android:exported="false" />
+        <activity android:name=".features.services.ui.ServiceDetailsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
         <!-- Booking & Requests (Thidas & Vinu) -->
         <activity android:name=".features.booking.ui.BookRepairActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
@@ -50,7 +50,7 @@
         <activity android:name=".features.booking.ui.TrackRepairActivity" android:exported="false" />
 
         <!-- Payments (Vinu) -->
-        <activity android:name=".features.payments.ui.PaymentActivity" android:exported="false" />
+        <activity android:name=".features.payments.ui.PaymentActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
         <!-- Branch Management & Resources (Stephani) -->
         <activity android:name=".features.branches.ui.BranchesActivity" android:exported="false" />

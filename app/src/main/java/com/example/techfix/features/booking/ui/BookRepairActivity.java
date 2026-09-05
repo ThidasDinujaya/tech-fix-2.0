@@ -67,16 +67,16 @@ public class BookRepairActivity extends AppCompatActivity {
             autoBrand.setText(prefilledBrand);
             etModel.setText(prefilledModel);
 
-            // Disable editing for pre-filled fields to prevent errors
-            etServiceName.setEnabled(false);
-            autoDeviceType.setEnabled(false);
-            autoBrand.setEnabled(false);
-            etModel.setEnabled(false);
+            // Set pre-filled fields to Read-Only instead of Disabled to keep text color high-contrast
+            setReadOnly(etServiceName);
+            setReadOnly(autoDeviceType);
+            setReadOnly(autoBrand);
+            setReadOnly(etModel);
 
             if (prefilledQuality != null) {
                 layoutQuality.setVisibility(View.VISIBLE);
                 etQuality.setText(prefilledQuality);
-                etQuality.setEnabled(false);
+                setReadOnly(etQuality);
             }
 
             // Remove end icons for a cleaner read-only state
@@ -85,6 +85,17 @@ public class BookRepairActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.btnSubmitBooking).setOnClickListener(v -> submitForm());
+    }
+
+    private void setReadOnly(View view) {
+        view.setFocusable(false);
+        view.setClickable(false);
+        view.setLongClickable(false);
+        if (view instanceof TextInputEditText) {
+            ((TextInputEditText) view).setCursorVisible(false);
+        } else if (view instanceof AutoCompleteTextView) {
+            ((AutoCompleteTextView) view).setCursorVisible(false);
+        }
     }
 
     private void removeEndIcon(AutoCompleteTextView view) {

@@ -136,7 +136,9 @@
                 android:background="@drawable/edittext_background"
                 android:inputType="textEmailAddress"
                 android:padding="15dp"
-                android:enabled="false" />
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:textColor="@color/text_primary" />
 
 
             <!-- PHONE -->
@@ -178,7 +180,9 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/edittext_background"
                 android:padding="15dp"
-                android:enabled="false" />
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:textColor="@color/text_primary" />
 
 
             <!-- UPDATE -->

@@ -92,7 +92,9 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:padding="15dp"
-            android:enabled="false" />
+            android:focusable="false"
+            android:cursorVisible="false"
+            android:textColor="@color/text_primary" />
 
 
         <!-- Phone -->

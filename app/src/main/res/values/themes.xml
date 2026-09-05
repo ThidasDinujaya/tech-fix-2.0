@@ -2,7 +2,15 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.TechFix" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/brand_blue</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="editTextStyle">@style/AppEditTextStyle</item>
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+    </style>
+
+    <style name="AppEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/edit_text_color</item>
+        <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
     <style name="Theme.TechFix" parent="Base.Theme.TechFix" />
