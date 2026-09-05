@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -59,6 +59,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_BRANCHES = "branches";
     public static final String TABLE_TECHNICIANS = "technicians";
     public static final String TABLE_SPARE_PARTS = "spare_parts";
+    
+    public static final String TABLE_BRANDS = "brands";
+    public static final String TABLE_MODELS = "models";
+    public static final String TABLE_QUALITIES = "qualities";
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -71,6 +75,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String COL_SPARE_PART_STOCK = "stock";
     public static final String COL_SPARE_PART_PRICE = "price";
+    
+    public static final String COL_BRAND_CATEGORY = "category";
+    public static final String COL_MODEL_BRAND_ID = "brand_id";
+    public static final String COL_QUALITY_MULTIPLIER = "multiplier";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -121,6 +129,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBookingsTable);
         db.execSQL(createPaymentsTable);
         createBranchManagementTables(db);
+        createDeviceManagementTables(db);
         populateInitialData(db);
     }
 
@@ -142,6 +151,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertSparePart(db, "Samsung S22 Battery", 30, 8500.0);
         insertSparePart(db, "500GB SSD", 100, 12500.0);
         insertSparePart(db, "8GB DDR4 RAM", 200, 7500.0);
+        
+        // Populate Brands & Models
+        long appleId = insertBrand(db, "Apple", "Phone");
+        insertModel(db, appleId, "iPhone 15 Pro");
+        insertModel(db, appleId, "iPhone 14");
+        insertModel(db, appleId, "iPhone 13");
+        insertModel(db, appleId, "Other");
+
+        long samsungId = insertBrand(db, "Samsung", "Phone");
+        insertModel(db, samsungId, "Galaxy S23 Ultra");
+        insertModel(db, samsungId, "Galaxy S22");
+        insertModel(db, samsungId, "Galaxy A54");
+        insertModel(db, samsungId, "Other");
+
+        long hpId = insertBrand(db, "HP", "Laptop");
+        insertModel(db, hpId, "Pavilion 15");
+        insertModel(db, hpId, "Envy x360");
+        insertModel(db, hpId, "Other");
+
+        insertBrand(db, "Other", "Phone");
+        insertBrand(db, "Other", "Laptop");
+
+        // Populate Qualities
+        insertQuality(db, "Original", 1.5);
+        insertQuality(db, "Grade A", 1.2);
+        insertQuality(db, "Grade B", 1.0);
+    }
+
+    private long insertBrand(SQLiteDatabase db, String name, String category) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRAND_CATEGORY, category);
+        return db.insert(TABLE_BRANDS, null, v);
+    }
+
+    private void insertModel(SQLiteDatabase db, long brandId, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_MODEL_BRAND_ID, brandId);
+        v.put(COL_NAME, name);
+        db.insert(TABLE_MODELS, null, v);
+    }
+
+    private void insertQuality(SQLiteDatabase db, String name, double multiplier) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_QUALITY_MULTIPLIER, multiplier);
+        db.insert(TABLE_QUALITIES, null, v);
     }
 
     private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String hours, double lat, double lon) {
@@ -182,6 +238,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
         onCreate(db);
     }
 
@@ -195,6 +254,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
         onCreate(db);
     }
 
@@ -220,6 +282,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_SPARE_PART_STOCK + " INTEGER NOT NULL, "
                 + COL_SPARE_PART_PRICE + " REAL NOT NULL)");
+    }
+    
+    private void createDeviceManagementTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANDS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_BRAND_CATEGORY + " TEXT NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MODELS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_MODEL_BRAND_ID + " INTEGER NOT NULL, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + "FOREIGN KEY(" + COL_MODEL_BRAND_ID + ") REFERENCES " + TABLE_BRANDS + "(" + COL_ID + ") ON DELETE CASCADE)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_QUALITY_MULTIPLIER + " REAL NOT NULL)");
     }
 
     public boolean insertUser(String name, String email, String phone, String password) {
@@ -347,5 +427,79 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return spareParts;
+    }
+    
+    // ==========================================
+    // BRANDS, MODELS, QUALITIES CRUD
+    // ==========================================
+
+    public boolean addBrand(String name, String category) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRAND_CATEGORY, category);
+        return getWritableDatabase().insert(TABLE_BRANDS, null, values) != -1;
+    }
+
+    public boolean updateBrand(int id, String name, String category) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRAND_CATEGORY, category);
+        return getWritableDatabase().update(TABLE_BRANDS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteBrand(int id) {
+        return getWritableDatabase().delete(TABLE_BRANDS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getBrandsByCategory(String category) {
+        return getReadableDatabase().query(TABLE_BRANDS, null, COL_BRAND_CATEGORY + " = ?", new String[]{category}, null, null, COL_NAME + " ASC");
+    }
+
+    public Cursor getAllBrands() {
+        return getReadableDatabase().query(TABLE_BRANDS, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    public boolean addModel(int brandId, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_MODEL_BRAND_ID, brandId);
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_MODELS, null, values) != -1;
+    }
+
+    public boolean updateModel(int id, int brandId, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_MODEL_BRAND_ID, brandId);
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_MODELS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteModel(int id) {
+        return getWritableDatabase().delete(TABLE_MODELS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getModelsByBrand(int brandId) {
+        return getReadableDatabase().query(TABLE_MODELS, null, COL_MODEL_BRAND_ID + " = ?", new String[]{String.valueOf(brandId)}, null, null, COL_NAME + " ASC");
+    }
+
+    public boolean addQuality(String name, double multiplier) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_QUALITY_MULTIPLIER, multiplier);
+        return getWritableDatabase().insert(TABLE_QUALITIES, null, values) != -1;
+    }
+
+    public boolean updateQuality(int id, String name, double multiplier) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_QUALITY_MULTIPLIER, multiplier);
+        return getWritableDatabase().update(TABLE_QUALITIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteQuality(int id) {
+        return getWritableDatabase().delete(TABLE_QUALITIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getAllQualities() {
+        return getReadableDatabase().query(TABLE_QUALITIES, null, null, null, null, null, COL_NAME + " ASC");
     }
 }

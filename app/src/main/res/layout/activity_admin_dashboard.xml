@@ -449,6 +449,84 @@
 
 
                 <!-- ========================= -->
+                <!-- QUICK ACCESS ROW 3 -->
+                <!-- ========================= -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <!-- DEVICES -->
+
+                    <LinearLayout
+                        android:id="@+id/cardDevices"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@android:drawable/ic_menu_manage"
+                            android:contentDescription="Devices" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Devices"
+                            android:textSize="13sp"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+
+                    <!-- QUALITIES -->
+
+                    <LinearLayout
+                        android:id="@+id/cardQualities"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@android:drawable/ic_menu_sort_by_size"
+                            android:contentDescription="Qualities" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Qualities"
+                            android:textSize="13sp"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+                    <!-- EMPTY SPACE TO FILL ROW -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+
+                <!-- ========================= -->
                 <!-- MANAGE BOOKINGS -->
                 <!-- ========================= -->
 
