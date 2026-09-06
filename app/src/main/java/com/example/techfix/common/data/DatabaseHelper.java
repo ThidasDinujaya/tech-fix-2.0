@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 22;
+    private static final int DATABASE_VERSION = 23;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -63,6 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_BRANDS = "brands";
     public static final String TABLE_MODELS = "models";
     public static final String TABLE_QUALITIES = "qualities";
+    public static final String TABLE_ROLES = "technician_roles";
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -135,6 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createPaymentsTable);
         createBranchManagementTables(db);
         createDeviceManagementTables(db);
+        createTechnicianManagementTables(db);
         populateInitialData(db);
     }
 
@@ -147,9 +149,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "", 
                      "09:00 AM - 05:00 PM", "09:00 AM - 12:00 PM", "Closed", "https://maps.google.com/?q=6.0367,80.2170", 6.0367, 80.2170);
 
+        // Populate Roles
+        insertRole(db, "Senior Technician");
+        insertRole(db, "Mobile Repair Expert");
+        insertRole(db, "Laptop Specialist");
+        insertRole(db, "Desktop Support");
+
         // Populate Technicians
         insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
-        insertTechnician(db, "Amara Silva", "Mobile Expert", "Kandy Branch", "Busy");
+        insertTechnician(db, "Amara Silva", "Mobile Repair Expert", "Kandy Branch", "Busy");
 
         // Populate Spare Parts
         insertSparePart(db, "iPhone 13 Screen", 50, 15000.0);
@@ -168,6 +176,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertQuality(db, "Original", 1.5);
         insertQuality(db, "Grade A", 1.2);
         insertQuality(db, "Grade B", 1.0);
+    }
+
+    private long insertRole(SQLiteDatabase db, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        return db.insert(TABLE_ROLES, null, v);
     }
 
     private long insertBrand(SQLiteDatabase db, String name, String category) {
@@ -237,6 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLES);
         onCreate(db);
     }
 
@@ -290,6 +305,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_QUALITY_MULTIPLIER + " REAL NOT NULL)");
+    }
+
+    private void createTechnicianManagementTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ROLES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT UNIQUE NOT NULL)");
     }
 
     public boolean insertUser(String name, String email, String phone, String password) {
@@ -566,5 +587,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllQualities() {
         return getReadableDatabase().query(TABLE_QUALITIES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    // ==========================================
+    // TECHNICIAN ROLES CRUD
+    // ==========================================
+
+    public boolean addRole(String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_ROLES, null, values) != -1;
+    }
+
+    public boolean updateRole(int id, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_ROLES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteRole(int id) {
+        return getWritableDatabase().delete(TABLE_ROLES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getAllRoles() {
+        return getReadableDatabase().query(TABLE_ROLES, null, null, null, null, null, COL_NAME + " ASC");
     }
 }
