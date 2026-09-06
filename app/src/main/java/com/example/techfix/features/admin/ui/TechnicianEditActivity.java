@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.Technician;
 import com.google.android.material.button.MaterialButton;
@@ -28,10 +29,11 @@ public class TechnicianEditActivity extends AppCompatActivity {
 
     private Technician tech;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
     private Calendar calendar;
     private String selectedDateStr;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private final SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
 
     private TextInputEditText etName;
     private AutoCompleteTextView autoBranch;
@@ -51,6 +53,7 @@ public class TechnicianEditActivity extends AppCompatActivity {
         }
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         calendar = Calendar.getInstance();
         
         initViews();
@@ -81,6 +84,10 @@ public class TechnicianEditActivity extends AppCompatActivity {
             if (selectedDateStr == null) return;
             boolean isAvailable = dbHelper.isTechAvailable(tech.getId(), selectedDateStr);
             dbHelper.setTechAvailability(tech.getId(), selectedDateStr, !isAvailable);
+            
+            // Sync updated technician state to Firebase
+            syncRepo.syncTechnician(tech);
+            
             updateCalendar();
             updateToggleUI(!isAvailable);
         });
@@ -96,10 +103,9 @@ public class TechnicianEditActivity extends AppCompatActivity {
 
         Calendar tempCal = (Calendar) calendar.clone();
         tempCal.set(Calendar.DAY_OF_MONTH, 1);
-        int firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1; // 0 for Sunday
+        int firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1; 
         int daysInMonth = tempCal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        // Add Day Labels
         String[] days = {"S", "M", "T", "W", "T", "F", "S"};
         for (String day : days) {
             TextView tv = createDayTextView(day, false);
@@ -107,21 +113,16 @@ public class TechnicianEditActivity extends AppCompatActivity {
             calendarGrid.addView(tv);
         }
 
-        // Add Empty Spaces
         for (int i = 0; i < firstDayOfWeek; i++) {
             calendarGrid.addView(createDayTextView("", false));
         }
 
-        // Add Month Days
         for (int day = 1; day <= daysInMonth; day++) {
-            final int dayNum = day;
             tempCal.set(Calendar.DAY_OF_MONTH, day);
             String dateKey = sdf.format(tempCal.getTime());
             boolean available = dbHelper.isTechAvailable(tech.getId(), dateKey);
 
             TextView tvDay = createDayTextView(String.valueOf(day), true);
-            
-            // Set Color: Green for Available, Red for Unavailable
             int bgColor = available ? Color.parseColor("#28A745") : Color.parseColor("#DC3545");
             tvDay.setBackground(createCircleDrawable(bgColor));
             tvDay.setTextColor(Color.WHITE);
@@ -131,8 +132,6 @@ public class TechnicianEditActivity extends AppCompatActivity {
                 tvDateLabel.setText("Date: " + dateKey);
                 btnToggle.setVisibility(View.VISIBLE);
                 updateToggleUI(available);
-                
-                // Highlight selection logic if needed
             });
 
             calendarGrid.addView(tvDay);
@@ -183,6 +182,7 @@ public class TechnicianEditActivity extends AppCompatActivity {
         String branch = autoBranch.getText().toString().trim();
         if (!name.isEmpty() && !branch.isEmpty()) {
             if (dbHelper.updateTechnician(tech.getId(), name, branch, tech.getStatus())) {
+                syncRepo.syncTechnician(new Technician(tech.getId(), name, branch, tech.getStatus()));
                 Toast.makeText(this, "Technician Updated", Toast.LENGTH_SHORT).show();
                 finish();
             }

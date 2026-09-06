@@ -13,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.techfix.R;
 import com.example.techfix.features.admin.ui.AdminInventoryActivity;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.auth.data.LoginActivity;
 import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
@@ -90,6 +91,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        });
+
+        findViewById(R.id.menuSyncFirebase).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pushAllDataToFirebase();
+            Toast.makeText(this, "Syncing data to Cloud...", Toast.LENGTH_SHORT).show();
         });
 
         // Other menu items placeholders
