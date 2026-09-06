@@ -3,6 +3,8 @@ package com.example.techfix.features.branches.ui;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -13,8 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.Technician;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManageTechniciansActivity extends AppCompatActivity {
@@ -71,24 +75,34 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_technician, null);
         EditText etName = view.findViewById(R.id.etTechName);
         EditText etRole = view.findViewById(R.id.etTechRole);
-        EditText etBranch = view.findViewById(R.id.etTechBranch);
+        AutoCompleteTextView autoBranch = view.findViewById(R.id.autoTechBranch);
+
+        // Fetch current branches
+        List<Branch> branches = dbHelper.getAllBranches();
+        List<String> branchNames = new ArrayList<>();
+        for (Branch b : branches) {
+            branchNames.add(b.getName());
+        }
+        
+        ArrayAdapter<String> branchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames);
+        autoBranch.setAdapter(branchAdapter);
 
         if (tech != null) {
             etName.setText(tech.getName());
             etRole.setText(tech.getRole());
-            etBranch.setText(tech.getBranchName());
+            autoBranch.setText(tech.getBranchName(), false);
         }
 
         builder.setView(view);
         builder.setPositiveButton(tech == null ? "Add" : "Update", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String role = etRole.getText().toString().trim();
-            String branch = etBranch.getText().toString().trim();
+            String branch = autoBranch.getText().toString().trim();
 
-            if (!name.isEmpty() && !role.isEmpty()) {
+            if (!name.isEmpty() && !role.isEmpty() && !branch.isEmpty()) {
                 boolean success;
                 if (tech == null) {
-                    success = dbHelper.addTechnician(name, role, branch.isEmpty() ? "Colombo Branch" : branch, "Available");
+                    success = dbHelper.addTechnician(name, role, branch, "Available");
                 } else {
                     success = dbHelper.updateTechnician(tech.getId(), name, role, branch, tech.getStatus());
                 }
@@ -98,7 +112,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                     Toast.makeText(this, tech == null ? "Technician added" : "Technician updated", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(this, "Name and Role are required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);
