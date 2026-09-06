@@ -15,46 +15,55 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#FFFFFF">
+        android:background="@color/white">
 
         <!-- TOP HEADER -->
 
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarAdmin"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:background="#0867D9"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp">
+            android:layout_height="80dp"
+            android:background="@color/brand_blue"
+            android:paddingTop="20dp"
+            app:contentInsetStart="0dp">
 
-            <ImageView
-                android:id="@+id/imgAdminMenu"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_menu"
-                android:padding="4dp"
-                android:contentDescription="Menu" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="18dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Admin Dashboard"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center" />
+                <ImageView
+                    android:id="@+id/imgAdminMenu"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_menu"
+                    android:padding="4dp"
+                    android:contentDescription="Menu" />
 
-            <ImageView
-                android:id="@+id/imgAdminNotification"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_notification"
-                android:padding="4dp"
-                android:contentDescription="Notifications" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Admin Dashboard"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/imgAdminNotification"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_notification"
+                    android:padding="4dp"
+                    android:contentDescription="Notifications" />
+
+            </RelativeLayout>
+
+        </androidx.appcompat.widget.Toolbar>
 
 
         <!-- DASHBOARD BODY -->
@@ -94,7 +103,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Bookings"
-                            android:textColor="#555555"
+                            android:textColor="@color/gray_700"
                             android:textSize="14sp" />
 
                         <TextView
@@ -102,7 +111,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="128"
-                            android:textColor="#0867D9"
+                            android:textColor="@color/brand_blue"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:layout_marginTop="7dp" />
@@ -124,7 +133,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Pending Repairs"
-                            android:textColor="#555555"
+                            android:textColor="@color/gray_700"
                             android:textSize="14sp" />
 
                         <TextView
@@ -166,7 +175,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Completed"
-                            android:textColor="#555555"
+                            android:textColor="@color/gray_700"
                             android:textSize="14sp" />
 
                         <TextView
@@ -196,7 +205,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Revenue"
-                            android:textColor="#555555"
+                            android:textColor="@color/gray_700"
                             android:textSize="14sp" />
 
                         <TextView
@@ -219,7 +228,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E5E5E5"
+                    android:background="@color/divider"
                     android:layout_marginTop="22dp"
                     android:layout_marginBottom="20dp" />
 
@@ -245,8 +254,36 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- BOOKINGS -->
+                    <!-- INVENTORY HUB -->
+                    <LinearLayout
+                        android:id="@+id/cardInventory"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
 
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@drawable/ic_parts"
+                            android:contentDescription="Inventory" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Inventory"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+                    <!-- BOOKINGS -->
                     <LinearLayout
                         android:id="@+id/cardBookings"
                         android:layout_width="0dp"
@@ -274,9 +311,7 @@
 
                     </LinearLayout>
 
-
                     <!-- SERVICES -->
-
                     <LinearLayout
                         android:id="@+id/cardServices"
                         android:layout_width="0dp"
@@ -304,9 +339,20 @@
 
                     </LinearLayout>
 
+                </LinearLayout>
+
+
+                <!-- ========================= -->
+                <!-- QUICK ACCESS ROW 2 -->
+                <!-- ========================= -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
 
                     <!-- TECHNICIANS -->
-
                     <LinearLayout
                         android:id="@+id/cardTechnicians"
                         android:layout_width="0dp"
@@ -334,51 +380,7 @@
 
                     </LinearLayout>
 
-                </LinearLayout>
-
-
-                <!-- ========================= -->
-                <!-- QUICK ACCESS ROW 2 -->
-                <!-- ========================= -->
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="10dp">
-
-                    <!-- PARTS -->
-
-                    <LinearLayout
-                        android:id="@+id/cardParts"
-                        android:layout_width="0dp"
-                        android:layout_height="105dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@drawable/ic_parts"
-                            android:contentDescription="Parts" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Parts"
-                            android:textSize="13sp"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-
                     <!-- BRANCHES -->
-
                     <LinearLayout
                         android:id="@+id/cardBranches"
                         android:layout_width="0dp"
@@ -406,9 +408,7 @@
 
                     </LinearLayout>
 
-
                     <!-- PAYMENTS -->
-
                     <LinearLayout
                         android:id="@+id/cardPayments"
                         android:layout_width="0dp"
@@ -438,47 +438,6 @@
 
                 </LinearLayout>
 
-
-                <!-- ========================= -->
-                <!-- MANAGE BOOKINGS -->
-                <!-- ========================= -->
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardManageBookings"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="18dp">
-
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@android:drawable/ic_menu_agenda"
-                            android:contentDescription="Manage Bookings"
-                            app:tint="@color/brand_blue" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="15dp"
-                            android:text="Manage Bookings"
-                            android:textColor="#212121"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
             </LinearLayout>
 
         </ScrollView>
@@ -503,7 +462,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="TechFix"
-            android:textColor="#0867D9"
+            android:textColor="@color/brand_blue"
             android:textSize="26sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp" />
@@ -512,7 +471,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Administrator"
-            android:textColor="#777777"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:layout_marginBottom="30dp" />
 
@@ -522,7 +481,7 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="🏠   Dashboard"
-            android:textColor="#0867D9"
+            android:textColor="@color/brand_blue"
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingStart="10dp" />
@@ -533,7 +492,7 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="👤   Admin Profile"
-            android:textColor="#333333"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
 
@@ -543,7 +502,7 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="🔔   Notifications"
-            android:textColor="#333333"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
 
@@ -553,14 +512,14 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="⚙   Settings"
-            android:textColor="#333333"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5E5"
+            android:background="@color/divider"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp" />
 
@@ -570,7 +529,7 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="👥   Customer Login"
-            android:textColor="#333333"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
 
@@ -580,7 +539,7 @@
             android:layout_height="55dp"
             android:gravity="center_vertical"
             android:text="🚪   Logout"
-            android:textColor="#D32F2F"
+            android:textColor="@color/error"
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingStart="10dp" />

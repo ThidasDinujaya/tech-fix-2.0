@@ -12,7 +12,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.branches.ui.ManageSparePartsActivity;
 import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
-import com.example.techfix.features.branches.ui.MapNearestBranchActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +32,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ManageTechniciansActivity.class)));
         findViewById(R.id.btnSpareParts).setOnClickListener(v ->
                 startActivity(new Intent(this, ManageSparePartsActivity.class)));
-        findViewById(R.id.btnMap).setOnClickListener(v ->
-                startActivity(new Intent(this, MapNearestBranchActivity.class)));
     }
 }

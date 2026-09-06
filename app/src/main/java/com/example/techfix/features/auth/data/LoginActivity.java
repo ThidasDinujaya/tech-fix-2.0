@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.admin.data.AdminLoginActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -26,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView txtAdminLogin;
 
     private DatabaseHelper databaseHelper;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         databaseHelper = new DatabaseHelper(this);
+        sessionManager = new SessionManager(this);
 
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
@@ -121,6 +124,9 @@ public class LoginActivity extends AppCompatActivity {
                 );
 
         if (validUser) {
+
+            // Save customer session
+            sessionManager.createSession(email, SessionManager.ROLE_CUSTOMER);
 
             Toast.makeText(
                     LoginActivity.this,

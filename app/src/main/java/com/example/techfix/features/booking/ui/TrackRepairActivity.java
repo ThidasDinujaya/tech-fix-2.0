@@ -16,7 +16,7 @@ import com.example.techfix.features.payments.ui.PaymentActivity;
 
 public class TrackRepairActivity extends AppCompatActivity {
 
-    private TextView tvBookingId, tvServiceName, tvDate;
+    private TextView tvBookingId, tvServiceName, tvDate, tvAssignedTech;
     private View stepSubmitted, stepAssigned, stepReceived, stepRepairing, stepReady, stepCompleted;
     private Button btnPayNow;
     private TrackRepairViewModel viewModel;
@@ -38,6 +38,7 @@ public class TrackRepairActivity extends AppCompatActivity {
         tvBookingId = findViewById(R.id.tvBookingId);
         tvServiceName = findViewById(R.id.tvServiceName);
         tvDate = findViewById(R.id.tvDate);
+        tvAssignedTech = findViewById(R.id.tvAssignedTech); // New if available in layout
         btnPayNow = findViewById(R.id.btnPayNow);
 
         stepSubmitted = findViewById(R.id.stepSubmitted);
@@ -50,7 +51,7 @@ public class TrackRepairActivity extends AppCompatActivity {
         setupStep(stepSubmitted, "Booking Submitted");
         setupStep(stepAssigned, "Technician Assigned");
         setupStep(stepReceived, "Device Received");
-        setupStep(stepRepairing, "Repairing");
+        setupStep(stepRepairing, "In Repair");
         setupStep(stepReady, "Ready for Collection");
         setupStep(stepCompleted, "Completed");
 
@@ -59,8 +60,6 @@ public class TrackRepairActivity extends AppCompatActivity {
             intent.putExtra("booking_id", bookingId);
             startActivity(intent);
         });
-
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
     }
 
     private void setupStep(View view, String title) {
@@ -77,9 +76,15 @@ public class TrackRepairActivity extends AppCompatActivity {
     private void updateUI(Booking booking) {
         if (booking == null) return;
 
-        tvBookingId.setText("Booking ID\nTF" + String.format("%04d", booking.getId()));
+        tvBookingId.setText("Booking ID\nTF" + (1000 + booking.getId()));
         tvServiceName.setText("Repair Service");
         tvDate.setText(booking.getAppointmentDate());
+
+        if (tvAssignedTech != null) {
+            String tech = booking.getTechnicianName();
+            tvAssignedTech.setText(tech != null && !tech.isEmpty() ? "Assigned Tech: " + tech : "");
+            tvAssignedTech.setVisibility(tech != null && !tech.isEmpty() ? View.VISIBLE : View.GONE);
+        }
 
         if (BookingStatus.READY.equals(booking.getStatus()) || BookingStatus.COMPLETED.equals(booking.getStatus())) {
             btnPayNow.setVisibility(View.VISIBLE);
@@ -91,7 +96,6 @@ public class TrackRepairActivity extends AppCompatActivity {
     }
 
     private void updateTimeline(String status) {
-        // Reset all
         resetStep(stepSubmitted);
         resetStep(stepAssigned);
         resetStep(stepReceived);
@@ -99,17 +103,21 @@ public class TrackRepairActivity extends AppCompatActivity {
         resetStep(stepReady);
         resetStep(stepCompleted);
 
-        // Highlight based on status
-        setStepActive(stepSubmitted); // Always active if it exists
+        setStepActive(stepSubmitted); 
         
-        if (BookingStatus.ASSIGNED.equals(status) || BookingStatus.REPAIRING.equals(status) || 
-            BookingStatus.READY.equals(status) || BookingStatus.COMPLETED.equals(status)) {
+        if (BookingStatus.ASSIGNED.equals(status) || BookingStatus.COLLECTED.equals(status) || 
+            BookingStatus.REPAIRING.equals(status) || BookingStatus.READY.equals(status) || 
+            BookingStatus.COMPLETED.equals(status)) {
             setStepActive(stepAssigned);
         }
         
+        if (BookingStatus.COLLECTED.equals(status) || BookingStatus.REPAIRING.equals(status) || 
+            BookingStatus.READY.equals(status) || BookingStatus.COMPLETED.equals(status)) {
+            setStepActive(stepReceived);
+        }
+
         if (BookingStatus.REPAIRING.equals(status) || BookingStatus.READY.equals(status) || 
             BookingStatus.COMPLETED.equals(status)) {
-            setStepActive(stepReceived);
             setStepActive(stepRepairing);
         }
         
@@ -123,20 +131,22 @@ public class TrackRepairActivity extends AppCompatActivity {
     }
 
     private void setStepActive(View view) {
+        if (view == null) return;
         ImageView iv = view.findViewById(R.id.ivIndicator);
         iv.setImageResource(android.R.drawable.checkbox_on_background);
         iv.setColorFilter(getResources().getColor(R.color.brand_blue));
         
         View line = view.findViewById(R.id.viewLine);
-        line.setBackgroundColor(getResources().getColor(R.color.brand_blue));
+        if (line != null) line.setBackgroundColor(getResources().getColor(R.color.brand_blue));
     }
 
     private void resetStep(View view) {
+        if (view == null) return;
         ImageView iv = view.findViewById(R.id.ivIndicator);
         iv.setImageResource(android.R.drawable.checkbox_off_background);
         iv.setColorFilter(getResources().getColor(R.color.gray_400));
         
         View line = view.findViewById(R.id.viewLine);
-        line.setBackgroundColor(getResources().getColor(R.color.gray_400));
+        if (line != null) line.setBackgroundColor(getResources().getColor(R.color.gray_400));
     }
 }

@@ -49,8 +49,6 @@ public class MyBookingsActivity extends AppCompatActivity {
         rvBookings = findViewById(R.id.rvBookings);
         tabLayout = findViewById(R.id.tabLayout);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
-        
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
     }
 
     private void setupRecyclerView() {

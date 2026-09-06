@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 31;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -32,6 +32,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_SERVICE_PRICE = "price";
     public static final String COL_SERVICE_WARRANTY = "warranty";
     public static final String COL_SERVICE_IMAGE = "image_url";
+    public static final String COL_SERVICE_CATEGORY = "category";
+    public static final String COL_SERVICE_BRAND = "brand";
+    public static final String COL_SERVICE_MODEL = "model";
+    public static final String COL_SERVICE_QUALITY = "quality";
+    public static final String COL_SERVICE_PART_ID = "spare_part_id";
 
     public static final String TABLE_BOOKINGS = "bookings";
     public static final String COL_BOOKING_ID = "id";
@@ -44,9 +49,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BOOKING_IMAGE = "image_path";
     public static final String COL_BOOKING_STATUS = "status";
     public static final String COL_BOOKING_USER_ID = "user_id";
+    public static final String COL_BOOKING_BRANCH_NAME = "branch_name";
+    public static final String COL_BOOKING_TECH_NAME = "technician_name";
 
     public static final String TABLE_PAYMENTS = "payments";
-    public static final String COL_PAYMENT_ID = "id";
+    public static final String COL_ID_PAYMENT = "id";
     public static final String COL_PAYMENT_BOOKING_ID = "booking_id";
     public static final String COL_PAYMENT_AMOUNT = "amount";
     public static final String COL_PAYMENT_METHOD = "method";
@@ -58,18 +65,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_BRANCHES = "branches";
     public static final String TABLE_TECHNICIANS = "technicians";
     public static final String TABLE_SPARE_PARTS = "spare_parts";
+    
+    public static final String TABLE_BRANDS = "brands";
+    public static final String TABLE_MODELS = "models";
+    public static final String TABLE_QUALITIES = "qualities";
+    public static final String TABLE_SERVICE_CATEGORIES = "service_categories";
+
+    public static final String TABLE_TECH_AVAILABILITY = "technician_availability";
+    public static final String COL_AVAIL_ID = "id";
+    public static final String COL_AVAIL_TECH_ID = "technician_id";
+    public static final String COL_AVAIL_DATE = "available_date"; 
+    public static final String COL_AVAIL_STATUS = "is_available"; 
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
+    public static final String COL_BRANCH_PHONE2 = "phone2";
+    public static final String COL_BRANCH_HOURS_MON_FRI = "hours_mon_fri";
+    public static final String COL_BRANCH_HOURS_SAT = "hours_sat";
+    public static final String COL_BRANCH_HOURS_SUN = "hours_sun";
+    public static final String COL_BRANCH_MAP_LINK = "map_link";
     public static final String COL_BRANCH_LATITUDE = "latitude";
     public static final String COL_BRANCH_LONGITUDE = "longitude";
 
-    public static final String COL_TECHNICIAN_ROLE = "role";
     public static final String COL_TECHNICIAN_BRANCH = "branch_name";
     public static final String COL_TECHNICIAN_STATUS = "status";
 
     public static final String COL_SPARE_PART_STOCK = "stock";
     public static final String COL_SPARE_PART_PRICE = "price";
+    public static final String COL_SPARE_PART_BRAND = "brand";
+    public static final String COL_SPARE_PART_MODEL = "model";
+    public static final String COL_SPARE_PART_QUALITY = "quality";
+    
+    public static final String COL_BRAND_CATEGORY = "category";
+    public static final String COL_MODEL_BRAND_ID = "brand_id";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -90,7 +118,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_SERVICE_DESC + " TEXT, " +
                 COL_SERVICE_PRICE + " REAL, " +
                 COL_SERVICE_WARRANTY + " TEXT, " +
-                COL_SERVICE_IMAGE + " TEXT)";
+                COL_SERVICE_IMAGE + " TEXT, " +
+                COL_SERVICE_CATEGORY + " TEXT, " +
+                COL_SERVICE_BRAND + " TEXT, " +
+                COL_SERVICE_MODEL + " TEXT, " +
+                COL_SERVICE_QUALITY + " TEXT, " +
+                COL_SERVICE_PART_ID + " INTEGER)";
 
         String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS + " (" +
                 COL_BOOKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -102,10 +135,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_DATE + " TEXT, " +
                 COL_BOOKING_IMAGE + " TEXT, " +
                 COL_BOOKING_STATUS + " TEXT, " +
-                COL_BOOKING_USER_ID + " INTEGER)";
+                COL_BOOKING_USER_ID + " INTEGER, " +
+                COL_BOOKING_BRANCH_NAME + " TEXT, " +
+                COL_BOOKING_TECH_NAME + " TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
-                COL_PAYMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_ID_PAYMENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_PAYMENT_BOOKING_ID + " INTEGER, " +
                 COL_PAYMENT_AMOUNT + " REAL, " +
                 COL_PAYMENT_METHOD + " TEXT, " +
@@ -119,13 +154,127 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBookingsTable);
         db.execSQL(createPaymentsTable);
         createBranchManagementTables(db);
+        createDeviceManagementTables(db);
+        createServiceManagementTables(db);
+        createAvailabilityTable(db);
+        populateInitialData(db);
+    }
+
+    private void createAvailabilityTable(SQLiteDatabase db) {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_TECH_AVAILABILITY + " (" +
+                COL_AVAIL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_AVAIL_TECH_ID + " INTEGER, " +
+                COL_AVAIL_DATE + " TEXT, " +
+                COL_AVAIL_STATUS + " INTEGER, " +
+                "FOREIGN KEY(" + COL_AVAIL_TECH_ID + ") REFERENCES " + TABLE_TECHNICIANS + "(" + COL_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createTable);
+    }
+
+    private void populateInitialData(SQLiteDatabase db) {
+        insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "0112345679", 
+                     "08:00 AM - 06:00 PM", "09:00 AM - 04:00 PM", "Closed", "https://maps.google.com/?q=6.9271,79.8612", 6.9271, 79.8612);
+        insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "", 
+                     "08:30 AM - 05:30 PM", "08:30 AM - 01:00 PM", "Closed", "https://maps.google.com/?q=7.2906,80.6337", 7.2906, 80.6337);
+
+        insertServiceCategory(db, "Phone");
+        insertServiceCategory(db, "Laptop");
+
+        insertTechnician(db, "Kasun Perera", "Colombo Main", "Available");
+        insertTechnician(db, "Amara Silva", "Kandy Branch", "Busy");
+
+        insertSparePart(db, "iPhone 13 Screen", 50, 15000.0, "Apple", "iPhone 13", "Original");
+        
+        long appleId = insertBrand(db, "Apple", "Phone");
+        insertModel(db, appleId, "iPhone 15 Pro");
+        insertModel(db, appleId, "iPhone 14");
+        insertModel(db, appleId, "iPhone 13");
+
+        insertQuality(db, "Original");
+        insertQuality(db, "Grade A");
+    }
+
+    private long insertServiceCategory(SQLiteDatabase db, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        return db.insert(TABLE_SERVICE_CATEGORIES, null, v);
+    }
+
+    private long insertBrand(SQLiteDatabase db, String name, String category) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRAND_CATEGORY, category);
+        return db.insert(TABLE_BRANDS, null, v);
+    }
+
+    private void insertModel(SQLiteDatabase db, long brandId, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_MODEL_BRAND_ID, brandId);
+        v.put(COL_NAME, name);
+        db.insert(TABLE_MODELS, null, v);
+    }
+
+    private void insertQuality(SQLiteDatabase db, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        db.insert(TABLE_QUALITIES, null, v);
+    }
+
+    private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String phone2,
+                              String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, addr);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
+        db.insert(TABLE_BRANCHES, null, v);
+    }
+
+    private void insertTechnician(SQLiteDatabase db, String name, String branch, String status) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_TECHNICIAN_BRANCH, branch);
+        v.put(COL_TECHNICIAN_STATUS, status);
+        db.insert(TABLE_TECHNICIANS, null, v);
+    }
+
+    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price, String brand, String model, String quality) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_SPARE_PART_STOCK, stock);
+        v.put(COL_SPARE_PART_PRICE, price);
+        v.put(COL_SPARE_PART_BRAND, brand);
+        v.put(COL_SPARE_PART_MODEL, model);
+        v.put(COL_SPARE_PART_QUALITY, quality);
+        db.insert(TABLE_SPARE_PARTS, null, v);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 9) {
-            createBranchManagementTables(db);
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE_CATEGORIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECH_AVAILABILITY);
+        onCreate(db);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
     }
 
     private void createBranchManagementTables(SQLiteDatabase db) {
@@ -134,14 +283,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_BRANCH_ADDRESS + " TEXT NOT NULL, "
                 + COL_PHONE + " TEXT NOT NULL, "
-                + COL_BRANCH_HOURS + " TEXT NOT NULL, "
-                + COL_BRANCH_LATITUDE + " REAL NOT NULL, "
-                + COL_BRANCH_LONGITUDE + " REAL NOT NULL)");
+                + COL_BRANCH_PHONE2 + " TEXT, "
+                + COL_BRANCH_HOURS_MON_FRI + " TEXT, "
+                + COL_BRANCH_HOURS_SAT + " TEXT, "
+                + COL_BRANCH_HOURS_SUN + " TEXT, "
+                + COL_BRANCH_HOURS + " TEXT, "
+                + COL_BRANCH_MAP_LINK + " TEXT, "
+                + COL_BRANCH_LATITUDE + " REAL, "
+                + COL_BRANCH_LONGITUDE + " REAL)");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECHNICIANS + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL, "
-                + COL_TECHNICIAN_ROLE + " TEXT NOT NULL, "
                 + COL_TECHNICIAN_BRANCH + " TEXT NOT NULL, "
                 + COL_TECHNICIAN_STATUS + " TEXT NOT NULL)");
 
@@ -149,7 +302,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_SPARE_PART_STOCK + " INTEGER NOT NULL, "
-                + COL_SPARE_PART_PRICE + " REAL NOT NULL)");
+                + COL_SPARE_PART_PRICE + " REAL NOT NULL, "
+                + COL_SPARE_PART_BRAND + " TEXT, "
+                + COL_SPARE_PART_MODEL + " TEXT, "
+                + COL_SPARE_PART_QUALITY + " TEXT)");
+    }
+    
+    private void createDeviceManagementTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANDS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_BRAND_CATEGORY + " TEXT NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MODELS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_MODEL_BRAND_ID + " INTEGER NOT NULL, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + "FOREIGN KEY(" + COL_MODEL_BRAND_ID + ") REFERENCES " + TABLE_BRANDS + "(" + COL_ID + ") ON DELETE CASCADE)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL)");
+    }
+
+    private void createServiceManagementTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT UNIQUE NOT NULL)");
     }
 
     public boolean insertUser(String name, String email, String phone, String password) {
@@ -231,7 +410,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_ADDRESS)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_PHONE)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_PHONE2)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_MON_FRI)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SAT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SUN)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_MAP_LINK)),
                         cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LATITUDE)),
                         cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LONGITUDE))));
             }
@@ -247,7 +430,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 technicians.add(new Technician(
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_ROLE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))));
             }
@@ -255,27 +437,314 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return technicians;
     }
 
-    public boolean addTechnician(String name, String role, String branch, String status) {
+    public boolean addTechnician(String name, String branch, String status) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        values.put(COL_TECHNICIAN_ROLE, role);
         values.put(COL_TECHNICIAN_BRANCH, branch);
         values.put(COL_TECHNICIAN_STATUS, status);
         return getWritableDatabase().insert(TABLE_TECHNICIANS, null, values) != -1;
     }
 
+    public boolean updateTechnician(int id, String name, String branch, String status) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_TECHNICIAN_BRANCH, branch);
+        values.put(COL_TECHNICIAN_STATUS, status);
+        return getWritableDatabase().update(TABLE_TECHNICIANS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteTechnician(int id) {
+        return getWritableDatabase().delete(TABLE_TECHNICIANS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
     public List<SparePart> getAllSpareParts() {
         List<SparePart> spareParts = new ArrayList<>();
-        try (Cursor cursor = getReadableDatabase().query(TABLE_SPARE_PARTS, null,
-                null, null, null, null, COL_NAME + " ASC")) {
+        String query = "SELECT s.*, b." + COL_BRAND_CATEGORY + " FROM " + TABLE_SPARE_PARTS + " s " +
+                "LEFT JOIN " + TABLE_BRANDS + " b ON s." + COL_SPARE_PART_BRAND + " = b." + COL_NAME;
+        
+        try (Cursor cursor = getReadableDatabase().rawQuery(query, null)) {
             while (cursor.moveToNext()) {
                 spareParts.add(new SparePart(
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_SPARE_PART_STOCK)),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_SPARE_PART_PRICE))));
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_SPARE_PART_PRICE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_BRAND)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_MODEL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_QUALITY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRAND_CATEGORY))));
             }
         }
         return spareParts;
+    }
+
+    public Cursor getSparePartsByModel(String brand, String model) {
+        return getReadableDatabase().query(TABLE_SPARE_PARTS, null, 
+                COL_SPARE_PART_BRAND + "=? AND " + COL_SPARE_PART_MODEL + "=?", 
+                new String[]{brand, model}, null, null, COL_NAME + " ASC");
+    }
+
+    public boolean addSparePart(String name, int stock, double price, String brand, String model, String quality) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_SPARE_PART_STOCK, stock);
+        values.put(COL_SPARE_PART_PRICE, price);
+        values.put(COL_SPARE_PART_BRAND, brand);
+        values.put(COL_SPARE_PART_MODEL, model);
+        values.put(COL_SPARE_PART_QUALITY, quality);
+        return getWritableDatabase().insert(TABLE_SPARE_PARTS, null, values) != -1;
+    }
+
+    public boolean updateSparePart(int id, String name, int stock, double price, String brand, String model, String quality) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_SPARE_PART_STOCK, stock);
+        values.put(COL_SPARE_PART_PRICE, price);
+        values.put(COL_SPARE_PART_BRAND, brand);
+        values.put(COL_SPARE_PART_MODEL, model);
+        values.put(COL_SPARE_PART_QUALITY, quality);
+        return getWritableDatabase().update(TABLE_SPARE_PARTS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteSparePart(int id) {
+        return getWritableDatabase().delete(TABLE_SPARE_PARTS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean addBranch(String name, String address, String phone, String phone2, 
+                             String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, address);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
+        return db.insert(TABLE_BRANCHES, null, v) != -1;
+    }
+
+    public boolean updateBranch(int id, String name, String address, String phone, String phone2,
+                                String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, address);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
+        return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteBranch(int id) {
+        return getWritableDatabase().delete(TABLE_BRANCHES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+    
+    // ==========================================
+    // BRANDS, MODELS, QUALITIES CRUD
+    // ==========================================
+
+    public boolean addBrand(String name, String category) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRAND_CATEGORY, category);
+        return getWritableDatabase().insert(TABLE_BRANDS, null, values) != -1;
+    }
+
+    public boolean updateBrand(int id, String name, String category) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_BRAND_CATEGORY, category);
+        return getWritableDatabase().update(TABLE_BRANDS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteBrand(int id) {
+        return getWritableDatabase().delete(TABLE_BRANDS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getBrandsByCategory(String category) {
+        return getReadableDatabase().query(TABLE_BRANDS, null, COL_BRAND_CATEGORY + " = ?", new String[]{category}, null, null, COL_NAME + " ASC");
+    }
+
+    public Cursor getAllBrands() {
+        return getReadableDatabase().query(TABLE_BRANDS, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    public boolean addModel(int brandId, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_MODEL_BRAND_ID, brandId);
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_MODELS, null, values) != -1;
+    }
+
+    public boolean updateModel(int id, int brandId, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_MODEL_BRAND_ID, brandId);
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_MODELS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteModel(int id) {
+        return getWritableDatabase().delete(TABLE_MODELS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getModelsByBrand(int brandId) {
+        return getReadableDatabase().query(TABLE_MODELS, null, COL_MODEL_BRAND_ID + " = ?", new String[]{String.valueOf(brandId)}, null, null, COL_NAME + " ASC");
+    }
+
+    public boolean addQuality(String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_QUALITIES, null, values) != -1;
+    }
+
+    public boolean updateQuality(int id, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_QUALITIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteQuality(int id) {
+        return getWritableDatabase().delete(TABLE_QUALITIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getAllQualities() {
+        return getReadableDatabase().query(TABLE_QUALITIES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    // ==========================================
+    // SERVICE CATEGORIES CRUD
+    // ==========================================
+
+    public boolean addServiceCategory(String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, values) != -1;
+    }
+
+    public boolean updateServiceCategory(int id, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_SERVICE_CATEGORIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteServiceCategory(int id) {
+        return getWritableDatabase().delete(TABLE_SERVICE_CATEGORIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getAllServiceCategories() {
+        return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    // ==========================================
+    // AVAILABILITY METHODS
+    // ==========================================
+
+    public boolean setTechAvailability(int techId, String date, boolean available) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_AVAIL_TECH_ID, techId);
+        values.put(COL_AVAIL_DATE, date);
+        values.put(COL_AVAIL_STATUS, available ? 1 : 0);
+
+        int rows = db.update(TABLE_TECH_AVAILABILITY, values, 
+                COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?", 
+                new String[]{String.valueOf(techId), date});
+        
+        if (rows == 0) {
+            return db.insert(TABLE_TECH_AVAILABILITY, null, values) != -1;
+        }
+        return true;
+    }
+
+    public boolean isTechAvailable(int techId, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECH_AVAILABILITY, new String[]{COL_AVAIL_STATUS},
+                COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?",
+                new String[]{String.valueOf(techId), date}, null, null, null);
+        
+        boolean available = true; 
+        if (cursor != null && cursor.moveToFirst()) {
+            available = cursor.getInt(0) == 1;
+            cursor.close();
+        }
+        return available;
+    }
+
+    public int getAvailableTechCount(String branchName, String date) {
+        List<Technician> branchTechs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECHNICIANS, null, COL_TECHNICIAN_BRANCH + "=?", 
+                new String[]{branchName}, null, null, null);
+        
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                branchTechs.add(new Technician(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))
+                ));
+            }
+            cursor.close();
+        }
+
+        int count = 0;
+        for (Technician t : branchTechs) {
+            if (isTechAvailable(t.getId(), date)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getBookingCount(String branchName, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_BOOKINGS + 
+                " WHERE " + COL_BOOKING_BRANCH_NAME + "=? AND " + COL_BOOKING_DATE + "=?",
+                new String[]{branchName, date});
+        
+        int count = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+            cursor.close();
+        }
+        return count;
+    }
+
+    public List<Technician> getAvailableTechsForBranch(String branchName, String date) {
+        List<Technician> allBranchTechs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECHNICIANS, null, COL_TECHNICIAN_BRANCH + "=?", 
+                new String[]{branchName}, null, null, null);
+        
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                allBranchTechs.add(new Technician(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))
+                ));
+            }
+            cursor.close();
+        }
+
+        List<Technician> availableTechs = new ArrayList<>();
+        for (Technician t : allBranchTechs) {
+            if (isTechAvailable(t.getId(), date)) {
+                availableTechs.add(t);
+            }
+        }
+        return availableTechs;
     }
 }

@@ -2,9 +2,10 @@
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F9FC"
+    android:background="@color/bg_light"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,39 +15,42 @@
 
         <!-- TOP HEADER -->
 
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarAdminProfile"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="#0867D9"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp">
+            android:layout_height="80dp"
+            android:background="@color/brand_blue"
+            android:paddingTop="20dp"
+            app:contentInsetStart="0dp">
 
-            <TextView
-                android:id="@+id/btnBackAdminProfile"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:gravity="center"
-                android:text="←"
-                android:textSize="28sp"
-                android:textColor="#FFFFFF" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="18dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Admin Profile"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center" />
+                <ImageView
+                    android:id="@+id/btnBackAdminProfile"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_menu"
+                    android:padding="8dp"
+                    android:contentDescription="Back"
+                    app:tint="@color/white" />
 
-            <Space
-                android:layout_width="45dp"
-                android:layout_height="45dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Admin Profile"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
+            </RelativeLayout>
+
+        </androidx.appcompat.widget.Toolbar>
 
 
         <!-- CONTENT -->
@@ -76,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TechFix Administrator"
-                android:textColor="#0B3A6E"
+                android:textColor="@color/brand_blue_dark"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:gravity="center"
@@ -87,7 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Administrator"
-                android:textColor="#777777"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:layout_marginTop="4dp"
@@ -100,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Full Name"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold" />
 
             <EditText
@@ -120,7 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Email"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
                 android:layout_marginTop="18dp" />
 
@@ -132,7 +136,9 @@
                 android:background="@drawable/edittext_background"
                 android:inputType="textEmailAddress"
                 android:padding="15dp"
-                android:enabled="false" />
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:textColor="@color/text_primary" />
 
 
             <!-- PHONE -->
@@ -141,7 +147,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Phone Number"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
                 android:layout_marginTop="18dp" />
 
@@ -163,7 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Role"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
                 android:layout_marginTop="18dp" />
 
@@ -174,7 +180,9 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/edittext_background"
                 android:padding="15dp"
-                android:enabled="false" />
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:textColor="@color/text_primary" />
 
 
             <!-- UPDATE -->
@@ -185,10 +193,10 @@
                 android:layout_height="55dp"
                 android:layout_marginTop="30dp"
                 android:text="Update Profile"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:backgroundTint="#1565C0" />
+                android:backgroundTint="@color/brand_blue" />
 
 
             <!-- CHANGE PASSWORD -->
@@ -199,9 +207,9 @@
                 android:layout_height="55dp"
                 android:layout_marginTop="15dp"
                 android:text="Change Password"
-                android:textColor="#1565C0"
+                android:textColor="@color/brand_blue"
                 android:textStyle="bold"
-                android:backgroundTint="#E3F2FD" />
+                android:backgroundTint="@color/brand_blue_light" />
 
 
             <!-- LOGOUT -->
@@ -213,9 +221,9 @@
                 android:layout_marginTop="15dp"
                 android:layout_marginBottom="30dp"
                 android:text="Logout"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textStyle="bold"
-                android:backgroundTint="#D32F2F" />
+                android:backgroundTint="@color/error" />
 
         </LinearLayout>
 

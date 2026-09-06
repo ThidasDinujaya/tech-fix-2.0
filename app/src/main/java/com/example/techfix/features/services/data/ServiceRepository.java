@@ -9,7 +9,7 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-// Repository to manage repair service data using SQLite with web images
+// Repository to manage repair service data using SQLite with device-specific details and parts
 public class ServiceRepository {
     private static final String TAG = "ServiceRepository";
     private static ServiceRepository instance;
@@ -45,41 +45,52 @@ public class ServiceRepository {
     }
 
     private void loadMockDataIntoDb() {
-        Log.d(TAG, "Inserting verified high-reliability professional mock data...");
+        Log.d(TAG, "Inserting categorized mock data with specs...");
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // Highly relevant repair-specific imagery
-            addService(db, "Screen Repair", "Expert replacement for cracked or bleeding phone and laptop screens.", 2500.0, "6 Months", "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=500");
-            addService(db, "Battery Replacement", "Genuine high-capacity battery installation for all device brands.", 2000.0, "3 Months", "https://images.unsplash.com/photo-1600003014755-931ff9f43627?q=80&w=500");
-            addService(db, "Water Damage", "Specialized ultrasonic cleaning and motherboard restoration services.", 3500.0, "1 Month", "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=500");
-            addService(db, "Charging Port", "Precision repair for loose or damaged USB-C and Lightning ports.", 1800.0, "3 Months", "https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=500");
-            addService(db, "Camera Module", "Front and rear camera lens and sensor replacement.", 2000.0, "6 Months", "https://images.unsplash.com/photo-1516035069341-34939603c7f2?q=80&w=500");
-            addService(db, "Software Optimization", "Virus removal, OS flashing, and performance speed-up services.", 1500.0, "N/A", "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500");
+            // PHONE SERVICES
+            addService(db, "Device Diagnosis", "Unsure what's wrong? Our experts will diagnose the issue for you.", 1500.0, "N/A", "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=500", "Phone", "", "", "", 0);
+            addService(db, "iPhone 13 Screen Repair", "Expert replacement for cracked iPhone 13 screens.", 15000.0, "6 Months", "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=500", "Phone", "Apple", "iPhone 13", "Original", 1);
+            addService(db, "S22 Battery Replacement", "Genuine high-capacity battery installation for Samsung S22.", 8500.0, "3 Months", "https://images.unsplash.com/photo-1600003014755-931ff9f43627?q=80&w=500", "Phone", "Samsung", "Galaxy S22", "Grade A", 2);
+            
             db.setTransactionSuccessful();
-            Log.d(TAG, "Verified mock data loaded successfully.");
         } finally {
             db.endTransaction();
         }
     }
 
-    private void addService(SQLiteDatabase db, String name, String desc, double price, String warranty, String url) {
+    private void addService(SQLiteDatabase db, String name, String desc, double price, String warranty, 
+                            String url, String category, String brand, String model, String quality, int partId) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COL_SERVICE_NAME, name);
         values.put(DatabaseHelper.COL_SERVICE_DESC, desc);
         values.put(DatabaseHelper.COL_SERVICE_PRICE, price);
         values.put(DatabaseHelper.COL_SERVICE_WARRANTY, warranty);
         values.put(DatabaseHelper.COL_SERVICE_IMAGE, url);
+        values.put(DatabaseHelper.COL_SERVICE_CATEGORY, category);
+        values.put(DatabaseHelper.COL_SERVICE_BRAND, brand);
+        values.put(DatabaseHelper.COL_SERVICE_MODEL, model);
+        values.put(DatabaseHelper.COL_SERVICE_QUALITY, quality);
+        values.put(DatabaseHelper.COL_SERVICE_PART_ID, partId);
         db.insert(DatabaseHelper.TABLE_SERVICES, null, values);
     }
 
-    public List<Service> getAllServices() {
+    public List<Service> getServicesByCategory(String category) {
         ensureInitialData();
         List<Service> serviceList = new ArrayList<>();
         Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            cursor = db.query(DatabaseHelper.TABLE_SERVICES, null, null, null, null, null, null);
+            String selection = null;
+            String[] selectionArgs = null;
+            
+            if (category != null && !category.isEmpty()) {
+                selection = DatabaseHelper.COL_SERVICE_CATEGORY + " = ?";
+                selectionArgs = new String[]{category};
+            }
+
+            cursor = db.query(DatabaseHelper.TABLE_SERVICES, null, selection, selectionArgs, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     serviceList.add(new Service(
@@ -88,7 +99,12 @@ public class ServiceRepository {
                         cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_DESC)),
                         cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_PRICE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_WARRANTY)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_IMAGE))
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_IMAGE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_CATEGORY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_BRAND)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_MODEL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_QUALITY)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_PART_ID))
                     ));
                 } while (cursor.moveToNext());
             }
@@ -96,5 +112,48 @@ public class ServiceRepository {
             if (cursor != null) cursor.close();
         }
         return serviceList;
+    }
+
+    public List<Service> getAllServices() {
+        return getServicesByCategory(null);
+    }
+
+    public boolean addService(String name, String desc, double price, String warranty, String url, 
+                              String category, String brand, String model, String quality, int partId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_SERVICE_NAME, name);
+        values.put(DatabaseHelper.COL_SERVICE_DESC, desc);
+        values.put(DatabaseHelper.COL_SERVICE_PRICE, price);
+        values.put(DatabaseHelper.COL_SERVICE_WARRANTY, warranty);
+        values.put(DatabaseHelper.COL_SERVICE_IMAGE, url);
+        values.put(DatabaseHelper.COL_SERVICE_CATEGORY, category);
+        values.put(DatabaseHelper.COL_SERVICE_BRAND, brand);
+        values.put(DatabaseHelper.COL_SERVICE_MODEL, model);
+        values.put(DatabaseHelper.COL_SERVICE_QUALITY, quality);
+        values.put(DatabaseHelper.COL_SERVICE_PART_ID, partId);
+        return db.insert(DatabaseHelper.TABLE_SERVICES, null, values) != -1;
+    }
+
+    public boolean updateService(int id, String name, String desc, double price, String warranty, 
+                                 String url, String category, String brand, String model, String quality, int partId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_SERVICE_NAME, name);
+        values.put(DatabaseHelper.COL_SERVICE_DESC, desc);
+        values.put(DatabaseHelper.COL_SERVICE_PRICE, price);
+        values.put(DatabaseHelper.COL_SERVICE_WARRANTY, warranty);
+        values.put(DatabaseHelper.COL_SERVICE_IMAGE, url);
+        values.put(DatabaseHelper.COL_SERVICE_CATEGORY, category);
+        values.put(DatabaseHelper.COL_SERVICE_BRAND, brand);
+        values.put(DatabaseHelper.COL_SERVICE_MODEL, model);
+        values.put(DatabaseHelper.COL_SERVICE_QUALITY, quality);
+        values.put(DatabaseHelper.COL_SERVICE_PART_ID, partId);
+        return db.update(DatabaseHelper.TABLE_SERVICES, values, DatabaseHelper.COL_SERVICE_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteService(int id) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(DatabaseHelper.TABLE_SERVICES, DatabaseHelper.COL_SERVICE_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 }

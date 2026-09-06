@@ -2,27 +2,27 @@ package com.example.techfix.features.auth.data;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.core.view.GravityCompat;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.booking.ui.MyBookingsActivity;
+import com.example.techfix.features.branches.ui.BranchesActivity;
+import com.example.techfix.features.services.ui.ServicesActivity;
 
 public class CustomerHomeActivity extends AppCompatActivity {
 
-    // Drawer
-    private DrawerLayout customerDrawerLayout;
+    // ScrollView for refresh
+    private ScrollView scrollViewHome;
 
     // Header
-    private ImageView imgCustomerMenu;
     private ImageView imgCustomerNotification;
 
     // Welcome
@@ -41,19 +41,8 @@ public class CustomerHomeActivity extends AppCompatActivity {
     // Bottom navigation
     private LinearLayout navHome;
     private LinearLayout navMyRepairs;
-    private LinearLayout navHistory;
+    private LinearLayout navBranches;
     private LinearLayout navProfile;
-
-    // Drawer menu
-    private TextView menuCustomerHome;
-    private TextView menuCustomerProfile;
-    private TextView menuCustomerRepairs;
-    private TextView menuCustomerHistory;
-    private TextView menuCustomerBranches;
-    private TextView menuCustomerSupport;
-    private TextView menuCustomerLogout;
-
-    private TextView txtDrawerCustomer;
 
     // Database
     private DatabaseHelper databaseHelper;
@@ -78,20 +67,11 @@ public class CustomerHomeActivity extends AppCompatActivity {
                 getIntent().getStringExtra("USER_EMAIL");
 
 
-        // =====================================
-        // CONNECT DRAWER
-        // =====================================
-
-        customerDrawerLayout =
-                findViewById(R.id.customerDrawerLayout);
-
+        scrollViewHome = findViewById(R.id.scrollHome);
 
         // =====================================
         // HEADER
         // =====================================
-
-        imgCustomerMenu =
-                findViewById(R.id.imgCustomerMenu);
 
         imgCustomerNotification =
                 findViewById(R.id.imgCustomerNotification);
@@ -103,9 +83,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         txtWelcome =
                 findViewById(R.id.txtWelcome);
-
-        txtDrawerCustomer =
-                findViewById(R.id.txtDrawerCustomer);
 
 
         // =====================================
@@ -146,37 +123,11 @@ public class CustomerHomeActivity extends AppCompatActivity {
         navMyRepairs =
                 findViewById(R.id.navMyRepairs);
 
-        navHistory =
-                findViewById(R.id.navHistory);
+        navBranches =
+                findViewById(R.id.navBranches);
 
         navProfile =
                 findViewById(R.id.navProfile);
-
-
-        // =====================================
-        // DRAWER MENU
-        // =====================================
-
-        menuCustomerHome =
-                findViewById(R.id.menuCustomerHome);
-
-        menuCustomerProfile =
-                findViewById(R.id.menuCustomerProfile);
-
-        menuCustomerRepairs =
-                findViewById(R.id.menuCustomerRepairs);
-
-        menuCustomerHistory =
-                findViewById(R.id.menuCustomerHistory);
-
-        menuCustomerBranches =
-                findViewById(R.id.menuCustomerBranches);
-
-        menuCustomerSupport =
-                findViewById(R.id.menuCustomerSupport);
-
-        menuCustomerLogout =
-                findViewById(R.id.menuCustomerLogout);
 
 
         // =====================================
@@ -184,18 +135,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         loadCustomerName();
-
-
-        // =====================================
-        // OPEN DRAWER
-        // =====================================
-
-        imgCustomerMenu.setOnClickListener(v -> {
-
-            customerDrawerLayout.openDrawer(
-                    Gravity.START
-            );
-        });
 
 
         // =====================================
@@ -217,14 +156,9 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         txtViewAll.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "View All Services",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Member 2 can connect ServicesActivity later.
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -233,12 +167,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardPhoneRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Phone Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Phone");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -247,12 +179,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardLaptopRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Laptop Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Laptop");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -261,12 +191,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardDesktopRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Desktop Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Desktop");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -275,12 +203,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         cardTabletRepair.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Tablet Repair Selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
+            intent.putExtra("CATEGORY", "Tablet");
+            intent.putExtra("USER_EMAIL", userEmail);
+            startActivity(intent);
         });
 
 
@@ -289,33 +215,28 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navHome.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Home",
-                    Toast.LENGTH_SHORT
-            ).show();
+            refreshDashboard();
         });
 
 
         // =====================================
-        // BOTTOM - MY REPAIRS
+        // BOTTOM - REPAIRS
         // =====================================
 
         navMyRepairs.setOnClickListener(v -> {
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
+            Intent intent = new Intent(CustomerHomeActivity.this, MyBookingsActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
             startActivity(intent);
         });
 
 
         // =====================================
-        // BOTTOM - HISTORY
+        // BOTTOM - BRANCHES
         // =====================================
 
-        navHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
-            intent.putExtra("USER_EMAIL", userEmail);
+        navBranches.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerHomeActivity.this, BranchesActivity.class);
+            intent.putExtra("IS_ADMIN", false);
             startActivity(intent);
         });
 
@@ -328,116 +249,22 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
             openProfile();
         });
+    }
 
 
-        // =====================================
-        // DRAWER - HOME
-        // =====================================
-
-        menuCustomerHome.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-        });
-
-
-        // =====================================
-        // DRAWER - PROFILE
-        // =====================================
-
-        menuCustomerProfile.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            openProfile();
-        });
-
-
-        // =====================================
-        // DRAWER - MY REPAIRS
-        // =====================================
-
-        menuCustomerRepairs.setOnClickListener(v -> {
-            customerDrawerLayout.closeDrawer(Gravity.START);
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.MyBookingsActivity.class);
-            intent.putExtra("USER_EMAIL", userEmail);
-            startActivity(intent);
-        });
-
-
-        // =====================================
-        // DRAWER - HISTORY
-        // =====================================
-
-        menuCustomerHistory.setOnClickListener(v -> {
-            customerDrawerLayout.closeDrawer(Gravity.START);
-            Intent intent = new Intent(CustomerHomeActivity.this, com.example.techfix.features.booking.ui.RepairHistoryActivity.class);
-            intent.putExtra("USER_EMAIL", userEmail);
-            startActivity(intent);
-        });
-
-
-        // =====================================
-        // DRAWER - BRANCHES
-        // =====================================
-
-        menuCustomerBranches.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Branches",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // Member 3 can connect BranchActivity later.
-        });
-
-
-        // =====================================
-        // DRAWER - CUSTOMER SUPPORT
-        // =====================================
-
-        menuCustomerSupport.setOnClickListener(v -> {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Customer Support",
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
-
-
-        // =====================================
-        // DRAWER - LOGOUT
-        // =====================================
-
-        menuCustomerLogout.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    CustomerHomeActivity.this,
-                    LoginActivity.class
-            );
-
-            intent.setFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK
-            );
-
-            startActivity(intent);
-
-            finish();
-        });
+    private void refreshDashboard() {
+        if (edtSearchService != null) {
+            edtSearchService.setText("");
+            edtSearchService.clearFocus();
+        }
+        
+        loadCustomerName();
+        
+        if (scrollViewHome != null) {
+            scrollViewHome.smoothScrollTo(0, 0);
+        }
+        
+        Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -481,18 +308,10 @@ public class CustomerHomeActivity extends AppCompatActivity {
                             " 👋"
             );
 
-            txtDrawerCustomer.setText(
-                    customerName
-            );
-
         } else {
 
             txtWelcome.setText(
                     "Hello, Customer 👋"
-            );
-
-            txtDrawerCustomer.setText(
-                    "Customer"
             );
         }
     }
@@ -509,28 +328,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
         if (databaseHelper != null) {
 
             loadCustomerName();
-        }
-    }
-
-
-    // =========================================
-    // BACK BUTTON
-    // =========================================
-
-    @Override
-    public void onBackPressed() {
-
-        if (customerDrawerLayout.isDrawerOpen(
-                Gravity.START
-        )) {
-
-            customerDrawerLayout.closeDrawer(
-                    Gravity.START
-            );
-
-        } else {
-
-            super.onBackPressed();
         }
     }
 }

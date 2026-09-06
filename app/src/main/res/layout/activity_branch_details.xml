@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_light">
+
+    <!-- Top Action Bar - Matching Branches UI -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarBranchDetails"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/brand_blue"
+        android:paddingTop="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Branch Details"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvDetailBranchName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Colombo Main Branch"
+                android:textColor="@color/brand_blue_dark"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDetailBranchAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="123, Galle Road, Colombo 03"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:lineSpacingExtra="4dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="24dp"
+                android:background="@color/divider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact Numbers"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:textAllCaps="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDetailPhone1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="011 234 5678"
+                android:textColor="@color/brand_blue"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:drawablePadding="12dp"
+                app:drawableStartCompat="@android:drawable/ic_menu_call"
+                app:drawableTint="@color/brand_blue" />
+
+            <TextView
+                android:id="@+id/tvDetailPhone2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="011 234 5679"
+                android:textColor="@color/brand_blue"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:drawablePadding="12dp"
+                app:drawableStartCompat="@android:drawable/ic_menu_call"
+                app:drawableTint="@color/brand_blue"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="24dp"
+                android:background="@color/divider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Opening Hours"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:textAllCaps="true"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/tvDetailMonFri"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Monday - Friday: 8:00 AM - 6:00 PM"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:paddingVertical="4dp" />
+
+                <TextView
+                    android:id="@+id/tvDetailSat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Saturday: 9:00 AM - 4:00 PM"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:paddingVertical="4dp" />
+
+                <TextView
+                    android:id="@+id/tvDetailSun"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday: Closed"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:paddingVertical="4dp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="24dp"
+                android:background="@color/divider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Map"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:textAllCaps="true"
+                android:textStyle="bold" />
+
+            <!-- Interactive Map Container -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/divider">
+
+                <fragment
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <Button
+                android:id="@+id/btnViewOnMap"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Open in Google Maps"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/brand_blue"
+                app:icon="@android:drawable/ic_menu_mapmode" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

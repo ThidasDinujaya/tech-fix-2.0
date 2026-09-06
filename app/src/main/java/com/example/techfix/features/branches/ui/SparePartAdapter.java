@@ -7,7 +7,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.example.techfix.R;
 import com.example.techfix.features.branches.data.SparePart;
 
@@ -16,9 +15,16 @@ import java.util.List;
 public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.PartViewHolder> {
 
     private List<SparePart> list;
+    private OnPartActionListener listener;
 
-    public SparePartAdapter(List<SparePart> list) {
+    public interface OnPartActionListener {
+        void onEdit(SparePart part);
+        void onDelete(SparePart part);
+    }
+
+    public SparePartAdapter(List<SparePart> list, OnPartActionListener listener) {
         this.list = list;
+        this.listener = listener;
     }
 
     @NonNull
@@ -32,8 +38,15 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
     public void onBindViewHolder(@NonNull PartViewHolder holder, int position) {
         SparePart p = list.get(position);
         holder.tvName.setText(p.getName());
-        holder.tvStock.setText("Stock: " + p.getStock());
-        holder.tvPrice.setText(String.format("LKR %.2f", p.getPrice()));
+        holder.tvStock.setText("Stock: " + p.getStock() + " | " + p.getQuality());
+        holder.tvPrice.setText(String.format("LKR %,.2f", p.getPrice()));
+        
+        if (p.getBrand() != null && p.getModel() != null) {
+            holder.tvName.setText(p.getName() + " (" + p.getBrand() + " " + p.getModel() + ")");
+        }
+
+        holder.btnEdit.setOnClickListener(v -> listener.onEdit(p));
+        holder.btnDelete.setOnClickListener(v -> listener.onDelete(p));
     }
 
     @Override
@@ -41,12 +54,15 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
 
     static class PartViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvStock, tvPrice;
+        View btnEdit, btnDelete;
 
         public PartViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvPartName);
             tvStock = itemView.findViewById(R.id.tvPartStock);
             tvPrice = itemView.findViewById(R.id.tvPartPrice);
+            btnEdit = itemView.findViewById(R.id.btnEditPart);
+            btnDelete = itemView.findViewById(R.id.btnDeletePart);
         }
     }
 }
