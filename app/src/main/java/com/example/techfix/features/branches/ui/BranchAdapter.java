@@ -1,5 +1,6 @@
 package com.example.techfix.features.branches.ui;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,12 @@ import com.example.techfix.R;
 import com.example.techfix.features.branches.data.Branch;
 
 import java.util.List;
+import java.util.Locale;
 
 public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchViewHolder> {
 
     private List<Branch> branchList;
+    private boolean isAdmin;
     private OnBranchActionListener listener;
 
     public interface OnBranchActionListener {
@@ -23,8 +26,9 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
         void onDelete(Branch branch);
     }
 
-    public BranchAdapter(List<Branch> branchList, OnBranchActionListener listener) {
+    public BranchAdapter(List<Branch> branchList, boolean isAdmin, OnBranchActionListener listener) {
         this.branchList = branchList;
+        this.isAdmin = isAdmin;
         this.listener = listener;
     }
 
@@ -40,11 +44,33 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
         Branch branch = branchList.get(position);
         holder.tvName.setText(branch.getName());
         holder.tvAddress.setText(branch.getAddress());
-        holder.tvPhone.setText(branch.getPhone());
-        holder.tvHours.setText(branch.getHours());
+        
+        String phoneDisplay = branch.getPhone();
+        if (branch.getPhone2() != null && !branch.getPhone2().isEmpty()) {
+            phoneDisplay += " / " + branch.getPhone2();
+        }
+        holder.tvPhone.setText(phoneDisplay);
+        
+        holder.tvHoursMonFri.setText("Mon-Fri: " + branch.getHoursMonFri());
+        holder.tvHoursSat.setText("Sat: " + branch.getHoursSat());
+        holder.tvHoursSun.setText("Sun: " + branch.getHoursSun());
 
-        holder.btnEdit.setOnClickListener(v -> listener.onEdit(branch));
-        holder.btnDelete.setOnClickListener(v -> listener.onDelete(branch));
+        if (branch.getHoursSun() != null && "Closed".equalsIgnoreCase(branch.getHoursSun().trim())) {
+            holder.tvHoursSun.setTextColor(Color.parseColor("#C62828"));
+        } else {
+            holder.tvHoursSun.setTextColor(Color.parseColor("#2E7D32"));
+        }
+
+        holder.tvLocation.setText(String.format(Locale.US, "Lat: %.4f, Lon: %.4f", 
+                branch.getLatitude(), branch.getLongitude()));
+
+        if (isAdmin) {
+            holder.adminActions.setVisibility(View.VISIBLE);
+            holder.btnEdit.setOnClickListener(v -> listener.onEdit(branch));
+            holder.btnDelete.setOnClickListener(v -> listener.onDelete(branch));
+        } else {
+            holder.adminActions.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -53,17 +79,22 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
     }
 
     static class BranchViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvAddress, tvPhone, tvHours;
+        TextView tvName, tvAddress, tvPhone, tvHoursMonFri, tvHoursSat, tvHoursSun, tvLocation;
         ImageView btnEdit, btnDelete;
+        View adminActions;
 
         public BranchViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvBranchName);
             tvAddress = itemView.findViewById(R.id.tvBranchAddress);
             tvPhone = itemView.findViewById(R.id.tvBranchPhone);
-            tvHours = itemView.findViewById(R.id.tvBranchHours);
+            tvHoursMonFri = itemView.findViewById(R.id.tvBranchHoursMonFri);
+            tvHoursSat = itemView.findViewById(R.id.tvBranchHoursSat);
+            tvHoursSun = itemView.findViewById(R.id.tvBranchHoursSun);
+            tvLocation = itemView.findViewById(R.id.tvBranchLocation);
             btnEdit = itemView.findViewById(R.id.btnEditBranch);
             btnDelete = itemView.findViewById(R.id.btnDeleteBranch);
+            adminActions = itemView.findViewById(R.id.layoutAdminActions);
         }
     }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 20;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -66,6 +66,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
+    public static final String COL_BRANCH_PHONE2 = "phone2";
+    public static final String COL_BRANCH_HOURS_MON_FRI = "hours_mon_fri";
+    public static final String COL_BRANCH_HOURS_SAT = "hours_sat";
+    public static final String COL_BRANCH_HOURS_SUN = "hours_sun";
     public static final String COL_BRANCH_LATITUDE = "latitude";
     public static final String COL_BRANCH_LONGITUDE = "longitude";
 
@@ -135,43 +139,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void populateInitialData(SQLiteDatabase db) {
         // Populate Branches
-        insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "08:00 AM - 06:00 PM", 6.9271, 79.8612);
-        insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "08:30 AM - 05:30 PM", 7.2906, 80.6337);
-        insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "09:00 AM - 05:00 PM", 6.0367, 80.2170);
-        insertBranch(db, "Negombo Center", "78 Main Street, Negombo", "0312345678", "08:00 AM - 07:00 PM", 7.2089, 79.8355);
+        insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "0112345679", 
+                     "08:00 AM - 06:00 PM", "09:00 AM - 04:00 PM", "Closed", 6.9271, 79.8612);
+        insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "", 
+                     "08:30 AM - 05:30 PM", "08:30 AM - 01:00 PM", "Closed", 7.2906, 80.6337);
+        insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "", 
+                     "09:00 AM - 05:00 PM", "09:00 AM - 12:00 PM", "Closed", 6.0367, 80.2170);
 
         // Populate Technicians
         insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
         insertTechnician(db, "Amara Silva", "Mobile Expert", "Kandy Branch", "Busy");
-        insertTechnician(db, "John Doe", "Laptop Specialist", "Galle Fort", "Available");
-        insertTechnician(db, "Nimal Gamage", "Desktop Support", "Negombo Center", "Available");
 
         // Populate Spare Parts
         insertSparePart(db, "iPhone 13 Screen", 50, 15000.0);
         insertSparePart(db, "Samsung S22 Battery", 30, 8500.0);
-        insertSparePart(db, "500GB SSD", 100, 12500.0);
-        insertSparePart(db, "8GB DDR4 RAM", 200, 7500.0);
         
         // Populate Brands & Models
         long appleId = insertBrand(db, "Apple", "Phone");
         insertModel(db, appleId, "iPhone 15 Pro");
         insertModel(db, appleId, "iPhone 14");
-        insertModel(db, appleId, "iPhone 13");
-        insertModel(db, appleId, "Other");
 
         long samsungId = insertBrand(db, "Samsung", "Phone");
         insertModel(db, samsungId, "Galaxy S23 Ultra");
         insertModel(db, samsungId, "Galaxy S22");
-        insertModel(db, samsungId, "Galaxy A54");
-        insertModel(db, samsungId, "Other");
-
-        long hpId = insertBrand(db, "HP", "Laptop");
-        insertModel(db, hpId, "Pavilion 15");
-        insertModel(db, hpId, "Envy x360");
-        insertModel(db, hpId, "Other");
-
-        insertBrand(db, "Other", "Phone");
-        insertBrand(db, "Other", "Laptop");
 
         // Populate Qualities
         insertQuality(db, "Original", 1.5);
@@ -200,14 +190,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_QUALITIES, null, v);
     }
 
-    private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String hours, double lat, double lon) {
+    private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String phone2,
+                              String hMonFri, String hSat, String hSun, double lat, double lon) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, addr);
         v.put(COL_PHONE, phone);
-        v.put(COL_BRANCH_HOURS, hours);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         db.insert(TABLE_BRANCHES, null, v);
     }
 
@@ -230,7 +225,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop old tables to ensure the new schema and mock data are applied
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
@@ -246,18 +240,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop all tables and recreate them if a downgrade is requested
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANCHES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECHNICIANS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPARE_PARTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
-        onCreate(db);
+        onUpgrade(db, oldVersion, newVersion);
     }
 
     private void createBranchManagementTables(SQLiteDatabase db) {
@@ -266,7 +249,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_BRANCH_ADDRESS + " TEXT NOT NULL, "
                 + COL_PHONE + " TEXT NOT NULL, "
-                + COL_BRANCH_HOURS + " TEXT NOT NULL, "
+                + COL_BRANCH_PHONE2 + " TEXT, "
+                + COL_BRANCH_HOURS_MON_FRI + " TEXT, "
+                + COL_BRANCH_HOURS_SAT + " TEXT, "
+                + COL_BRANCH_HOURS_SUN + " TEXT, "
+                + COL_BRANCH_HOURS + " TEXT, "
                 + COL_BRANCH_LATITUDE + " REAL NOT NULL, "
                 + COL_BRANCH_LONGITUDE + " REAL NOT NULL)");
 
@@ -381,7 +368,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_ADDRESS)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_PHONE)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_PHONE2)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_MON_FRI)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SAT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SUN)),
                         cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LATITUDE)),
                         cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LONGITUDE))));
             }
@@ -462,26 +452,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_SPARE_PARTS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
-    public boolean addBranch(String name, String address, String phone, String hours, double lat, double lon) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        values.put(COL_BRANCH_ADDRESS, address);
-        values.put(COL_PHONE, phone);
-        values.put(COL_BRANCH_HOURS, hours);
-        values.put(COL_BRANCH_LATITUDE, lat);
-        values.put(COL_BRANCH_LONGITUDE, lon);
-        return getWritableDatabase().insert(TABLE_BRANCHES, null, values) != -1;
+    public boolean addBranch(String name, String address, String phone, String phone2, 
+                             String hMonFri, String hSat, String hSun, double lat, double lon) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, address);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
+        return getWritableDatabase().insert(TABLE_BRANCHES, null, v) != -1;
     }
 
-    public boolean updateBranch(int id, String name, String address, String phone, String hours, double lat, double lon) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        values.put(COL_BRANCH_ADDRESS, address);
-        values.put(COL_PHONE, phone);
-        values.put(COL_BRANCH_HOURS, hours);
-        values.put(COL_BRANCH_LATITUDE, lat);
-        values.put(COL_BRANCH_LONGITUDE, lon);
-        return getWritableDatabase().update(TABLE_BRANCHES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    public boolean updateBranch(int id, String name, String address, String phone, String phone2,
+                                String hMonFri, String hSat, String hSun, double lat, double lon) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        v.put(COL_BRANCH_ADDRESS, address);
+        v.put(COL_PHONE, phone);
+        v.put(COL_BRANCH_PHONE2, phone2);
+        v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
+        v.put(COL_BRANCH_HOURS_SAT, hSat);
+        v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
+        return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
     public boolean deleteBranch(int id) {

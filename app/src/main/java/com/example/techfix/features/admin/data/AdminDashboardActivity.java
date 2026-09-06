@@ -76,7 +76,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardServices.setOnClickListener(v -> startActivity(new Intent(this, AdminManageServicesActivity.class)));
         cardTechnicians.setOnClickListener(v -> startActivity(new Intent(this, ManageTechniciansActivity.class)));
         cardParts.setOnClickListener(v -> startActivity(new Intent(this, ManageSparePartsActivity.class)));
-        cardBranches.setOnClickListener(v -> startActivity(new Intent(this, BranchesActivity.class)));
+        cardBranches.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BranchesActivity.class);
+            intent.putExtra("IS_ADMIN", true);
+            startActivity(intent);
+        });
         cardPayments.setOnClickListener(v -> startActivity(new Intent(this, PaymentActivity.class)));
         
         cardDevices.setOnClickListener(v -> startActivity(new Intent(this, AdminDeviceManagementActivity.class)));

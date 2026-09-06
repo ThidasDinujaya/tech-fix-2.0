@@ -235,6 +235,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         navBranches.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, BranchesActivity.class);
+            intent.putExtra("IS_ADMIN", false);
             startActivity(intent);
         });
 
