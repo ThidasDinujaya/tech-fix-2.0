@@ -8,17 +8,20 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.data.BookingRepository;
 import com.example.techfix.features.booking.data.BookingStatus;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 
 // Manages the logic and validation for the repair booking form
 public class BookRepairViewModel extends AndroidViewModel {
 
     private final BookingRepository repository;
+    private final FirebaseSyncRepository syncRepo;
     private final MutableLiveData<Boolean> bookingStatus = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     public BookRepairViewModel(@NonNull Application application) {
         super(application);
         repository = BookingRepository.getInstance(application);
+        syncRepo = new FirebaseSyncRepository(application);
     }
 
     // Validates the form data and attempts to save it to the database
@@ -40,6 +43,8 @@ public class BookRepairViewModel extends AndroidViewModel {
         new Thread(() -> {
             long result = repository.insertBooking(newBooking);
             if (result != -1) {
+                newBooking.setId((int) result);
+                syncRepo.syncBooking(newBooking);
                 bookingStatus.postValue(true);
             } else {
                 errorMessage.postValue("Database error: Could not save booking");

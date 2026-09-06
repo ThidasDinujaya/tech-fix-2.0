@@ -17,6 +17,8 @@ public class Booking implements Serializable {
     private String branchName;
     private String technicianName;
 
+    public Booking() {} // Required for Firebase
+
     public Booking(int id, int serviceId, String deviceType, String brand, String model, 
                    String description, String appointmentDate, String imagePath, String status, 
                    int userId, String branchName, String technicianName) {
