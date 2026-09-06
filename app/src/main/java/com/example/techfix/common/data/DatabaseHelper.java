@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 25;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -82,6 +82,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String COL_SPARE_PART_STOCK = "stock";
     public static final String COL_SPARE_PART_PRICE = "price";
+    public static final String COL_SPARE_PART_BRAND = "brand";
+    public static final String COL_SPARE_PART_MODEL = "model";
+    public static final String COL_SPARE_PART_QUALITY = "quality";
     
     public static final String COL_BRAND_CATEGORY = "category";
     public static final String COL_MODEL_BRAND_ID = "brand_id";
@@ -168,13 +171,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertTechnician(db, "Amara Silva", "Mobile Repair Expert", "Kandy Branch", "Busy");
 
         // Populate Spare Parts
-        insertSparePart(db, "iPhone 13 Screen", 50, 15000.0);
-        insertSparePart(db, "Samsung S22 Battery", 30, 8500.0);
-        
+        insertSparePart(db, "iPhone 13 Screen", 50, 15000.0, "Apple", "iPhone 13", "Original");
+        insertSparePart(db, "Samsung S22 Battery", 30, 8500.0, "Samsung", "Galaxy S22", "Grade A");
+
         // Populate Brands & Models
         long appleId = insertBrand(db, "Apple", "Phone");
         insertModel(db, appleId, "iPhone 15 Pro");
         insertModel(db, appleId, "iPhone 14");
+        insertModel(db, appleId, "iPhone 13");
 
         long samsungId = insertBrand(db, "Samsung", "Phone");
         insertModel(db, samsungId, "Galaxy S23 Ultra");
@@ -245,11 +249,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_TECHNICIANS, null, v);
     }
 
-    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price) {
+    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price, String brand, String model, String quality) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_SPARE_PART_STOCK, stock);
         v.put(COL_SPARE_PART_PRICE, price);
+        v.put(COL_SPARE_PART_BRAND, brand);
+        v.put(COL_SPARE_PART_MODEL, model);
+        v.put(COL_SPARE_PART_QUALITY, quality);
         db.insert(TABLE_SPARE_PARTS, null, v);
     }
 
@@ -301,7 +308,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL, "
                 + COL_SPARE_PART_STOCK + " INTEGER NOT NULL, "
-                + COL_SPARE_PART_PRICE + " REAL NOT NULL)");
+                + COL_SPARE_PART_PRICE + " REAL NOT NULL, "
+                + COL_SPARE_PART_BRAND + " TEXT, "
+                + COL_SPARE_PART_MODEL + " TEXT, "
+                + COL_SPARE_PART_QUALITY + " TEXT)");
     }
     
     private void createDeviceManagementTables(SQLiteDatabase db) {
@@ -472,25 +482,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_SPARE_PART_STOCK)),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_SPARE_PART_PRICE))));
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_SPARE_PART_PRICE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_BRAND)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_MODEL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_QUALITY))));
             }
         }
         return spareParts;
     }
 
-    public boolean addSparePart(String name, int stock, double price) {
+    public boolean addSparePart(String name, int stock, double price, String brand, String model, String quality) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_SPARE_PART_STOCK, stock);
         values.put(COL_SPARE_PART_PRICE, price);
+        values.put(COL_SPARE_PART_BRAND, brand);
+        values.put(COL_SPARE_PART_MODEL, model);
+        values.put(COL_SPARE_PART_QUALITY, quality);
         return getWritableDatabase().insert(TABLE_SPARE_PARTS, null, values) != -1;
     }
 
-    public boolean updateSparePart(int id, String name, int stock, double price) {
+    public boolean updateSparePart(int id, String name, int stock, double price, String brand, String model, String quality) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_SPARE_PART_STOCK, stock);
         values.put(COL_SPARE_PART_PRICE, price);
+        values.put(COL_SPARE_PART_BRAND, brand);
+        values.put(COL_SPARE_PART_MODEL, model);
+        values.put(COL_SPARE_PART_QUALITY, quality);
         return getWritableDatabase().update(TABLE_SPARE_PARTS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 

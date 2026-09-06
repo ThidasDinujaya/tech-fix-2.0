@@ -39,8 +39,14 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
     public void onBindViewHolder(@NonNull PartViewHolder holder, int position) {
         SparePart p = list.get(position);
         holder.tvName.setText(p.getName());
-        holder.tvStock.setText("Stock: " + p.getStock());
+        holder.tvStock.setText("Stock: " + p.getStock() + " | " + p.getQuality());
         holder.tvPrice.setText(String.format("LKR %,.2f", p.getPrice()));
+        
+        // Show Brand and Model in a combined view or reuse existing fields
+        // For now, let's just update the name or stock line
+        if (p.getBrand() != null && p.getModel() != null) {
+            holder.tvName.setText(p.getName() + " (" + p.getBrand() + " " + p.getModel() + ")");
+        }
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(p));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(p));
