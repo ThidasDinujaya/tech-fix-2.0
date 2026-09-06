@@ -1,5 +1,6 @@
 package com.example.techfix.features.booking.ui;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingStatus;
 import java.util.List;
 
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
@@ -48,7 +50,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBookingId, tvStatus, tvServiceName, tvDeviceModel, tvDateTime;
+        TextView tvBookingId, tvStatus, tvServiceName, tvDeviceModel, tvDateTime, tvTech;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -57,24 +59,33 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             tvServiceName = itemView.findViewById(R.id.tvServiceName);
             tvDeviceModel = itemView.findViewById(R.id.tvDeviceModel);
             tvDateTime = itemView.findViewById(R.id.tvDateTime);
+            // We'll reuse/add a tech field if needed, or put it in status
         }
 
         public void bind(final Booking booking, final OnBookingClickListener listener) {
-            tvBookingId.setText("TF" + String.format("%04d", booking.getId()));
+            tvBookingId.setText("TF" + (1000 + booking.getId()));
             tvStatus.setText(booking.getStatus());
-            tvServiceName.setText("Repair Service"); // In a real app, we'd fetch the service name by ID
+            tvServiceName.setText("Repair Request");
             tvDeviceModel.setText(booking.getBrand() + " " + booking.getModel());
             tvDateTime.setText(booking.getAppointmentDate());
 
+            if (booking.getTechnicianName() != null && !booking.getTechnicianName().isEmpty()) {
+                tvDeviceModel.setText(booking.getBrand() + " " + booking.getModel() + "\nAssigned: " + booking.getTechnicianName());
+            }
+
             itemView.setOnClickListener(v -> listener.onBookingClick(booking));
             
-            // Set status color (simplified for now)
-            if ("COMPLETED".equals(booking.getStatus())) {
-                tvStatus.setBackgroundColor(itemView.getContext().getResources().getColor(android.R.color.holo_green_light));
-            } else if ("ASSIGNED".equals(booking.getStatus())) {
-                tvStatus.setBackgroundColor(itemView.getContext().getResources().getColor(android.R.color.holo_blue_light));
+            // Set status color based on current status
+            String status = booking.getStatus();
+            if (status.equals(BookingStatus.PENDING)) {
+                tvStatus.setBackgroundColor(Color.parseColor("#FFE082"));
+                tvStatus.setTextColor(Color.parseColor("#FF8F00"));
+            } else if (status.equals(BookingStatus.COMPLETED)) {
+                tvStatus.setBackgroundColor(Color.parseColor("#C8E6C9"));
+                tvStatus.setTextColor(Color.parseColor("#2E7D32"));
             } else {
-                tvStatus.setBackgroundColor(itemView.getContext().getResources().getColor(android.R.color.holo_orange_light));
+                tvStatus.setBackgroundColor(Color.parseColor("#BBDEFB"));
+                tvStatus.setTextColor(Color.parseColor("#1565C0"));
             }
         }
     }

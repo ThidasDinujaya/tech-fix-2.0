@@ -34,7 +34,7 @@ public class BookRepairViewModel extends AndroidViewModel {
         }
 
         // Create a new booking object with initial PENDING status
-        Booking newBooking = new Booking(0, serviceId, type, brand, model, desc, date, "", BookingStatus.PENDING, userId, branchName);
+        Booking newBooking = new Booking(0, serviceId, type, brand, model, desc, date, "", BookingStatus.PENDING, userId, branchName, "");
 
         // Run database operation in a background thread to keep UI smooth
         new Thread(() -> {

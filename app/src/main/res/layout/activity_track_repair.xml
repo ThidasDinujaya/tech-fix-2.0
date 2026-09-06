@@ -62,6 +62,16 @@
             android:textColor="@color/gray_700" />
 
         <TextView
+            android:id="@+id/tvAssignedTech"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Assigned: Not Yet"
+            android:textColor="@color/brand_blue"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"

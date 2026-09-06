@@ -41,6 +41,7 @@ public class BookingRepository {
         values.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
         values.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
         values.put(DatabaseHelper.COL_BOOKING_BRANCH_NAME, booking.getBranchName());
+        values.put(DatabaseHelper.COL_BOOKING_TECH_NAME, booking.getTechnicianName());
 
         // Returns the ID of the new row or -1 if an error occurred
         return db.insert(DatabaseHelper.TABLE_BOOKINGS, null, values);
@@ -147,7 +148,8 @@ public class BookingRepository {
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID)),
-                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRANCH_NAME))
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRANCH_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_TECH_NAME))
         );
     }
 
@@ -155,6 +157,14 @@ public class BookingRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COL_BOOKING_STATUS, status);
+        return db.update(DatabaseHelper.TABLE_BOOKINGS, values, DatabaseHelper.COL_BOOKING_ID + " = ?", new String[]{String.valueOf(bookingId)}) > 0;
+    }
+
+    public boolean updateBookingAssignment(int bookingId, String status, String techName) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_BOOKING_STATUS, status);
+        values.put(DatabaseHelper.COL_BOOKING_TECH_NAME, techName);
         return db.update(DatabaseHelper.TABLE_BOOKINGS, values, DatabaseHelper.COL_BOOKING_ID + " = ?", new String[]{String.valueOf(bookingId)}) > 0;
     }
 

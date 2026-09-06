@@ -15,9 +15,11 @@ public class Booking implements Serializable {
     private String status;
     private int userId;
     private String branchName;
+    private String technicianName;
 
     public Booking(int id, int serviceId, String deviceType, String brand, String model, 
-                   String description, String appointmentDate, String imagePath, String status, int userId, String branchName) {
+                   String description, String appointmentDate, String imagePath, String status, 
+                   int userId, String branchName, String technicianName) {
         this.id = id;
         this.serviceId = serviceId;
         this.deviceType = deviceType;
@@ -29,6 +31,7 @@ public class Booking implements Serializable {
         this.status = status;
         this.userId = userId;
         this.branchName = branchName;
+        this.technicianName = technicianName;
     }
 
     // Getters
@@ -43,8 +46,10 @@ public class Booking implements Serializable {
     public String getStatus() { return status; }
     public int getUserId() { return userId; }
     public String getBranchName() { return branchName; }
+    public String getTechnicianName() { return technicianName; }
 
     // Setters
     public void setId(int id) { this.id = id; }
     public void setStatus(String status) { this.status = status; }
+    public void setTechnicianName(String technicianName) { this.technicianName = technicianName; }
 }

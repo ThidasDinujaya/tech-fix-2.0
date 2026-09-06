@@ -42,6 +42,14 @@ public class AdminManageBookingsViewModel extends AndroidViewModel {
         }).start();
     }
 
+    public void assignTechnician(int bookingId, String status, String techName, String currentFilter) {
+        new Thread(() -> {
+            if (repository.updateBookingAssignment(bookingId, status, techName)) {
+                fetchBookings(currentFilter);
+            }
+        }).start();
+    }
+
     public void deleteBooking(int bookingId, String currentFilter) {
         new Thread(() -> {
             if (repository.deleteBooking(bookingId)) {

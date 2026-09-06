@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 31;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -50,6 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BOOKING_STATUS = "status";
     public static final String COL_BOOKING_USER_ID = "user_id";
     public static final String COL_BOOKING_BRANCH_NAME = "branch_name";
+    public static final String COL_BOOKING_TECH_NAME = "technician_name";
 
     public static final String TABLE_PAYMENTS = "payments";
     public static final String COL_ID_PAYMENT = "id";
@@ -73,8 +74,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_TECH_AVAILABILITY = "technician_availability";
     public static final String COL_AVAIL_ID = "id";
     public static final String COL_AVAIL_TECH_ID = "technician_id";
-    public static final String COL_AVAIL_DATE = "available_date"; // Format: YYYY-MM-DD
-    public static final String COL_AVAIL_STATUS = "is_available"; // 1 = Yes, 0 = No
+    public static final String COL_AVAIL_DATE = "available_date"; 
+    public static final String COL_AVAIL_STATUS = "is_available"; 
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -135,7 +136,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_IMAGE + " TEXT, " +
                 COL_BOOKING_STATUS + " TEXT, " +
                 COL_BOOKING_USER_ID + " INTEGER, " +
-                COL_BOOKING_BRANCH_NAME + " TEXT)";
+                COL_BOOKING_BRANCH_NAME + " TEXT, " +
+                COL_BOOKING_TECH_NAME + " TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
                 COL_ID_PAYMENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -510,6 +512,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean addBranch(String name, String address, String phone, String phone2, 
                              String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, address);
@@ -522,7 +525,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
-        return getWritableDatabase().insert(TABLE_BRANCHES, null, v) != -1;
+        return db.insert(TABLE_BRANCHES, null, v) != -1;
     }
 
     public boolean updateBranch(int id, String name, String address, String phone, String phone2,
@@ -535,9 +538,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
-        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
@@ -653,7 +656,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_AVAIL_DATE, date);
         values.put(COL_AVAIL_STATUS, available ? 1 : 0);
 
-        // Try update first
         int rows = db.update(TABLE_TECH_AVAILABILITY, values, 
                 COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?", 
                 new String[]{String.valueOf(techId), date});
@@ -670,7 +672,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?",
                 new String[]{String.valueOf(techId), date}, null, null, null);
         
-        boolean available = true; // Default to true if no record
+        boolean available = true; 
         if (cursor != null && cursor.moveToFirst()) {
             available = cursor.getInt(0) == 1;
             cursor.close();
@@ -679,7 +681,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getAvailableTechCount(String branchName, String date) {
-        // Find all techs in branch
         List<Technician> branchTechs = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_TECHNICIANS, null, COL_TECHNICIAN_BRANCH + "=?", 
@@ -718,5 +719,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return count;
+    }
+
+    public List<Technician> getAvailableTechsForBranch(String branchName, String date) {
+        List<Technician> allBranchTechs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECHNICIANS, null, COL_TECHNICIAN_BRANCH + "=?", 
+                new String[]{branchName}, null, null, null);
+        
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                allBranchTechs.add(new Technician(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))
+                ));
+            }
+            cursor.close();
+        }
+
+        List<Technician> availableTechs = new ArrayList<>();
+        for (Technician t : allBranchTechs) {
+            if (isTechAvailable(t.getId(), date)) {
+                availableTechs.add(t);
+            }
+        }
+        return availableTechs;
     }
 }

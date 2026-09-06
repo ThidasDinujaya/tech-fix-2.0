@@ -3,8 +3,6 @@ package com.example.techfix.features.booking.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,7 +10,6 @@ import com.example.techfix.R;
 import com.example.techfix.features.booking.data.Booking;
 import java.util.List;
 
-// Adapter for the Admin dashboard to display a list of all repair bookings
 public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapter.BookingViewHolder> {
 
     private final List<Booking> bookings;
@@ -46,9 +43,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
     }
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvId, tvStatus, tvService, tvDevice, tvDate;
-        private final Button btnUpdate;
-        private final ImageView btnDelete;
+        private final TextView tvId, tvStatus, tvService, tvDevice, tvDate, tvBranch, tvTech;
+        private final View btnUpdate, btnDelete;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -57,6 +53,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             tvService = itemView.findViewById(R.id.tvAdminServiceName);
             tvDevice = itemView.findViewById(R.id.tvAdminDeviceModel);
             tvDate = itemView.findViewById(R.id.tvAdminDate);
+            tvBranch = itemView.findViewById(R.id.tvAdminBranch);
+            tvTech = itemView.findViewById(R.id.tvAdminTech);
             btnUpdate = itemView.findViewById(R.id.btnUpdateStatus);
             btnDelete = itemView.findViewById(R.id.btnDeleteBooking);
         }
@@ -67,6 +65,10 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             tvService.setText("Repair Request");
             tvDevice.setText(booking.getBrand() + " " + booking.getModel());
             tvDate.setText(booking.getAppointmentDate());
+            tvBranch.setText("Branch: " + booking.getBranchName());
+            
+            String tech = booking.getTechnicianName();
+            tvTech.setText("Tech: " + (tech != null && !tech.isEmpty() ? tech : "Not Assigned"));
 
             btnUpdate.setOnClickListener(v -> listener.onUpdateStatus(booking));
             btnDelete.setOnClickListener(v -> listener.onDelete(booking));
