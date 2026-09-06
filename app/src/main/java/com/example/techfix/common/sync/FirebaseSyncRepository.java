@@ -28,12 +28,19 @@ public class FirebaseSyncRepository {
     }
 
     /**
-     * Pushes all local bookings to Firebase.
+     * Pushes all local bookings and technicians to Firebase.
      */
-    public void pushBookingsToFirebase() {
+    public void pushAllDataToFirebase() {
+        // Push Bookings
         List<Booking> localBookings = bookingRepo.getAllBookings();
         for (Booking booking : localBookings) {
             syncBooking(booking);
+        }
+
+        // Push Technicians
+        List<Technician> localTechs = dbHelper.getAllTechnicians();
+        for (Technician tech : localTechs) {
+            syncTechnician(tech);
         }
     }
 
@@ -45,7 +52,10 @@ public class FirebaseSyncRepository {
                 .document(String.valueOf(booking.getId()))
                 .set(booking)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Booking synced: " + booking.getId()))
-                .addOnFailureListener(e -> Log.e(TAG, "Error syncing booking", e));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error syncing booking " + booking.getId() + ": " + e.getMessage());
+                    e.printStackTrace();
+                });
     }
 
     /**
@@ -56,7 +66,10 @@ public class FirebaseSyncRepository {
                 .document(String.valueOf(technician.getId()))
                 .set(technician)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Tech synced: " + technician.getName()))
-                .addOnFailureListener(e -> Log.e(TAG, "Error syncing tech", e));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error syncing tech " + technician.getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                });
     }
 
     /**
@@ -68,7 +81,6 @@ public class FirebaseSyncRepository {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Booking booking = document.toObject(Booking.class);
-                        // Here you would logic to update local SQLite if it's newer
                         Log.d(TAG, "Fetched booking from Firebase: " + booking.getId());
                     }
                 });
