@@ -1,5 +1,6 @@
 package com.example.techfix.features.branches.ui;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,6 @@ import com.example.techfix.R;
 import com.example.techfix.features.branches.data.Branch;
 
 import java.util.List;
-import java.util.Locale;
 
 public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchViewHolder> {
 
@@ -61,8 +61,11 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             holder.tvHoursSun.setTextColor(Color.parseColor("#2E7D32"));
         }
 
-        holder.tvLocation.setText(String.format(Locale.US, "Lat: %.4f, Lon: %.4f", 
-                branch.getLatitude(), branch.getLongitude()));
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), BranchDetailsActivity.class);
+            intent.putExtra("branch_data", branch);
+            v.getContext().startActivity(intent);
+        });
 
         if (isAdmin) {
             holder.adminActions.setVisibility(View.VISIBLE);
@@ -79,7 +82,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
     }
 
     static class BranchViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvAddress, tvPhone, tvHoursMonFri, tvHoursSat, tvHoursSun, tvLocation;
+        TextView tvName, tvAddress, tvPhone, tvHoursMonFri, tvHoursSat, tvHoursSun;
         ImageView btnEdit, btnDelete;
         View adminActions;
 
@@ -91,7 +94,6 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             tvHoursMonFri = itemView.findViewById(R.id.tvBranchHoursMonFri);
             tvHoursSat = itemView.findViewById(R.id.tvBranchHoursSat);
             tvHoursSun = itemView.findViewById(R.id.tvBranchHoursSun);
-            tvLocation = itemView.findViewById(R.id.tvBranchLocation);
             btnEdit = itemView.findViewById(R.id.btnEditBranch);
             btnDelete = itemView.findViewById(R.id.btnDeleteBranch);
             adminActions = itemView.findViewById(R.id.layoutAdminActions);

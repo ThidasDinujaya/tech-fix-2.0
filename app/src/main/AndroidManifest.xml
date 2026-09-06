@@ -59,9 +59,9 @@
 
         <!-- Branch Management & Resources (Stephani) -->
         <activity android:name=".features.branches.ui.BranchesActivity" android:exported="false" />
+        <activity android:name=".features.branches.ui.BranchDetailsActivity" android:exported="false" />
         <activity android:name=".features.branches.ui.ManageSparePartsActivity" android:exported="false" />
         <activity android:name=".features.branches.ui.ManageTechniciansActivity" android:exported="false" />
-        <activity android:name=".features.branches.ui.MapNearestBranchActivity" android:exported="false" />
 
         <!-- Root Support (Leader) -->
         <activity android:name=".MainActivity" android:exported="false" />

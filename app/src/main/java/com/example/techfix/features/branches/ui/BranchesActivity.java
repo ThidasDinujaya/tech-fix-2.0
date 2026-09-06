@@ -45,9 +45,6 @@ public class BranchesActivity extends AppCompatActivity {
         } else {
             fab.setVisibility(View.GONE);
         }
-        
-        Toolbar toolbar = findViewById(R.id.toolbarBranches);
-        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void loadData() {
@@ -90,8 +87,7 @@ public class BranchesActivity extends AppCompatActivity {
         EditText etMonFri = view.findViewById(R.id.etHoursMonFri);
         EditText etSat = view.findViewById(R.id.etHoursSat);
         EditText etSun = view.findViewById(R.id.etHoursSun);
-        EditText etLat = view.findViewById(R.id.etBranchLat);
-        EditText etLon = view.findViewById(R.id.etBranchLon);
+        EditText etMapLink = view.findViewById(R.id.etBranchMapLink);
 
         if (branch != null) {
             etName.setText(branch.getName());
@@ -101,8 +97,7 @@ public class BranchesActivity extends AppCompatActivity {
             etMonFri.setText(branch.getHoursMonFri());
             etSat.setText(branch.getHoursSat());
             etSun.setText(branch.getHoursSun());
-            etLat.setText(String.valueOf(branch.getLatitude()));
-            etLon.setText(String.valueOf(branch.getLongitude()));
+            etMapLink.setText(branch.getMapLink());
         }
 
         builder.setView(view);
@@ -114,27 +109,19 @@ public class BranchesActivity extends AppCompatActivity {
             String monFri = etMonFri.getText().toString().trim();
             String sat = etSat.getText().toString().trim();
             String sun = etSun.getText().toString().trim();
-            String latStr = etLat.getText().toString().trim();
-            String lonStr = etLon.getText().toString().trim();
+            String mapLink = etMapLink.getText().toString().trim();
 
             if (!name.isEmpty() && !addr.isEmpty() && !phone.isEmpty()) {
-                try {
-                    double lat = latStr.isEmpty() ? 0.0 : Double.parseDouble(latStr);
-                    double lon = lonStr.isEmpty() ? 0.0 : Double.parseDouble(lonStr);
-                    
-                    boolean success;
-                    if (branch == null) {
-                        success = dbHelper.addBranch(name, addr, phone, phone2, monFri, sat, sun, lat, lon);
-                    } else {
-                        success = dbHelper.updateBranch(branch.getId(), name, addr, phone, phone2, monFri, sat, sun, lat, lon);
-                    }
+                boolean success;
+                if (branch == null) {
+                    success = dbHelper.addBranch(name, addr, phone, phone2, monFri, sat, sun, mapLink);
+                } else {
+                    success = dbHelper.updateBranch(branch.getId(), name, addr, phone, phone2, monFri, sat, sun, mapLink);
+                }
 
-                    if (success) {
-                        loadData();
-                        Toast.makeText(this, branch == null ? "Branch added" : "Branch updated", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (NumberFormatException e) {
-                    Toast.makeText(this, "Invalid coordinate format", Toast.LENGTH_SHORT).show();
+                if (success) {
+                    loadData();
+                    Toast.makeText(this, branch == null ? "Branch added" : "Branch updated", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(this, "Name, Address, and Phone are required", Toast.LENGTH_SHORT).show();
