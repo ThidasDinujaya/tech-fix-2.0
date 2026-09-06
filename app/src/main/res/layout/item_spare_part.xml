@@ -3,28 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="10dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="16dp"
         android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/imgPart"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:src="@android:drawable/ic_menu_camera" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -32,7 +26,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Screen (Samsung A52)"
-                android:textColor="#000000"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -40,24 +35,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Stock: 15"
-                android:textColor="#777777"
-                android:textSize="12sp" />
+                android:text="Stock: 15 | Quality: Original"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvPartPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LKR 2,500"
+                android:layout_marginTop="4dp"
+                android:text="LKR 2,500.00"
                 android:textColor="@color/brand_blue"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/btnEditPart"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:padding="8dp"
             android:src="@android:drawable/ic_menu_edit"
             app:tint="@color/brand_blue"
@@ -65,8 +61,8 @@
 
         <ImageView
             android:id="@+id/btnDeletePart"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:padding="8dp"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="@color/error"

@@ -19,15 +19,16 @@
             android:id="@+id/ivAdminService"
             android:layout_width="60dp"
             android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
             android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_gallery" />
+            android:background="@color/gray_100"
+            android:contentDescription="@string/desc_service_image" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvAdminServiceName"
@@ -35,43 +36,47 @@
                 android:layout_height="wrap_content"
                 android:text="Screen Repair"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvAdminServicePrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LKR 5,000"
-                android:textColor="@color/brand_blue"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
 
             <TextView
                 android:id="@+id/tvAdminServiceCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Category: Phone"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvAdminServicePrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="LKR 5,000.00"
+                android:textColor="@color/brand_blue"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/btnEditService"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="6dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_edit"
-            app:tint="@color/brand_blue" />
+            app:tint="@color/brand_blue"
+            android:contentDescription="@string/desc_edit" />
 
         <ImageView
             android:id="@+id/btnDeleteService"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="6dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/error" />
+            app:tint="@color/error"
+            android:contentDescription="@string/desc_delete" />
 
     </LinearLayout>
 
