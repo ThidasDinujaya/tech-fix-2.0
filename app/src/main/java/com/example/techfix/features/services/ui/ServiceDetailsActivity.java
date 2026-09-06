@@ -276,6 +276,7 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        // Use base price as requested, no multipliers
         double calculatedPrice = service.getPrice();
         String status;
         int color;
@@ -284,27 +285,8 @@ public class ServiceDetailsActivity extends AppCompatActivity {
             status = "Standard Diagnosis Fee";
             color = Color.parseColor("#0867D9");
         } else {
-            if (model.contains("Pro") || model.contains("Ultra") || model.contains("XPS")) {
-                calculatedPrice += 5000;
-            }
-
-            if (isPartsService) {
-                if ("Original".equalsIgnoreCase(quality)) {
-                    calculatedPrice *= 1.5;
-                    status = "Genuine Parts - Guaranteed";
-                    color = Color.parseColor("#2E7D32");
-                } else if ("Grade A".equalsIgnoreCase(quality)) {
-                    calculatedPrice *= 1.2;
-                    status = "High Quality Compatible";
-                    color = Color.parseColor("#0867D9");
-                } else {
-                    status = "Budget Friendly Option";
-                    color = Color.parseColor("#F57C00");
-                }
-            } else {
-                status = "Standard Service Available";
-                color = Color.parseColor("#2E7D32");
-            }
+            status = "Service Price Calculated";
+            color = Color.parseColor("#2E7D32");
         }
 
         tvPrice.setText(String.format("LKR %,.2f", calculatedPrice));

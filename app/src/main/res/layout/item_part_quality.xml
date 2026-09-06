@@ -15,31 +15,15 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvQualityName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvQualityName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Original"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvQualityMultiplier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Multiplier: 1.5x"
-                android:textColor="@color/brand_blue"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
+            android:text="Original"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/btnEditQuality"

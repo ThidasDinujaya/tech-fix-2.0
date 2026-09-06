@@ -44,8 +44,7 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
             while (cursor.moveToNext()) {
                 qualityList.add(new PartQuality(
                         cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_QUALITY_MULTIPLIER))
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME))
                 ));
             }
         }
@@ -79,25 +78,21 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_quality, null);
         EditText etName = view.findViewById(R.id.etQualityName);
-        EditText etMultiplier = view.findViewById(R.id.etQualityMultiplier);
 
         if (quality != null) {
             etName.setText(quality.getName());
-            etMultiplier.setText(String.valueOf(quality.getMultiplier()));
         }
 
         builder.setView(view);
         builder.setPositiveButton(quality == null ? "Add" : "Update", (dialog, which) -> {
             String name = etName.getText().toString().trim();
-            String multiplierStr = etMultiplier.getText().toString().trim();
 
-            if (!name.isEmpty() && !multiplierStr.isEmpty()) {
-                double multiplier = Double.parseDouble(multiplierStr);
+            if (!name.isEmpty()) {
                 boolean success;
                 if (quality == null) {
-                    success = dbHelper.addQuality(name, multiplier);
+                    success = dbHelper.addQuality(name);
                 } else {
-                    success = dbHelper.updateQuality(quality.getId(), name, multiplier);
+                    success = dbHelper.updateQuality(quality.getId(), name);
                 }
 
                 if (success) {
@@ -105,7 +100,7 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
                     Toast.makeText(this, quality == null ? "Quality added" : "Quality updated", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);

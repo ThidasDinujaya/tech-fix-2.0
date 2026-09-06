@@ -37,7 +37,6 @@ public class PartQualityAdapter extends RecyclerView.Adapter<PartQualityAdapter.
     public void onBindViewHolder(@NonNull QualityViewHolder holder, int position) {
         PartQuality q = list.get(position);
         holder.tvName.setText(q.getName());
-        holder.tvMultiplier.setText(String.format("Multiplier: %.1fx", q.getMultiplier()));
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(q));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(q));
@@ -47,13 +46,12 @@ public class PartQualityAdapter extends RecyclerView.Adapter<PartQualityAdapter.
     public int getItemCount() { return list.size(); }
 
     static class QualityViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvMultiplier;
+        TextView tvName;
         ImageView btnEdit, btnDelete;
 
         public QualityViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvQualityName);
-            tvMultiplier = itemView.findViewById(R.id.tvQualityMultiplier);
             btnEdit = itemView.findViewById(R.id.btnEditQuality);
             btnDelete = itemView.findViewById(R.id.btnDeleteQuality);
         }

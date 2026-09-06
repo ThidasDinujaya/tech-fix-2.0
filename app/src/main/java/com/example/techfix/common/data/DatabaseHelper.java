@@ -88,7 +88,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     
     public static final String COL_BRAND_CATEGORY = "category";
     public static final String COL_MODEL_BRAND_ID = "brand_id";
-    public static final String COL_QUALITY_MULTIPLIER = "multiplier";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -185,9 +184,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertModel(db, samsungId, "Galaxy S22");
 
         // Populate Qualities
-        insertQuality(db, "Original", 1.5);
-        insertQuality(db, "Grade A", 1.2);
-        insertQuality(db, "Grade B", 1.0);
+        insertQuality(db, "Original");
+        insertQuality(db, "Grade A");
+        insertQuality(db, "Grade B");
     }
 
     private long insertRole(SQLiteDatabase db, String name) {
@@ -216,10 +215,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_MODELS, null, v);
     }
 
-    private void insertQuality(SQLiteDatabase db, String name, double multiplier) {
+    private void insertQuality(SQLiteDatabase db, String name) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
-        v.put(COL_QUALITY_MULTIPLIER, multiplier);
         db.insert(TABLE_QUALITIES, null, v);
     }
 
@@ -328,8 +326,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + COL_QUALITY_MULTIPLIER + " REAL NOT NULL)");
+                + COL_NAME + " TEXT NOT NULL)");
     }
 
     private void createTechnicianManagementTables(SQLiteDatabase db) {
@@ -544,9 +541,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
-        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
@@ -607,17 +604,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getReadableDatabase().query(TABLE_MODELS, null, COL_MODEL_BRAND_ID + " = ?", new String[]{String.valueOf(brandId)}, null, null, COL_NAME + " ASC");
     }
 
-    public boolean addQuality(String name, double multiplier) {
+    public boolean addQuality(String name) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        values.put(COL_QUALITY_MULTIPLIER, multiplier);
         return getWritableDatabase().insert(TABLE_QUALITIES, null, values) != -1;
     }
 
-    public boolean updateQuality(int id, String name, double multiplier) {
+    public boolean updateQuality(int id, String name) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        values.put(COL_QUALITY_MULTIPLIER, multiplier);
         return getWritableDatabase().update(TABLE_QUALITIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
