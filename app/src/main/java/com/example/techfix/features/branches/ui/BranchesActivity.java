@@ -7,6 +7,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -23,7 +24,11 @@ import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.features.branches.data.Branch;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -107,7 +112,7 @@ public class BranchesActivity extends AppCompatActivity {
             List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                findNearestBranch(address.getLatitude(), address.getLongitude());
+                findNearestBranch(address.getLatitude(), address.getLongitude(), "typed location");
             } else {
                 Toast.makeText(this, "Location not found. Try a more specific name.", Toast.LENGTH_SHORT).show();
             }
@@ -118,16 +123,18 @@ public class BranchesActivity extends AppCompatActivity {
 
     private void getLastLocation() {
         if (checkPermissions()) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && 
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            
+            // Try to get last location
             fusedLocationClient.getLastLocation().addOnCompleteListener(task -> {
                 Location location = task.getResult();
                 if (location == null) {
-                    Toast.makeText(this, "Please turn on location", Toast.LENGTH_LONG).show();
+                    // Request new location if last location is null (common on first run)
+                    requestNewLocationData();
                 } else {
-                    findNearestBranch(location.getLatitude(), location.getLongitude());
+                    findNearestBranch(location.getLatitude(), location.getLongitude(), "your location");
                 }
             });
         } else {
@@ -135,10 +142,32 @@ public class BranchesActivity extends AppCompatActivity {
         }
     }
 
-    private void findNearestBranch(double lat, double lon) {
+    private void requestNewLocationData() {
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+                .setMaxUpdates(1)
+                .build();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        
+        fusedLocationClient.requestLocationUpdates(locationRequest, new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    findNearestBranch(location.getLatitude(), location.getLongitude(), "your location");
+                } else {
+                    Toast.makeText(BranchesActivity.this, "Unable to detect location. Please check GPS.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }, Looper.myLooper());
+    }
+
+    private void findNearestBranch(double lat, double lon, String source) {
         List<Branch> branchList = dbHelper.getAllBranches();
         if (branchList.isEmpty()) {
-            Toast.makeText(this, "No branches found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No branches found in database", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -159,7 +188,7 @@ public class BranchesActivity extends AppCompatActivity {
             String distanceStr = String.format(Locale.getDefault(), "%.1f km away", minDistance / 1000);
             new AlertDialog.Builder(this)
                     .setTitle("Nearest Branch Found")
-                    .setMessage(nearest.getName() + " is " + distanceStr + " from that location.")
+                    .setMessage(nearest.getName() + " is " + distanceStr + " from " + source + ".")
                     .setPositiveButton("View Details", (dialog, which) -> {
                         Intent intent = new Intent(this, BranchDetailsActivity.class);
                         intent.putExtra("branch_data", finalNearest);
@@ -253,7 +282,7 @@ public class BranchesActivity extends AppCompatActivity {
                     Toast.makeText(this, "Invalid coordinate format", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(this, "Required fields missing", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Name, Address, and Phone are required", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);

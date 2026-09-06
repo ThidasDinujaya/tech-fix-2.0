@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,9 @@ import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.services.ui.ServicesActivity;
 
 public class CustomerHomeActivity extends AppCompatActivity {
+
+    // ScrollView for refresh
+    private ScrollView scrollViewHome;
 
     // Header
     private ImageView imgCustomerNotification;
@@ -62,6 +66,8 @@ public class CustomerHomeActivity extends AppCompatActivity {
         userEmail =
                 getIntent().getStringExtra("USER_EMAIL");
 
+
+        scrollViewHome = findViewById(R.id.scrollHome);
 
         // =====================================
         // HEADER
@@ -209,12 +215,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         // =====================================
 
         navHome.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "Home",
-                    Toast.LENGTH_SHORT
-            ).show();
+            refreshDashboard();
         });
 
 
@@ -248,6 +249,22 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
             openProfile();
         });
+    }
+
+
+    private void refreshDashboard() {
+        if (edtSearchService != null) {
+            edtSearchService.setText("");
+            edtSearchService.clearFocus();
+        }
+        
+        loadCustomerName();
+        
+        if (scrollViewHome != null) {
+            scrollViewHome.smoothScrollTo(0, 0);
+        }
+        
+        Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show();
     }
 
 
