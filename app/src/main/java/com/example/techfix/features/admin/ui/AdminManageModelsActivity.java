@@ -29,7 +29,7 @@ public class AdminManageModelsActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     
     private List<Brand> allBrands = new ArrayList<>();
-    private Map<String, Integer> brandNameIdMap = new HashMap<>();
+    private List<String> categories = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,32 +40,38 @@ public class AdminManageModelsActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvModels);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        loadBrands();
+        loadInitialData();
         loadData();
 
         FloatingActionButton fab = findViewById(R.id.fabAddModel);
         fab.setOnClickListener(v -> showAddEditDialog(null));
     }
 
-    private void loadBrands() {
+    private void loadInitialData() {
         allBrands.clear();
-        brandNameIdMap.clear();
+        categories.clear();
+        
+        // Load all brands
         try (Cursor cursor = dbHelper.getAllBrands()) {
             while (cursor.moveToNext()) {
-                Brand b = new Brand(
+                allBrands.add(new Brand(
                         cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)),
                         cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BRAND_CATEGORY))
-                );
-                allBrands.add(b);
-                brandNameIdMap.put(b.getName() + " (" + b.getCategory() + ")", b.getId());
+                ));
+            }
+        }
+
+        // Load all service categories
+        try (Cursor cursor = dbHelper.getAllServiceCategories()) {
+            while (cursor.moveToNext()) {
+                categories.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
             }
         }
     }
 
     private void loadData() {
         List<DeviceModel> modelList = new ArrayList<>();
-        // Simple query joining brand name might be better, but we have allBrands in memory
         for (Brand b : allBrands) {
             try (Cursor cursor = dbHelper.getModelsByBrand(b.getId())) {
                 while (cursor.moveToNext()) {
@@ -104,8 +110,8 @@ public class AdminManageModelsActivity extends AppCompatActivity {
     }
 
     private void showAddEditDialog(DeviceModel model) {
-        if (allBrands.isEmpty()) {
-            Toast.makeText(this, "Please add a brand first", Toast.LENGTH_SHORT).show();
+        if (categories.isEmpty()) {
+            Toast.makeText(this, "Please add a category first", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -113,21 +119,35 @@ public class AdminManageModelsActivity extends AppCompatActivity {
         builder.setTitle(model == null ? "Add Model" : "Edit Model");
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_model, null);
+        AutoCompleteTextView autoCategory = view.findViewById(R.id.autoModelCategory);
         AutoCompleteTextView autoBrand = view.findViewById(R.id.autoModelBrand);
         EditText etName = view.findViewById(R.id.etModelName);
 
-        List<String> brandDisplayNames = new ArrayList<>(brandNameIdMap.keySet());
-        ArrayAdapter<String> brandAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandDisplayNames);
-        autoBrand.setAdapter(brandAdapter);
+        // Setup Category dropdown
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories);
+        autoCategory.setAdapter(catAdapter);
+
+        // Setup Brand dropdown logic
+        Map<String, Integer> currentBrandNameIdMap = new HashMap<>();
+        autoCategory.setOnItemClickListener((parent, v, position, id) -> {
+            String selectedCat = (String) parent.getItemAtPosition(position);
+            updateBrandDropdown(autoBrand, selectedCat, currentBrandNameIdMap);
+        });
 
         if (model != null) {
             etName.setText(model.getName());
-            // Find current brand display name
-            for (String display : brandDisplayNames) {
-                if (brandNameIdMap.get(display) == model.getBrandId()) {
-                    autoBrand.setText(display, false);
+            // Find current brand and its category
+            Brand currentBrand = null;
+            for (Brand b : allBrands) {
+                if (b.getId() == model.getBrandId()) {
+                    currentBrand = b;
                     break;
                 }
+            }
+            if (currentBrand != null) {
+                autoCategory.setText(currentBrand.getCategory(), false);
+                updateBrandDropdown(autoBrand, currentBrand.getCategory(), currentBrandNameIdMap);
+                autoBrand.setText(currentBrand.getName(), false);
             }
         }
 
@@ -137,7 +157,7 @@ public class AdminManageModelsActivity extends AppCompatActivity {
             String name = etName.getText().toString().trim();
 
             if (!selectedBrandStr.isEmpty() && !name.isEmpty()) {
-                Integer brandId = brandNameIdMap.get(selectedBrandStr);
+                Integer brandId = currentBrandNameIdMap.get(selectedBrandStr);
                 if (brandId != null) {
                     boolean success;
                     if (model == null) {
@@ -152,10 +172,24 @@ public class AdminManageModelsActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please select category, brand and enter model name", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);
         builder.show();
+    }
+
+    private void updateBrandDropdown(AutoCompleteTextView autoBrand, String category, Map<String, Integer> nameIdMap) {
+        nameIdMap.clear();
+        List<String> brandNames = new ArrayList<>();
+        for (Brand b : allBrands) {
+            if (b.getCategory().equalsIgnoreCase(category)) {
+                brandNames.add(b.getName());
+                nameIdMap.put(b.getName(), b.getId());
+            }
+        }
+        autoBrand.setText(""); // Reset brand when category changes
+        ArrayAdapter<String> brandAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandNames);
+        autoBrand.setAdapter(brandAdapter);
     }
 }
