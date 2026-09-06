@@ -2,7 +2,7 @@ package com.example.techfix.features.services.data;
 
 import java.io.Serializable;
 
-// Data model representing a repair service
+// Data model representing a repair service with associated device specifications and parts
 public class Service implements Serializable {
     private int id;
     private String name;
@@ -10,10 +10,15 @@ public class Service implements Serializable {
     private double price;
     private String warranty;
     private String imageUrl;
-    private String category; // Added category field
+    private String category;
+    private String brand;
+    private String model;
+    private String quality;
+    private int sparePartId;
 
-    // Initializes the service with all required details
-    public Service(int id, String name, String description, double price, String warranty, String imageUrl, String category) {
+    public Service(int id, String name, String description, double price, String warranty, 
+                   String imageUrl, String category, String brand, String model, 
+                   String quality, int sparePartId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -21,6 +26,10 @@ public class Service implements Serializable {
         this.warranty = warranty;
         this.imageUrl = imageUrl;
         this.category = category;
+        this.brand = brand;
+        this.model = model;
+        this.quality = quality;
+        this.sparePartId = sparePartId;
     }
 
     // Getters
@@ -31,6 +40,10 @@ public class Service implements Serializable {
     public String getWarranty() { return warranty; }
     public String getImageUrl() { return imageUrl; }
     public String getCategory() { return category; }
+    public String getBrand() { return brand; }
+    public String getModel() { return model; }
+    public String getQuality() { return quality; }
+    public int getSparePartId() { return sparePartId; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -40,4 +53,8 @@ public class Service implements Serializable {
     public void setWarranty(String warranty) { this.warranty = warranty; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public void setCategory(String category) { this.category = category; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public void setModel(String model) { this.model = model; }
+    public void setQuality(String quality) { this.quality = quality; }
+    public void setSparePartId(int sparePartId) { this.sparePartId = sparePartId; }
 }
