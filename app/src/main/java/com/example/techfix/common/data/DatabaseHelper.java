@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 22;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -71,6 +71,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BRANCH_HOURS_SAT = "hours_sat";
     public static final String COL_BRANCH_HOURS_SUN = "hours_sun";
     public static final String COL_BRANCH_MAP_LINK = "map_link";
+    public static final String COL_BRANCH_LATITUDE = "latitude";
+    public static final String COL_BRANCH_LONGITUDE = "longitude";
 
     public static final String COL_TECHNICIAN_ROLE = "role";
     public static final String COL_TECHNICIAN_BRANCH = "branch_name";
@@ -139,11 +141,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void populateInitialData(SQLiteDatabase db) {
         // Populate Branches
         insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "0112345679", 
-                     "08:00 AM - 06:00 PM", "09:00 AM - 04:00 PM", "Closed", "https://maps.google.com/?q=6.9271,79.8612");
+                     "08:00 AM - 06:00 PM", "09:00 AM - 04:00 PM", "Closed", "https://maps.google.com/?q=6.9271,79.8612", 6.9271, 79.8612);
         insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "", 
-                     "08:30 AM - 05:30 PM", "08:30 AM - 01:00 PM", "Closed", "https://maps.google.com/?q=7.2906,80.6337");
+                     "08:30 AM - 05:30 PM", "08:30 AM - 01:00 PM", "Closed", "https://maps.google.com/?q=7.2906,80.6337", 7.2906, 80.6337);
         insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "", 
-                     "09:00 AM - 05:00 PM", "09:00 AM - 12:00 PM", "Closed", "https://maps.google.com/?q=6.0367,80.2170");
+                     "09:00 AM - 05:00 PM", "09:00 AM - 12:00 PM", "Closed", "https://maps.google.com/?q=6.0367,80.2170", 6.0367, 80.2170);
 
         // Populate Technicians
         insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
@@ -190,7 +192,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void insertBranch(SQLiteDatabase db, String name, String addr, String phone, String phone2,
-                              String hMonFri, String hSat, String hSun, String mapLink) {
+                              String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, addr);
@@ -200,6 +202,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
         v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri); // summary
         db.insert(TABLE_BRANCHES, null, v);
     }
@@ -252,7 +256,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_BRANCH_HOURS_SAT + " TEXT, "
                 + COL_BRANCH_HOURS_SUN + " TEXT, "
                 + COL_BRANCH_HOURS + " TEXT, "
-                + COL_BRANCH_MAP_LINK + " TEXT)");
+                + COL_BRANCH_MAP_LINK + " TEXT, "
+                + COL_BRANCH_LATITUDE + " REAL, "
+                + COL_BRANCH_LONGITUDE + " REAL)");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECHNICIANS + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -369,7 +375,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_MON_FRI)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SAT)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_HOURS_SUN)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_MAP_LINK))));
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRANCH_MAP_LINK)),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LATITUDE)),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_BRANCH_LONGITUDE))));
             }
         }
         return branches;
@@ -449,7 +457,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean addBranch(String name, String address, String phone, String phone2, 
-                             String hMonFri, String hSat, String hSun, String mapLink) {
+                             String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, address);
@@ -459,12 +467,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
         v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         return getWritableDatabase().insert(TABLE_BRANCHES, null, v) != -1;
     }
 
     public boolean updateBranch(int id, String name, String address, String phone, String phone2,
-                                String hMonFri, String hSat, String hSun, String mapLink) {
+                                String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, address);
@@ -474,6 +484,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
         v.put(COL_BRANCH_MAP_LINK, mapLink);
+        v.put(COL_BRANCH_LATITUDE, lat);
+        v.put(COL_BRANCH_LONGITUDE, lon);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }

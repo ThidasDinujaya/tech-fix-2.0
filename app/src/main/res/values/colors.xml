@@ -23,4 +23,5 @@
     <color name="gray_700">#616161</color>
     <color name="error">#D32F2F</color>
     <color name="divider">#E5E5E5</color>
+    <color name="yellow_primary">#FFD600</color>
 </resources>

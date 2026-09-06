@@ -12,10 +12,12 @@ public class Branch implements Serializable {
     private String hoursSat;
     private String hoursSun;
     private String mapLink;
+    private double latitude;
+    private double longitude;
 
     public Branch(int id, String name, String address, String phone, String phone2, 
                   String hoursMonFri, String hoursSat, String hoursSun, 
-                  String mapLink) {
+                  String mapLink, double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -25,6 +27,8 @@ public class Branch implements Serializable {
         this.hoursSat = hoursSat;
         this.hoursSun = hoursSun;
         this.mapLink = mapLink;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public int getId() { return id; }
@@ -36,4 +40,6 @@ public class Branch implements Serializable {
     public String getHoursSat() { return hoursSat; }
     public String getHoursSun() { return hoursSun; }
     public String getMapLink() { return mapLink; }
+    public double getLatitude() { return latitude; }
+    public double getLongitude() { return longitude; }
 }
