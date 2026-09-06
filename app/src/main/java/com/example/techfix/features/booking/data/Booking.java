@@ -14,9 +14,10 @@ public class Booking implements Serializable {
     private String imagePath;
     private String status;
     private int userId;
+    private String branchName;
 
     public Booking(int id, int serviceId, String deviceType, String brand, String model, 
-                   String description, String appointmentDate, String imagePath, String status, int userId) {
+                   String description, String appointmentDate, String imagePath, String status, int userId, String branchName) {
         this.id = id;
         this.serviceId = serviceId;
         this.deviceType = deviceType;
@@ -27,6 +28,7 @@ public class Booking implements Serializable {
         this.imagePath = imagePath;
         this.status = status;
         this.userId = userId;
+        this.branchName = branchName;
     }
 
     // Getters
@@ -40,6 +42,7 @@ public class Booking implements Serializable {
     public String getImagePath() { return imagePath; }
     public String getStatus() { return status; }
     public int getUserId() { return userId; }
+    public String getBranchName() { return branchName; }
 
     // Setters
     public void setId(int id) { this.id = id; }

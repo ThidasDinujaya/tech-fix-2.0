@@ -40,6 +40,7 @@ public class BookingRepository {
         values.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
         values.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
         values.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
+        values.put(DatabaseHelper.COL_BOOKING_BRANCH_NAME, booking.getBranchName());
 
         // Returns the ID of the new row or -1 if an error occurred
         return db.insert(DatabaseHelper.TABLE_BOOKINGS, null, values);
@@ -53,18 +54,7 @@ public class BookingRepository {
         
         if (cursor.moveToFirst()) {
             do {
-                bookingList.add(new Booking(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DEVICE_TYPE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRAND)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
-                ));
+                bookingList.add(mapCursorToBooking(cursor));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -156,7 +146,8 @@ public class BookingRepository {
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
-                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID))
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_BRANCH_NAME))
         );
     }
 

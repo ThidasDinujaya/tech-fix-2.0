@@ -21,6 +21,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     public interface OnTechnicianActionListener {
         void onEdit(Technician technician);
         void onDelete(Technician technician);
+        void onAvailability(Technician technician);
     }
 
     public TechnicianAdapter(List<Technician> list, OnTechnicianActionListener listener) {
@@ -50,6 +51,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(t));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(t));
+        holder.btnAvail.setOnClickListener(v -> listener.onAvailability(t));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
 
     static class TechViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvBranch, tvStatus;
-        View btnEdit, btnDelete;
+        View btnEdit, btnDelete, btnAvail;
 
         public TechViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,6 +68,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
             tvStatus = itemView.findViewById(R.id.tvTechStatus);
             btnEdit = itemView.findViewById(R.id.btnEditTech);
             btnDelete = itemView.findViewById(R.id.btnDeleteTech);
+            btnAvail = itemView.findViewById(R.id.btnAvailTech);
         }
     }
 }

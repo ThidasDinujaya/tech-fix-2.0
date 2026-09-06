@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 30;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -49,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BOOKING_IMAGE = "image_path";
     public static final String COL_BOOKING_STATUS = "status";
     public static final String COL_BOOKING_USER_ID = "user_id";
+    public static final String COL_BOOKING_BRANCH_NAME = "branch_name";
 
     public static final String TABLE_PAYMENTS = "payments";
     public static final String COL_ID_PAYMENT = "id";
@@ -68,6 +69,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_MODELS = "models";
     public static final String TABLE_QUALITIES = "qualities";
     public static final String TABLE_SERVICE_CATEGORIES = "service_categories";
+
+    public static final String TABLE_TECH_AVAILABILITY = "technician_availability";
+    public static final String COL_AVAIL_ID = "id";
+    public static final String COL_AVAIL_TECH_ID = "technician_id";
+    public static final String COL_AVAIL_DATE = "available_date"; // Format: YYYY-MM-DD
+    public static final String COL_AVAIL_STATUS = "is_available"; // 1 = Yes, 0 = No
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -127,7 +134,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_DATE + " TEXT, " +
                 COL_BOOKING_IMAGE + " TEXT, " +
                 COL_BOOKING_STATUS + " TEXT, " +
-                COL_BOOKING_USER_ID + " INTEGER)";
+                COL_BOOKING_USER_ID + " INTEGER, " +
+                COL_BOOKING_BRANCH_NAME + " TEXT)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
                 COL_ID_PAYMENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -146,7 +154,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createBranchManagementTables(db);
         createDeviceManagementTables(db);
         createServiceManagementTables(db);
+        createAvailabilityTable(db);
         populateInitialData(db);
+    }
+
+    private void createAvailabilityTable(SQLiteDatabase db) {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_TECH_AVAILABILITY + " (" +
+                COL_AVAIL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_AVAIL_TECH_ID + " INTEGER, " +
+                COL_AVAIL_DATE + " TEXT, " +
+                COL_AVAIL_STATUS + " INTEGER, " +
+                "FOREIGN KEY(" + COL_AVAIL_TECH_ID + ") REFERENCES " + TABLE_TECHNICIANS + "(" + COL_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createTable);
     }
 
     private void populateInitialData(SQLiteDatabase db) {
@@ -247,6 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE_CATEGORIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECH_AVAILABILITY);
         onCreate(db);
     }
 
@@ -620,5 +640,83 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllServiceCategories() {
         return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    // ==========================================
+    // AVAILABILITY METHODS
+    // ==========================================
+
+    public boolean setTechAvailability(int techId, String date, boolean available) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_AVAIL_TECH_ID, techId);
+        values.put(COL_AVAIL_DATE, date);
+        values.put(COL_AVAIL_STATUS, available ? 1 : 0);
+
+        // Try update first
+        int rows = db.update(TABLE_TECH_AVAILABILITY, values, 
+                COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?", 
+                new String[]{String.valueOf(techId), date});
+        
+        if (rows == 0) {
+            return db.insert(TABLE_TECH_AVAILABILITY, null, values) != -1;
+        }
+        return true;
+    }
+
+    public boolean isTechAvailable(int techId, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECH_AVAILABILITY, new String[]{COL_AVAIL_STATUS},
+                COL_AVAIL_TECH_ID + "=? AND " + COL_AVAIL_DATE + "=?",
+                new String[]{String.valueOf(techId), date}, null, null, null);
+        
+        boolean available = true; // Default to true if no record
+        if (cursor != null && cursor.moveToFirst()) {
+            available = cursor.getInt(0) == 1;
+            cursor.close();
+        }
+        return available;
+    }
+
+    public int getAvailableTechCount(String branchName, String date) {
+        // Find all techs in branch
+        List<Technician> branchTechs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TECHNICIANS, null, COL_TECHNICIAN_BRANCH + "=?", 
+                new String[]{branchName}, null, null, null);
+        
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                branchTechs.add(new Technician(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))
+                ));
+            }
+            cursor.close();
+        }
+
+        int count = 0;
+        for (Technician t : branchTechs) {
+            if (isTechAvailable(t.getId(), date)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getBookingCount(String branchName, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_BOOKINGS + 
+                " WHERE " + COL_BOOKING_BRANCH_NAME + "=? AND " + COL_BOOKING_DATE + "=?",
+                new String[]{branchName, date});
+        
+        int count = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+            cursor.close();
+        }
+        return count;
     }
 }

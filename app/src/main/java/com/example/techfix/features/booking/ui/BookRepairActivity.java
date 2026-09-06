@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -19,20 +18,25 @@ import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.booking.viewmodel.BookRepairViewModel;
+import com.example.techfix.features.branches.data.Branch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
-// Handles the repair booking form, camera integration, and data submission
 public class BookRepairActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private AutoCompleteTextView autoDeviceType, autoBrand;
+    private AutoCompleteTextView autoDeviceType, autoBrand, autoBranch;
     private TextInputEditText etModel, etProblemDesc, etAppointmentDate, etServiceName, etQuality;
     private TextInputLayout layoutQuality;
     private ImageView ivDevicePhoto;
     private BookRepairViewModel viewModel;
+    private DatabaseHelper dbHelper;
     private int selectedServiceId = -1;
     private int userId = -1;
 
@@ -41,7 +45,6 @@ public class BookRepairActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_repair);
 
-        // Get the selected service details from the previous screen
         selectedServiceId = getIntent().getIntExtra("selected_service_id", -1);
         String prefilledServiceName = getIntent().getStringExtra("selected_service_name");
         String prefilledDeviceType = getIntent().getStringExtra("selected_device_type");
@@ -49,9 +52,8 @@ public class BookRepairActivity extends AppCompatActivity {
         String prefilledModel = getIntent().getStringExtra("selected_model");
         String prefilledQuality = getIntent().getStringExtra("selected_quality");
 
-        // User Session management
         SessionManager sessionManager = new SessionManager(this);
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper = new DatabaseHelper(this);
         userId = dbHelper.getUserIdByEmail(sessionManager.getEmail());
 
         initializeViews();
@@ -60,14 +62,12 @@ public class BookRepairActivity extends AppCompatActivity {
         setupCamera();
         setupViewModel();
         
-        // Apply pre-filled data if coming from ServiceDetails
         if (prefilledServiceName != null) {
             etServiceName.setText(prefilledServiceName);
             autoDeviceType.setText(prefilledDeviceType);
             autoBrand.setText(prefilledBrand);
             etModel.setText(prefilledModel);
 
-            // Set pre-filled fields to Read-Only instead of Disabled to keep text color high-contrast
             setReadOnly(etServiceName);
             setReadOnly(autoDeviceType);
             setReadOnly(autoBrand);
@@ -79,7 +79,6 @@ public class BookRepairActivity extends AppCompatActivity {
                 setReadOnly(etQuality);
             }
 
-            // Remove end icons for a cleaner read-only state
             removeEndIcon(autoDeviceType);
             removeEndIcon(autoBrand);
         }
@@ -108,6 +107,7 @@ public class BookRepairActivity extends AppCompatActivity {
         etServiceName = findViewById(R.id.etServiceName);
         autoDeviceType = findViewById(R.id.autoDeviceType);
         autoBrand = findViewById(R.id.autoBrand);
+        autoBranch = findViewById(R.id.autoBookBranch);
         etModel = findViewById(R.id.etModel);
         etQuality = findViewById(R.id.etQuality);
         layoutQuality = findViewById(R.id.layoutBookQuality);
@@ -116,18 +116,13 @@ public class BookRepairActivity extends AppCompatActivity {
         ivDevicePhoto = findViewById(R.id.ivDevicePhoto);
     }
 
-    // Connects the UI to the ViewModel for form validation and submission
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(BookRepairViewModel.class);
-
-        // Listen for successful booking
         viewModel.getBookingStatus().observe(this, success -> {
             if (Boolean.TRUE.equals(success)) {
                 showSuccessDialog();
             }
         });
-
-        // Listen for validation or database errors
         viewModel.getErrorMessage().observe(this, error -> {
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
@@ -135,18 +130,17 @@ public class BookRepairActivity extends AppCompatActivity {
         });
     }
 
-    // Shows a professional success dialog before closing the screen
     private void showSuccessDialog() {
         new AlertDialog.Builder(this)
             .setTitle("Booking Successful!")
-            .setMessage("Your repair request has been submitted. You can track its status in 'Repairs'.")
+            .setMessage("Your repair request has been submitted.")
             .setPositiveButton("OK", (dialog, which) -> finish())
             .setCancelable(false)
             .show();
     }
 
-    // Collects all data from the form and sends it to the ViewModel
     private void submitForm() {
+        String branch = autoBranch.getText().toString().trim();
         String type = autoDeviceType.getText().toString();
         String brand = autoBrand.getText().toString();
         String model = etModel.getText().toString();
@@ -154,18 +148,46 @@ public class BookRepairActivity extends AppCompatActivity {
         String desc = etProblemDesc.getText().toString();
         String date = etAppointmentDate.getText().toString();
 
-        if (userId == -1) {
-            Toast.makeText(this, "Error: User session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+        if (branch.isEmpty() || type.isEmpty() || brand.isEmpty() || model.isEmpty() || date.isEmpty()) {
+            Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Include quality in the model name for storage if present
-        String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
+        if (userId == -1) {
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        viewModel.submitBooking(selectedServiceId, type, brand, finalModel, desc, date, userId, "");
+        // Final capacity check
+        if (!checkCapacity(branch, date)) {
+            return;
+        }
+
+        String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
+        viewModel.submitBooking(selectedServiceId, type, brand, finalModel, desc, date, userId, branch);
     }
 
-    // Sets up the click listener to open the system camera
+    private boolean checkCapacity(String branch, String date) {
+        int techCount = dbHelper.getAvailableTechCount(branch, date);
+        if (techCount == 0) {
+            Toast.makeText(this, "No technicians available at this branch on " + date, Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        int capacity = techCount * 15;
+        int currentBookings = dbHelper.getBookingCount(branch, date);
+
+        if (currentBookings >= capacity) {
+            new AlertDialog.Builder(this)
+                .setTitle("Branch Fully Booked")
+                .setMessage("Sorry, " + branch + " has reached its repair capacity for " + date + ". Please select another date or branch.")
+                .setPositiveButton("OK", null)
+                .show();
+            return false;
+        }
+        return true;
+    }
+
     private void setupCamera() {
         ivDevicePhoto.setOnClickListener(v -> {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -177,7 +199,6 @@ public class BookRepairActivity extends AppCompatActivity {
         });
     }
 
-    // Receives the photo from the camera app and displays it in the ImageView
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -189,30 +210,40 @@ public class BookRepairActivity extends AppCompatActivity {
         }
     }
 
-    // Fills the dropdown menus with predefined device and brand options
     private void setupDropdowns() {
         String[] deviceTypes = {"Mobile Phone", "Laptop", "Desktop", "Tablet"};
-        ArrayAdapter<String> deviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceTypes);
-        autoDeviceType.setAdapter(deviceAdapter);
+        autoDeviceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceTypes));
 
         String[] brands = {"Samsung", "Apple", "Huawei", "HP", "Dell", "Asus"};
-        ArrayAdapter<String> brandAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brands);
-        autoBrand.setAdapter(brandAdapter);
+        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brands));
+
+        List<Branch> branches = dbHelper.getAllBranches();
+        List<String> branchNames = new ArrayList<>();
+        for (Branch b : branches) branchNames.add(b.getName());
+        autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
     }
 
-    // Opens a calendar dialog when the date field is clicked
     private void setupDatePicker() {
         etAppointmentDate.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            String branch = autoBranch.getText().toString().trim();
+            if (branch.isEmpty()) {
+                Toast.makeText(this, "Please select a branch first", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            Calendar calendar = Calendar.getInstance();
             DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
-                String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
-                etAppointmentDate.setText(date);
-            }, year, month, day);
+                Calendar selectedCal = Calendar.getInstance();
+                selectedCal.set(selectedYear, selectedMonth, selectedDay);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String dateStr = sdf.format(selectedCal.getTime());
+                
+                if (checkCapacity(branch, dateStr)) {
+                    etAppointmentDate.setText(dateStr);
+                }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
             datePickerDialog.show();
         });
     }

@@ -1,5 +1,6 @@
 package com.example.techfix.features.branches.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.admin.ui.AdminTechAvailabilityActivity;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.Technician;
 
@@ -63,6 +65,14 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
+            }
+
+            @Override
+            public void onAvailability(Technician technician) {
+                Intent intent = new Intent(ManageTechniciansActivity.this, AdminTechAvailabilityActivity.class);
+                intent.putExtra("TECH_ID", technician.getId());
+                intent.putExtra("TECH_NAME", technician.getName());
+                startActivity(intent);
             }
         });
         recyclerView.setAdapter(adapter);

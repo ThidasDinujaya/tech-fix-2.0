@@ -22,8 +22,8 @@ public class BookRepairViewModel extends AndroidViewModel {
     }
 
     // Validates the form data and attempts to save it to the database
-    public void submitBooking(int serviceId, String type, String brand, String model, String desc, String date, int userId, String imagePaths) {
-        if (type.isEmpty() || brand.isEmpty() || model.isEmpty() || desc.isEmpty() || date.isEmpty()) {
+    public void submitBooking(int serviceId, String type, String brand, String model, String desc, String date, int userId, String branchName) {
+        if (type.isEmpty() || brand.isEmpty() || model.isEmpty() || desc.isEmpty() || date.isEmpty() || branchName.isEmpty()) {
             errorMessage.setValue("Please fill in all required fields");
             return;
         }
@@ -34,7 +34,7 @@ public class BookRepairViewModel extends AndroidViewModel {
         }
 
         // Create a new booking object with initial PENDING status
-        Booking newBooking = new Booking(0, serviceId, type, brand, model, desc, date, imagePaths, BookingStatus.PENDING, userId);
+        Booking newBooking = new Booking(0, serviceId, type, brand, model, desc, date, "", BookingStatus.PENDING, userId, branchName);
 
         // Run database operation in a background thread to keep UI smooth
         new Thread(() -> {
