@@ -8,6 +8,8 @@ public class Technician implements Serializable {
     private String branchName;
     private String status;
 
+    public Technician() {} // Required for Firebase
+
     public Technician(int id, String name, String branchName, String status) {
         this.id = id;
         this.name = name;
