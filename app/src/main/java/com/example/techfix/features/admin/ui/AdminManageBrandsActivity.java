@@ -83,8 +83,15 @@ public class AdminManageBrandsActivity extends AppCompatActivity {
         EditText etName = view.findViewById(R.id.etBrandName);
         AutoCompleteTextView autoCategory = view.findViewById(R.id.autoBrandCategory);
 
-        String[] categories = {"Phone", "Laptop", "Desktop", "Tablet"};
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories);
+        // Fetch dynamic categories from database
+        List<String> categoryList = new ArrayList<>();
+        try (Cursor catCursor = dbHelper.getAllServiceCategories()) {
+            while (catCursor.moveToNext()) {
+                categoryList.add(catCursor.getString(catCursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
+            }
+        }
+        
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categoryList);
         autoCategory.setAdapter(catAdapter);
 
         if (brand != null) {

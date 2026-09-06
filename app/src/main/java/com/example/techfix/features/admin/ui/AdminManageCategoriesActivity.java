@@ -76,9 +76,8 @@ public class AdminManageCategoriesActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(category == null ? "Add Category" : "Edit Category");
 
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_role, null); // Reuse role dialog layout
-        EditText etName = view.findViewById(R.id.etRoleName);
-        etName.setHint("Category Name (e.g. Phone)");
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_category, null);
+        EditText etName = view.findViewById(R.id.etCategoryName);
 
         if (category != null) {
             etName.setText(category.getName());
