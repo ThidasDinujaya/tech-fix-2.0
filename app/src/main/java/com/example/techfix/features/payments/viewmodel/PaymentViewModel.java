@@ -5,18 +5,42 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingRepository;
 import com.example.techfix.features.payments.data.Payment;
 import com.example.techfix.features.payments.data.PaymentRepository;
+import com.example.techfix.features.services.data.Service;
+import com.example.techfix.features.services.data.ServiceRepository;
 
 public class PaymentViewModel extends AndroidViewModel {
 
     private final PaymentRepository repository;
+    private final BookingRepository bookingRepository;
+    private final ServiceRepository serviceRepository;
+    
     private final MutableLiveData<Boolean> paymentSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Double> amount = new MutableLiveData<>();
+    private final MutableLiveData<String> serviceName = new MutableLiveData<>();
 
     public PaymentViewModel( Application application) {
         super(application);
         repository = PaymentRepository.getInstance(application);
+        bookingRepository = BookingRepository.getInstance(application);
+        serviceRepository = ServiceRepository.getInstance(application);
+    }
+
+    public void loadBookingDetails(int bookingId) {
+        new Thread(() -> {
+            Booking booking = bookingRepository.getBookingById(bookingId);
+            if (booking != null) {
+                Service service = serviceRepository.getServiceById(booking.getServiceId());
+                if (service != null) {
+                    amount.postValue(service.getPrice());
+                    serviceName.postValue(service.getName());
+                }
+            }
+        }).start();
     }
 
     public void processPayment(int bookingId, double amount, String method, String cardNumber, String expiryDate, String cvv) {
@@ -81,4 +105,6 @@ public class PaymentViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getPaymentSuccess() { return paymentSuccess; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<Double> getAmount() { return amount; }
+    public LiveData<String> getServiceName() { return serviceName; }
 }

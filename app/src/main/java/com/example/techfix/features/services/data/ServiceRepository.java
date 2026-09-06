@@ -118,6 +118,31 @@ public class ServiceRepository {
         return getServicesByCategory(null);
     }
 
+    public Service getServiceById(int id) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DatabaseHelper.TABLE_SERVICES, null, DatabaseHelper.COL_SERVICE_ID + " = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+
+        Service service = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            service = new Service(
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_DESC)),
+                cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_PRICE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_WARRANTY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_IMAGE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_CATEGORY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_BRAND)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_MODEL)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_QUALITY)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SERVICE_PART_ID))
+            );
+            cursor.close();
+        }
+        return service;
+    }
+
     public boolean addService(String name, String desc, double price, String warranty, String url, 
                               String category, String brand, String model, String quality, int partId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
