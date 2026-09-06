@@ -26,7 +26,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private PaymentViewModel viewModel;
     private int bookingId;
-    private double amount = 2500.00; // Default demo amount
+    private double currentAmount = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +36,11 @@ public class PaymentActivity extends AppCompatActivity {
         bookingId = getIntent().getIntExtra("booking_id", -1);
 
         initViews();
-        setupListeners();
         setupViewModel();
+        setupListeners();
         
         tvBookingId.setText("Booking ID: TF" + String.format("%04d", bookingId));
+        viewModel.loadBookingDetails(bookingId);
     }
 
     private void initViews() {
@@ -70,6 +71,15 @@ public class PaymentActivity extends AppCompatActivity {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(PaymentViewModel.class);
 
+        viewModel.getAmount().observe(this, amount -> {
+            this.currentAmount = amount;
+            tvAmount.setText(String.format("LKR %.2f", amount));
+        });
+
+        viewModel.getServiceName().observe(this, name -> {
+            tvServiceName.setText(name);
+        });
+
         viewModel.getPaymentSuccess().observe(this, success -> {
             if (Boolean.TRUE.equals(success)) {
                 showSuccessDialog();
@@ -95,7 +105,7 @@ public class PaymentActivity extends AppCompatActivity {
         String expiry = etExpiryDate.getText().toString().trim();
         String cvv = etCvv.getText().toString().trim();
 
-        viewModel.processPayment(bookingId, amount, method, cardNumber, expiry, cvv);
+        viewModel.processPayment(bookingId, currentAmount, method, cardNumber, expiry, cvv);
     }
 
     private void showSuccessDialog() {
