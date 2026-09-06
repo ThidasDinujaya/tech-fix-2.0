@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 24;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -64,6 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_MODELS = "models";
     public static final String TABLE_QUALITIES = "qualities";
     public static final String TABLE_ROLES = "technician_roles";
+    public static final String TABLE_SERVICE_CATEGORIES = "service_categories";
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -137,6 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createBranchManagementTables(db);
         createDeviceManagementTables(db);
         createTechnicianManagementTables(db);
+        createServiceManagementTables(db);
         populateInitialData(db);
     }
 
@@ -154,6 +156,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertRole(db, "Mobile Repair Expert");
         insertRole(db, "Laptop Specialist");
         insertRole(db, "Desktop Support");
+
+        // Populate Categories
+        insertServiceCategory(db, "Phone");
+        insertServiceCategory(db, "Laptop");
+        insertServiceCategory(db, "Desktop");
+        insertServiceCategory(db, "Tablet");
 
         // Populate Technicians
         insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
@@ -182,6 +190,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         return db.insert(TABLE_ROLES, null, v);
+    }
+
+    private long insertServiceCategory(SQLiteDatabase db, String name) {
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        return db.insert(TABLE_SERVICE_CATEGORIES, null, v);
     }
 
     private long insertBrand(SQLiteDatabase db, String name, String category) {
@@ -252,6 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE_CATEGORIES);
         onCreate(db);
     }
 
@@ -309,6 +324,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void createTechnicianManagementTables(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ROLES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT UNIQUE NOT NULL)");
+    }
+
+    private void createServiceManagementTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT UNIQUE NOT NULL)");
     }
@@ -611,5 +632,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllRoles() {
         return getReadableDatabase().query(TABLE_ROLES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
+    // ==========================================
+    // SERVICE CATEGORIES CRUD
+    // ==========================================
+
+    public boolean addServiceCategory(String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, values) != -1;
+    }
+
+    public boolean updateServiceCategory(int id, String name) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_SERVICE_CATEGORIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteServiceCategory(int id) {
+        return getWritableDatabase().delete(TABLE_SERVICE_CATEGORIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public Cursor getAllServiceCategories() {
+        return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
     }
 }
