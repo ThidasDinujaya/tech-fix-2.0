@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 27;
+    private static final int DATABASE_VERSION = 29;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -51,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BOOKING_USER_ID = "user_id";
 
     public static final String TABLE_PAYMENTS = "payments";
-    public static final String COL_PAYMENT_ID = "id";
+    public static final String COL_ID_PAYMENT = "id";
     public static final String COL_PAYMENT_BOOKING_ID = "booking_id";
     public static final String COL_PAYMENT_AMOUNT = "amount";
     public static final String COL_PAYMENT_METHOD = "method";
@@ -67,7 +67,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_BRANDS = "brands";
     public static final String TABLE_MODELS = "models";
     public static final String TABLE_QUALITIES = "qualities";
-    public static final String TABLE_ROLES = "technician_roles";
     public static final String TABLE_SERVICE_CATEGORIES = "service_categories";
 
     public static final String COL_BRANCH_ADDRESS = "address";
@@ -80,7 +79,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BRANCH_LATITUDE = "latitude";
     public static final String COL_BRANCH_LONGITUDE = "longitude";
 
-    public static final String COL_TECHNICIAN_ROLE = "role";
     public static final String COL_TECHNICIAN_BRANCH = "branch_name";
     public static final String COL_TECHNICIAN_STATUS = "status";
 
@@ -132,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_USER_ID + " INTEGER)";
 
         String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
-                COL_PAYMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_ID_PAYMENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_PAYMENT_BOOKING_ID + " INTEGER, " +
                 COL_PAYMENT_AMOUNT + " REAL, " +
                 COL_PAYMENT_METHOD + " TEXT, " +
@@ -147,60 +145,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createPaymentsTable);
         createBranchManagementTables(db);
         createDeviceManagementTables(db);
-        createTechnicianManagementTables(db);
         createServiceManagementTables(db);
         populateInitialData(db);
     }
 
     private void populateInitialData(SQLiteDatabase db) {
-        // Populate Branches
         insertBranch(db, "Colombo Main", "123 Galle Road, Colombo 03", "0112345678", "0112345679", 
                      "08:00 AM - 06:00 PM", "09:00 AM - 04:00 PM", "Closed", "https://maps.google.com/?q=6.9271,79.8612", 6.9271, 79.8612);
         insertBranch(db, "Kandy Branch", "45 Dalada Veediya, Kandy", "0812345678", "", 
                      "08:30 AM - 05:30 PM", "08:30 AM - 01:00 PM", "Closed", "https://maps.google.com/?q=7.2906,80.6337", 7.2906, 80.6337);
-        insertBranch(db, "Galle Fort", "12 Church Street, Galle", "0912345678", "", 
-                     "09:00 AM - 05:00 PM", "09:00 AM - 12:00 PM", "Closed", "https://maps.google.com/?q=6.0367,80.2170", 6.0367, 80.2170);
 
-        // Populate Roles
-        insertRole(db, "Senior Technician");
-        insertRole(db, "Mobile Repair Expert");
-        insertRole(db, "Laptop Specialist");
-        insertRole(db, "Desktop Support");
-
-        // Populate Categories
         insertServiceCategory(db, "Phone");
         insertServiceCategory(db, "Laptop");
-        insertServiceCategory(db, "Desktop");
-        insertServiceCategory(db, "Tablet");
 
-        // Populate Technicians
-        insertTechnician(db, "Kasun Perera", "Senior Technician", "Colombo Main", "Available");
-        insertTechnician(db, "Amara Silva", "Mobile Repair Expert", "Kandy Branch", "Busy");
+        insertTechnician(db, "Kasun Perera", "Colombo Main", "Available");
+        insertTechnician(db, "Amara Silva", "Kandy Branch", "Busy");
 
-        // Populate Spare Parts
         insertSparePart(db, "iPhone 13 Screen", 50, 15000.0, "Apple", "iPhone 13", "Original");
-        insertSparePart(db, "Samsung S22 Battery", 30, 8500.0, "Samsung", "Galaxy S22", "Grade A");
-
-        // Populate Brands & Models
+        
         long appleId = insertBrand(db, "Apple", "Phone");
         insertModel(db, appleId, "iPhone 15 Pro");
         insertModel(db, appleId, "iPhone 14");
         insertModel(db, appleId, "iPhone 13");
 
-        long samsungId = insertBrand(db, "Samsung", "Phone");
-        insertModel(db, samsungId, "Galaxy S23 Ultra");
-        insertModel(db, samsungId, "Galaxy S22");
-
-        // Populate Qualities
         insertQuality(db, "Original");
         insertQuality(db, "Grade A");
-        insertQuality(db, "Grade B");
-    }
-
-    private long insertRole(SQLiteDatabase db, String name) {
-        ContentValues v = new ContentValues();
-        v.put(COL_NAME, name);
-        return db.insert(TABLE_ROLES, null, v);
     }
 
     private long insertServiceCategory(SQLiteDatabase db, String name) {
@@ -242,14 +211,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
-        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri); // summary
+        v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         db.insert(TABLE_BRANCHES, null, v);
     }
 
-    private void insertTechnician(SQLiteDatabase db, String name, String role, String branch, String status) {
+    private void insertTechnician(SQLiteDatabase db, String name, String branch, String status) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
-        v.put(COL_TECHNICIAN_ROLE, role);
         v.put(COL_TECHNICIAN_BRANCH, branch);
         v.put(COL_TECHNICIAN_STATUS, status);
         db.insert(TABLE_TECHNICIANS, null, v);
@@ -278,7 +246,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BRANDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODELS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE_CATEGORIES);
         onCreate(db);
     }
@@ -306,7 +273,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECHNICIANS + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL, "
-                + COL_TECHNICIAN_ROLE + " TEXT NOT NULL, "
                 + COL_TECHNICIAN_BRANCH + " TEXT NOT NULL, "
                 + COL_TECHNICIAN_STATUS + " TEXT NOT NULL)");
 
@@ -335,12 +301,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL)");
-    }
-
-    private void createTechnicianManagementTables(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ROLES + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT UNIQUE NOT NULL)");
     }
 
     private void createServiceManagementTables(SQLiteDatabase db) {
@@ -448,7 +408,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 technicians.add(new Technician(
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_ROLE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_BRANCH)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_TECHNICIAN_STATUS))));
             }
@@ -456,19 +415,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return technicians;
     }
 
-    public boolean addTechnician(String name, String role, String branch, String status) {
+    public boolean addTechnician(String name, String branch, String status) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        values.put(COL_TECHNICIAN_ROLE, role);
         values.put(COL_TECHNICIAN_BRANCH, branch);
         values.put(COL_TECHNICIAN_STATUS, status);
         return getWritableDatabase().insert(TABLE_TECHNICIANS, null, values) != -1;
     }
 
-    public boolean updateTechnician(int id, String name, String role, String branch, String status) {
+    public boolean updateTechnician(int id, String name, String branch, String status) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        values.put(COL_TECHNICIAN_ROLE, role);
         values.put(COL_TECHNICIAN_BRANCH, branch);
         values.put(COL_TECHNICIAN_STATUS, status);
         return getWritableDatabase().update(TABLE_TECHNICIANS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
@@ -480,7 +437,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<SparePart> getAllSpareParts() {
         List<SparePart> spareParts = new ArrayList<>();
-        // JOIN to get category from Brand table
         String query = "SELECT s.*, b." + COL_BRAND_CATEGORY + " FROM " + TABLE_SPARE_PARTS + " s " +
                 "LEFT JOIN " + TABLE_BRANDS + " b ON s." + COL_SPARE_PART_BRAND + " = b." + COL_NAME;
         
@@ -640,30 +596,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllQualities() {
         return getReadableDatabase().query(TABLE_QUALITIES, null, null, null, null, null, COL_NAME + " ASC");
-    }
-
-    // ==========================================
-    // TECHNICIAN ROLES CRUD
-    // ==========================================
-
-    public boolean addRole(String name) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        return getWritableDatabase().insert(TABLE_ROLES, null, values) != -1;
-    }
-
-    public boolean updateRole(int id, String name) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        return getWritableDatabase().update(TABLE_ROLES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
-    }
-
-    public boolean deleteRole(int id) {
-        return getWritableDatabase().delete(TABLE_ROLES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
-    }
-
-    public Cursor getAllRoles() {
-        return getReadableDatabase().query(TABLE_ROLES, null, null, null, null, null, COL_NAME + " ASC");
     }
 
     // ==========================================

@@ -15,15 +15,6 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/ivAdminService"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:scaleType="centerCrop"
-            android:background="@color/gray_100"
-            android:contentDescription="@string/desc_service_image" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -60,23 +51,36 @@
 
         </LinearLayout>
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEditService"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_edit"
-            app:tint="@color/brand_blue"
-            android:contentDescription="@string/desc_edit" />
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Edit"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brand_blue"
+            app:cornerRadius="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="60dp"
+            android:paddingHorizontal="12dp" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteService"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/error"
-            android:contentDescription="@string/desc_delete" />
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:text="Delete"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/error"
+            app:cornerRadius="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="70dp"
+            android:paddingHorizontal="12dp" />
 
     </LinearLayout>
 

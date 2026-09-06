@@ -3,7 +3,6 @@ package com.example.techfix.features.admin.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,7 +47,7 @@ public class DeviceModelAdapter extends RecyclerView.Adapter<DeviceModelAdapter.
 
     static class ModelViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvBrand;
-        ImageView btnEdit, btnDelete;
+        View btnEdit, btnDelete;
 
         public ModelViewHolder(@NonNull View itemView) {
             super(itemView);

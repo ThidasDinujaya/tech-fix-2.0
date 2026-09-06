@@ -25,23 +25,36 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEditQuality"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_edit"
-            app:tint="@color/brand_blue"
-            android:contentDescription="Edit" />
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Edit"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brand_blue"
+            app:cornerRadius="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="60dp"
+            android:paddingHorizontal="12dp" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteQuality"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/error"
-            android:contentDescription="Delete" />
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:text="Delete"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/error"
+            app:cornerRadius="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="70dp"
+            android:paddingHorizontal="12dp" />
 
     </LinearLayout>
 

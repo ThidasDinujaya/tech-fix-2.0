@@ -3,11 +3,9 @@ package com.example.techfix.features.services.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
 import com.example.techfix.R;
 import com.example.techfix.features.services.data.Service;
 import java.util.List;
@@ -41,11 +39,6 @@ public class AdminServiceAdapter extends RecyclerView.Adapter<AdminServiceAdapte
         holder.tvPrice.setText(String.format("LKR %,.2f", s.getPrice()));
         holder.tvCategory.setText("Category: " + s.getCategory());
 
-        Glide.with(holder.itemView.getContext())
-                .load(s.getImageUrl())
-                .placeholder(android.R.drawable.ic_menu_gallery)
-                .into(holder.ivService);
-
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(s));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(s));
     }
@@ -55,14 +48,13 @@ public class AdminServiceAdapter extends RecyclerView.Adapter<AdminServiceAdapte
 
     static class ServiceViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvPrice, tvCategory;
-        ImageView ivService, btnEdit, btnDelete;
+        View btnEdit, btnDelete;
 
         public ServiceViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvAdminServiceName);
             tvPrice = itemView.findViewById(R.id.tvAdminServicePrice);
             tvCategory = itemView.findViewById(R.id.tvAdminServiceCategory);
-            ivService = itemView.findViewById(R.id.ivAdminService);
             btnEdit = itemView.findViewById(R.id.btnEditService);
             btnDelete = itemView.findViewById(R.id.btnDeleteService);
         }

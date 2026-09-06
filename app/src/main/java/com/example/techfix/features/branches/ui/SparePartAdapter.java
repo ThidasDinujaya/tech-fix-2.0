@@ -3,7 +3,6 @@ package com.example.techfix.features.branches.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,8 +41,6 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
         holder.tvStock.setText("Stock: " + p.getStock() + " | " + p.getQuality());
         holder.tvPrice.setText(String.format("LKR %,.2f", p.getPrice()));
         
-        // Show Brand and Model in a combined view or reuse existing fields
-        // For now, let's just update the name or stock line
         if (p.getBrand() != null && p.getModel() != null) {
             holder.tvName.setText(p.getName() + " (" + p.getBrand() + " " + p.getModel() + ")");
         }
@@ -57,7 +54,7 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
 
     static class PartViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvStock, tvPrice;
-        ImageView btnEdit, btnDelete;
+        View btnEdit, btnDelete;
 
         public PartViewHolder(@NonNull View itemView) {
             super(itemView);

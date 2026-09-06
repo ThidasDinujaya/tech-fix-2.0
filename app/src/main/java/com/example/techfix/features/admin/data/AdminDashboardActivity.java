@@ -80,8 +80,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
         cardPayments.setOnClickListener(v -> startActivity(new Intent(this, PaymentActivity.class)));
 
-        findViewById(R.id.cardManageBookings).setOnClickListener(v -> startActivity(new Intent(this, AdminManageBookingsActivity.class)));
-
         menuDashboard.setOnClickListener(v -> drawerLayout.closeDrawer(Gravity.START));
         menuAdminProfile.setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);

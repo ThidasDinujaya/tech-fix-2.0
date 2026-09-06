@@ -41,7 +41,6 @@
         <activity android:name=".features.admin.ui.AdminDeviceManagementActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminManageBrandsActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminManageModelsActivity" android:exported="false" />
-        <activity android:name=".features.admin.ui.AdminManageRolesActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminManageCategoriesActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminInventoryActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminViewInventoryActivity" android:exported="false" />

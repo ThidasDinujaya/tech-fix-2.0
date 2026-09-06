@@ -37,19 +37,6 @@
 
         </androidx.appcompat.widget.Toolbar>
 
-        <Button
-            android:id="@+id/btnManageRoles"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:text="Manage Technician Roles"
-            android:textAllCaps="false"
-            android:textColor="@color/brand_blue"
-            android:textStyle="bold"
-            app:icon="@android:drawable/ic_menu_edit" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTechnicians"
             android:layout_width="match_parent"

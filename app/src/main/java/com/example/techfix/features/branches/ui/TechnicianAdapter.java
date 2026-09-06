@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +39,6 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     public void onBindViewHolder(@NonNull TechViewHolder holder, int position) {
         Technician t = list.get(position);
         holder.tvName.setText(t.getName());
-        holder.tvRole.setText(t.getRole());
         holder.tvBranch.setText(t.getBranchName());
         holder.tvStatus.setText(t.getStatus());
 
@@ -58,13 +56,12 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     public int getItemCount() { return list.size(); }
 
     static class TechViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvRole, tvBranch, tvStatus;
-        ImageView btnEdit, btnDelete;
+        TextView tvName, tvBranch, tvStatus;
+        View btnEdit, btnDelete;
 
         public TechViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvTechName);
-            tvRole = itemView.findViewById(R.id.tvTechRole);
             tvBranch = itemView.findViewById(R.id.tvTechBranch);
             tvStatus = itemView.findViewById(R.id.tvTechStatus);
             btnEdit = itemView.findViewById(R.id.btnEditTech);
