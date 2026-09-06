@@ -10,8 +10,9 @@ public class SparePart implements Serializable {
     private String brand;
     private String model;
     private String quality;
+    private String category;
 
-    public SparePart(int id, String name, int stock, double price, String brand, String model, String quality) {
+    public SparePart(int id, String name, int stock, double price, String brand, String model, String quality, String category) {
         this.id = id;
         this.name = name;
         this.stock = stock;
@@ -19,6 +20,7 @@ public class SparePart implements Serializable {
         this.brand = brand;
         this.model = model;
         this.quality = quality;
+        this.category = category;
     }
 
     public int getId() { return id; }
@@ -28,4 +30,5 @@ public class SparePart implements Serializable {
     public String getBrand() { return brand; }
     public String getModel() { return model; }
     public String getQuality() { return quality; }
+    public String getCategory() { return category; }
 }

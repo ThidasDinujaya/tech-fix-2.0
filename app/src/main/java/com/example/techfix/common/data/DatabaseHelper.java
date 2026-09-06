@@ -16,7 +16,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 25;
+    private static final int DATABASE_VERSION = 26;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -472,8 +472,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<SparePart> getAllSpareParts() {
         List<SparePart> spareParts = new ArrayList<>();
-        try (Cursor cursor = getReadableDatabase().query(TABLE_SPARE_PARTS, null,
-                null, null, null, null, COL_NAME + " ASC")) {
+        // JOIN to get category from Brand table
+        String query = "SELECT s.*, b." + COL_BRAND_CATEGORY + " FROM " + TABLE_SPARE_PARTS + " s " +
+                "LEFT JOIN " + TABLE_BRANDS + " b ON s." + COL_SPARE_PART_BRAND + " = b." + COL_NAME;
+        
+        try (Cursor cursor = getReadableDatabase().rawQuery(query, null)) {
             while (cursor.moveToNext()) {
                 spareParts.add(new SparePart(
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
@@ -482,7 +485,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getDouble(cursor.getColumnIndexOrThrow(COL_SPARE_PART_PRICE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_BRAND)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_MODEL)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_QUALITY))));
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_QUALITY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRAND_CATEGORY))));
             }
         }
         return spareParts;
@@ -541,9 +545,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
-        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
         return getWritableDatabase().update(TABLE_BRANCHES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }

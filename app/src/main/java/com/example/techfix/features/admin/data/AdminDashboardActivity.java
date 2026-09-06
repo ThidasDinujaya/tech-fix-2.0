@@ -12,12 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.techfix.R;
-import com.example.techfix.features.admin.ui.AdminDeviceManagementActivity;
-import com.example.techfix.features.admin.ui.AdminManageQualitiesActivity;
+import com.example.techfix.features.admin.ui.AdminInventoryActivity;
 import com.example.techfix.features.auth.data.LoginActivity;
 import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
-import com.example.techfix.features.branches.ui.ManageSparePartsActivity;
 import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
 import com.example.techfix.features.payments.ui.PaymentActivity;
 import com.example.techfix.features.services.ui.AdminManageServicesActivity;
@@ -30,7 +28,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private TextView txtTotalBookings, txtPendingRepairs, txtCompleted, txtTotalRevenue;
 
-    private LinearLayout cardBookings, cardServices, cardTechnicians, cardParts, cardBranches, cardPayments, cardDevices, cardQualities;
+    private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardPayments, cardInventory;
 
     private TextView menuDashboard, menuAdminProfile, menuNotifications, menuSettings, menuCustomerLogin, menuLogout;
 
@@ -51,11 +49,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardBookings = findViewById(R.id.cardBookings);
         cardServices = findViewById(R.id.cardServices);
         cardTechnicians = findViewById(R.id.cardTechnicians);
-        cardParts = findViewById(R.id.cardParts);
         cardBranches = findViewById(R.id.cardBranches);
         cardPayments = findViewById(R.id.cardPayments);
-        cardDevices = findViewById(R.id.cardDevices);
-        cardQualities = findViewById(R.id.cardQualities);
+        cardInventory = findViewById(R.id.cardInventory);
 
         menuDashboard = findViewById(R.id.menuDashboard);
         menuAdminProfile = findViewById(R.id.menuAdminProfile);
@@ -75,16 +71,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardBookings.setOnClickListener(v -> startActivity(new Intent(this, AdminManageBookingsActivity.class)));
         cardServices.setOnClickListener(v -> startActivity(new Intent(this, AdminManageServicesActivity.class)));
         cardTechnicians.setOnClickListener(v -> startActivity(new Intent(this, ManageTechniciansActivity.class)));
-        cardParts.setOnClickListener(v -> startActivity(new Intent(this, ManageSparePartsActivity.class)));
+        cardInventory.setOnClickListener(v -> startActivity(new Intent(this, AdminInventoryActivity.class)));
+
         cardBranches.setOnClickListener(v -> {
             Intent intent = new Intent(this, BranchesActivity.class);
             intent.putExtra("IS_ADMIN", true);
             startActivity(intent);
         });
         cardPayments.setOnClickListener(v -> startActivity(new Intent(this, PaymentActivity.class)));
-        
-        cardDevices.setOnClickListener(v -> startActivity(new Intent(this, AdminDeviceManagementActivity.class)));
-        cardQualities.setOnClickListener(v -> startActivity(new Intent(this, AdminManageQualitiesActivity.class)));
 
         findViewById(R.id.cardManageBookings).setOnClickListener(v -> startActivity(new Intent(this, AdminManageBookingsActivity.class)));
 
@@ -99,7 +93,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
-        
+
         // Other menu items placeholders
         menuNotifications.setOnClickListener(v -> Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show());
         menuSettings.setOnClickListener(v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
