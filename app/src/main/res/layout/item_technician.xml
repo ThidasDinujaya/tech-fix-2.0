@@ -52,22 +52,6 @@
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAvailTech"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginStart="8dp"
-            android:text="Avail"
-            android:textSize="10sp"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            app:backgroundTint="#F57C00"
-            app:cornerRadius="8dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minWidth="50dp"
-            android:paddingHorizontal="8dp" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEditTech"
             android:layout_width="wrap_content"
             android:layout_height="36dp"

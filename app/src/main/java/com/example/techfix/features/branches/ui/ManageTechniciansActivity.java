@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
-import com.example.techfix.features.admin.ui.AdminTechAvailabilityActivity;
+import com.example.techfix.features.admin.ui.TechnicianEditActivity;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.Technician;
 
@@ -39,9 +39,13 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvTechnicians);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        loadData();
+        findViewById(R.id.fabAddTechnician).setOnClickListener(v -> showAddDialog());
+    }
 
-        findViewById(R.id.fabAddTechnician).setOnClickListener(v -> showAddEditDialog(null));
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     private void loadData() {
@@ -49,7 +53,9 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         adapter = new TechnicianAdapter(technicianList, new TechnicianAdapter.OnTechnicianActionListener() {
             @Override
             public void onEdit(Technician technician) {
-                showAddEditDialog(technician);
+                Intent intent = new Intent(ManageTechniciansActivity.this, TechnicianEditActivity.class);
+                intent.putExtra("TECH_DATA", technician);
+                startActivity(intent);
             }
 
             @Override
@@ -66,56 +72,32 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                         .setNegativeButton("Cancel", null)
                         .show();
             }
-
-            @Override
-            public void onAvailability(Technician technician) {
-                Intent intent = new Intent(ManageTechniciansActivity.this, AdminTechAvailabilityActivity.class);
-                intent.putExtra("TECH_ID", technician.getId());
-                intent.putExtra("TECH_NAME", technician.getName());
-                startActivity(intent);
-            }
-        });
+        }, dbHelper);
         recyclerView.setAdapter(adapter);
     }
 
-    private void showAddEditDialog(Technician tech) {
+    private void showAddDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(tech == null ? "Add New Technician" : "Edit Technician");
+        builder.setTitle("Add New Technician");
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_technician, null);
         EditText etName = view.findViewById(R.id.etTechName);
         AutoCompleteTextView autoBranch = view.findViewById(R.id.autoTechBranch);
 
-        // Fetch current branches
         List<Branch> branches = dbHelper.getAllBranches();
         List<String> branchNames = new ArrayList<>();
-        for (Branch b : branches) {
-            branchNames.add(b.getName());
-        }
-        ArrayAdapter<String> branchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames);
-        autoBranch.setAdapter(branchAdapter);
-
-        if (tech != null) {
-            etName.setText(tech.getName());
-            autoBranch.setText(tech.getBranchName(), false);
-        }
+        for (Branch b : branches) branchNames.add(b.getName());
+        autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
 
         builder.setView(view);
-        builder.setPositiveButton(tech == null ? "Add" : "Update", (dialog, which) -> {
+        builder.setPositiveButton("Add", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String branch = autoBranch.getText().toString().trim();
 
             if (!name.isEmpty() && !branch.isEmpty()) {
-                boolean success;
-                if (tech == null) {
-                    success = dbHelper.addTechnician(name, branch, "Available");
-                } else {
-                    success = dbHelper.updateTechnician(tech.getId(), name, branch, tech.getStatus());
-                }
-
-                if (success) {
+                if (dbHelper.addTechnician(name, branch, "Available")) {
                     loadData();
-                    Toast.makeText(this, tech == null ? "Technician added" : "Technician updated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Technician added", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();

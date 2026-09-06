@@ -1,6 +1,8 @@
 package com.example.techfix.features.branches.data;
 
-public class Technician {
+import java.io.Serializable;
+
+public class Technician implements Serializable {
     private int id;
     private String name;
     private String branchName;
