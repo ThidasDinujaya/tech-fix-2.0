@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -193,7 +194,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         // Save user
-        boolean inserted =
+        long insertedId =
                 databaseHelper.insertUser(
                         fullName,
                         email,
@@ -202,7 +203,11 @@ public class RegisterActivity extends AppCompatActivity {
                 );
 
 
-        if (inserted) {
+        if (insertedId != -1) {
+            // Sync to Firebase
+            User newUser = new User((int)insertedId, fullName, email, phone, password);
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.syncUser(newUser);
 
             Toast.makeText(
                     RegisterActivity.this,

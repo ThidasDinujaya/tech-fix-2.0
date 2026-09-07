@@ -57,6 +57,7 @@ public class PaymentRepository {
 
             long bookingId = db.insert(DatabaseHelper.TABLE_BOOKINGS, null, bValues);
             if (bookingId == -1) return false;
+            booking.setId((int) bookingId);
 
             // 2. Insert Payment
             ContentValues pValues = new ContentValues();
@@ -70,6 +71,8 @@ public class PaymentRepository {
 
             long paymentId = db.insert(DatabaseHelper.TABLE_PAYMENTS, null, pValues);
             if (paymentId == -1) return false;
+            payment.setId((int) paymentId);
+            payment.setBookingId((int) bookingId);
 
             db.setTransactionSuccessful();
             return true;

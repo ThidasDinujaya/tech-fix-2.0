@@ -172,4 +172,22 @@ public class BookingRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         return db.delete(DatabaseHelper.TABLE_BOOKINGS, DatabaseHelper.COL_BOOKING_ID + " = ?", new String[]{String.valueOf(bookingId)}) > 0;
     }
+
+    public void addBookingLocally(Booking booking) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_BOOKING_ID, booking.getId());
+        values.put(DatabaseHelper.COL_BOOKING_SERVICE_ID, booking.getServiceId());
+        values.put(DatabaseHelper.COL_BOOKING_DEVICE_TYPE, booking.getDeviceType());
+        values.put(DatabaseHelper.COL_BOOKING_BRAND, booking.getBrand());
+        values.put(DatabaseHelper.COL_BOOKING_MODEL, booking.getModel());
+        values.put(DatabaseHelper.COL_BOOKING_DESC, booking.getDescription());
+        values.put(DatabaseHelper.COL_BOOKING_DATE, booking.getAppointmentDate());
+        values.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
+        values.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
+        values.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
+        values.put(DatabaseHelper.COL_BOOKING_BRANCH_NAME, booking.getBranchName());
+        values.put(DatabaseHelper.COL_BOOKING_TECH_NAME, booking.getTechnicianName());
+        db.insertWithOnConflict(DatabaseHelper.TABLE_BOOKINGS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
 }

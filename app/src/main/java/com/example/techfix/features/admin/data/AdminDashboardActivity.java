@@ -144,12 +144,19 @@ public class AdminDashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadStatistics();
-        // Automatic Background Sync on return to dashboard
-        Toast.makeText(this, "Syncing data to Cloud...", Toast.LENGTH_SHORT).show();
-        new Thread(() -> {
-            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
-            syncRepo.pushAllDataToFirebase();
-        }).start();
+        
+        // Automatic Background Sync (Push & Pull)
+        Toast.makeText(this, "Syncing data with Cloud...", Toast.LENGTH_SHORT).show();
+        
+        FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+        // 1. Pull from Cloud
+        syncRepo.pullAllDataFromFirebase(success -> {
+            if (success) {
+                loadStatistics(); // Refresh UI with pulled data
+                // 2. Push local changes back (to handle any local updates that were pending)
+                new Thread(syncRepo::pushAllDataToFirebase).start();
+            }
+        });
     }
 
     @Override

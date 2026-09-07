@@ -18,6 +18,8 @@ import androidx.core.content.FileProvider;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
+import com.example.techfix.features.booking.data.Review;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,7 +118,13 @@ public class AddReviewActivity extends AppCompatActivity {
             return;
         }
 
-        if (dbHelper.addReview(bookingId, rating, comment, imageUriStr)) {
+        long insertedId = dbHelper.addReview(bookingId, rating, comment, imageUriStr);
+        if (insertedId != -1) {
+            // Sync to Firebase
+            Review review = new Review((int)insertedId, bookingId, rating, comment, imageUriStr, "");
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.syncReview(review);
+
             Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
             setResult(RESULT_OK);
             finish();

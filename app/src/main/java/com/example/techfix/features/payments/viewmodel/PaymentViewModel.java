@@ -40,6 +40,8 @@ public class PaymentViewModel extends AndroidViewModel {
         new Thread(() -> {
             long result = repository.insertPayment(payment);
             if (result != -1) {
+                payment.setId((int) result);
+                syncRepo.syncPayment(payment);
                 paymentSuccess.postValue(true);
             } else {
                 errorMessage.postValue("Failed to process payment");
@@ -61,7 +63,8 @@ public class PaymentViewModel extends AndroidViewModel {
         new Thread(() -> {
             boolean success = repository.insertBookingWithPayment(booking, payment);
             if (success) {
-                syncRepo.pushAllDataToFirebase();
+                syncRepo.syncBooking(booking);
+                syncRepo.syncPayment(payment);
                 paymentSuccess.postValue(true);
             } else {
                 errorMessage.postValue("Failed to process payment and booking");
