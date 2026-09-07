@@ -532,10 +532,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_BRANCHES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
     
-    // ==========================================
-    // BRANDS, MODELS, QUALITIES CRUD
-    // ==========================================
-
+    // Brands, models, qualities CRUD
     public boolean addBrand(String name, String category) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
@@ -604,10 +601,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getReadableDatabase().query(TABLE_QUALITIES, null, null, null, null, null, COL_NAME + " ASC");
     }
 
-    // ==========================================
-    // SERVICE CATEGORIES
-    // ==========================================
-
+    // Service categories
     public Cursor getAllServiceCategories() {
         return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
     }
@@ -628,10 +622,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_SERVICE_CATEGORIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
-    // ==========================================
-    // AVAILABILITY METHODS
-    // ==========================================
-
+    // Availability methods
     public boolean setTechAvailability(int techId, String date, boolean available) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();

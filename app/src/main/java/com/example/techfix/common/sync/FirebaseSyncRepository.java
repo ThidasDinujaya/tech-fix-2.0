@@ -30,9 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Handles synchronization between local SQLite and centralized Firebase Firestore.
- */
+// Handles synchronization between local SQLite and centralized Firebase Firestore.
 public class FirebaseSyncRepository {
     private static final String TAG = "FirebaseSyncRepository";
     private final FirebaseFirestore firestore;
@@ -54,9 +52,7 @@ public class FirebaseSyncRepository {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Pushes all local data to Firebase Cloud automatically using matching names.
-     */
+    // Pushes all local data to Firebase Cloud automatically using matching names.
     public void pushAllDataToFirebase() {
         Log.d(TAG, "Starting full automatic sync to Cloud...");
         

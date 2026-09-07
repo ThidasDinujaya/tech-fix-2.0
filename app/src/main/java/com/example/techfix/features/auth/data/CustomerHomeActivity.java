@@ -59,36 +59,24 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         databaseHelper = new DatabaseHelper(this);
 
-        // =====================================
-        // GET LOGGED-IN USER EMAIL
-        // =====================================
-
+        // Get logged-in user email
         userEmail =
                 getIntent().getStringExtra("USER_EMAIL");
 
 
         scrollViewHome = findViewById(R.id.scrollHome);
 
-        // =====================================
-        // HEADER
-        // =====================================
-
+        // Header
         imgCustomerNotification =
                 findViewById(R.id.imgCustomerNotification);
 
 
-        // =====================================
-        // CUSTOMER DETAILS
-        // =====================================
-
+        // Customer details
         txtWelcome =
                 findViewById(R.id.txtWelcome);
 
 
-        // =====================================
-        // SEARCH / VIEW ALL
-        // =====================================
-
+        // Search / View all
         edtSearchService =
                 findViewById(R.id.edtSearchService);
 
@@ -96,10 +84,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
                 findViewById(R.id.txtViewAll);
 
 
-        // =====================================
-        // SERVICE CARDS
-        // =====================================
-
+        // Service cards
         cardPhoneRepair =
                 findViewById(R.id.cardPhoneRepair);
 
@@ -113,10 +98,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
                 findViewById(R.id.cardTabletRepair);
 
 
-        // =====================================
-        // BOTTOM NAVIGATION
-        // =====================================
-
+        // Bottom navigation
         navHome =
                 findViewById(R.id.navHome);
 
@@ -130,17 +112,11 @@ public class CustomerHomeActivity extends AppCompatActivity {
                 findViewById(R.id.navProfile);
 
 
-        // =====================================
-        // LOAD CUSTOMER NAME
-        // =====================================
-
+        // Load customer name
         loadCustomerName();
 
 
-        // =====================================
-        // NOTIFICATIONS
-        // =====================================
-
+        // Notifications
         imgCustomerNotification.setOnClickListener(v -> {
 
             Toast.makeText(
@@ -151,10 +127,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // VIEW ALL SERVICES
-        // =====================================
-
+        // View all services
         txtViewAll.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
@@ -162,10 +135,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // PHONE REPAIR
-        // =====================================
-
+        // Phone repair
         cardPhoneRepair.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
             intent.putExtra("CATEGORY", "Phone");
@@ -174,10 +144,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // LAPTOP REPAIR
-        // =====================================
-
+        // Laptop repair
         cardLaptopRepair.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
             intent.putExtra("CATEGORY", "Laptop");
@@ -186,10 +153,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // DESKTOP REPAIR
-        // =====================================
-
+        // Desktop repair
         cardDesktopRepair.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
             intent.putExtra("CATEGORY", "Desktop");
@@ -198,10 +162,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // TABLET REPAIR
-        // =====================================
-
+        // Tablet repair
         cardTabletRepair.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, ServicesActivity.class);
             intent.putExtra("CATEGORY", "Tablet");
@@ -210,19 +171,13 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // BOTTOM - HOME
-        // =====================================
-
+        // Bottom - Home
         navHome.setOnClickListener(v -> {
             refreshDashboard();
         });
 
 
-        // =====================================
-        // BOTTOM - REPAIRS
-        // =====================================
-
+        // Bottom - Repairs
         navMyRepairs.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, MyBookingsActivity.class);
             intent.putExtra("USER_EMAIL", userEmail);
@@ -230,10 +185,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // BOTTOM - BRANCHES
-        // =====================================
-
+        // Bottom - Branches
         navBranches.setOnClickListener(v -> {
             Intent intent = new Intent(CustomerHomeActivity.this, BranchesActivity.class);
             intent.putExtra("IS_ADMIN", false);
@@ -241,10 +193,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // BOTTOM - PROFILE
-        // =====================================
-
+        // Bottom - Profile
         navProfile.setOnClickListener(v -> {
 
             openProfile();
@@ -268,10 +217,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // OPEN PROFILE
-    // =========================================
-
+    // Open profile
     private void openProfile() {
 
         Intent intent = new Intent(
@@ -288,10 +234,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // LOAD CUSTOMER NAME
-    // =========================================
-
+    // Load customer name
     private void loadCustomerName() {
 
         if (userEmail != null &&
@@ -317,10 +260,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // REFRESH AFTER PROFILE UPDATE
-    // =========================================
-
+    // Refresh after profile update
     @Override
     protected void onResume() {
         super.onResume();
