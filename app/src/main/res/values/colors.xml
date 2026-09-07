@@ -26,4 +26,5 @@
     <color name="yellow_primary">#FFD600</color>
     <color name="success_green">#2E7D32</color>
     <color name="purple_primary">#6A1B9A</color>
+    <color name="splash_bg">#082F5B</color>
 </resources>
