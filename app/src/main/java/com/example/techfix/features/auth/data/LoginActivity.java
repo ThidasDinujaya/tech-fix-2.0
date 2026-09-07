@@ -23,7 +23,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
 
     private TextView txtRegister;
-    private TextView txtForgotPassword;
     private TextView txtAdminLogin;
 
     private DatabaseHelper databaseHelper;
@@ -44,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
 
         txtRegister = findViewById(R.id.txtRegister);
-        txtForgotPassword = findViewById(R.id.txtForgotPassword);
         txtAdminLogin = findViewById(R.id.txtAdminLogin);
 
         // Customer login
@@ -59,16 +57,6 @@ public class LoginActivity extends AppCompatActivity {
             );
 
             startActivity(intent);
-        });
-
-        // Forgot password
-        txtForgotPassword.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    LoginActivity.this,
-                    "Forgot Password feature will be added later",
-                    Toast.LENGTH_SHORT
-            ).show();
         });
 
         // Admin Login

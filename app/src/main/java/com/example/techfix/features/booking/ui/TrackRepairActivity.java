@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.techfix.R;
+import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.viewmodel.TrackRepairViewModel;
@@ -20,6 +21,7 @@ public class TrackRepairActivity extends AppCompatActivity {
     private View stepSubmitted, stepAssigned, stepReceived, stepRepairing, stepReady, stepCompleted;
     private Button btnPayNow;
     private TrackRepairViewModel viewModel;
+    private DatabaseHelper dbHelper;
     private int bookingId;
 
     @Override
@@ -29,6 +31,7 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         int bookingId = getIntent().getIntExtra("booking_id", -1);
         this.bookingId = bookingId;
+        dbHelper = new DatabaseHelper(this);
 
         initViews();
         setupViewModel(bookingId);
@@ -86,7 +89,8 @@ public class TrackRepairActivity extends AppCompatActivity {
             tvAssignedTech.setVisibility(tech != null && !tech.isEmpty() ? View.VISIBLE : View.GONE);
         }
 
-        if (BookingStatus.READY.equals(booking.getStatus()) || BookingStatus.COMPLETED.equals(booking.getStatus())) {
+        if ((BookingStatus.READY.equals(booking.getStatus()) || BookingStatus.COMPLETED.equals(booking.getStatus())) 
+            && !dbHelper.hasPayment(booking.getId())) {
             btnPayNow.setVisibility(View.VISIBLE);
         } else {
             btnPayNow.setVisibility(View.GONE);

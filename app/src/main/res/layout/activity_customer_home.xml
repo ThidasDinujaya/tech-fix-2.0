@@ -32,16 +32,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imgCustomerNotification"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_notification"
-                android:padding="4dp"
-                android:contentDescription="Notifications" />
-
         </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>

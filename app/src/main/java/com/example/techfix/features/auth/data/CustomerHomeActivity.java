@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.booking.ui.MyBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.services.ui.ServicesActivity;
@@ -20,9 +21,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
     // ScrollView for refresh
     private ScrollView scrollViewHome;
-
-    // Header
-    private ImageView imgCustomerNotification;
 
     // Welcome
     private TextView txtWelcome;
@@ -44,6 +42,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
     // Database
     private DatabaseHelper databaseHelper;
+    private SessionManager sessionManager;
 
     // Logged-in user's email
     private String userEmail;
@@ -56,18 +55,16 @@ public class CustomerHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_customer_home);
 
         databaseHelper = new DatabaseHelper(this);
+        sessionManager = new SessionManager(this);
 
         // Get logged-in user email
-        userEmail =
-                getIntent().getStringExtra("USER_EMAIL");
+        userEmail = getIntent().getStringExtra("USER_EMAIL");
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = sessionManager.getEmail();
+        }
 
 
         scrollViewHome = findViewById(R.id.scrollHome);
-
-        // Header
-        imgCustomerNotification =
-                findViewById(R.id.imgCustomerNotification);
-
 
         // Customer details
         txtWelcome =
@@ -109,18 +106,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
         // Load customer name
         loadCustomerName();
-
-
-        // Notifications
-        imgCustomerNotification.setOnClickListener(v -> {
-
-            Toast.makeText(
-                    CustomerHomeActivity.this,
-                    "No new notifications",
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
-
 
         // View all services
         txtViewAll.setOnClickListener(v -> {

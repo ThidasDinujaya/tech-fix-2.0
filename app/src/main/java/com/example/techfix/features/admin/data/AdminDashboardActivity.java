@@ -32,13 +32,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ImageView imgAdminMenu;
-    private ImageView imgAdminNotification;
 
     private TextView txtTotalBookings, txtPendingRepairs, txtCompleted, txtTotalRevenue;
 
-    private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardPayments, cardInventory;
+    private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardInventory;
 
-    private TextView menuDashboard, menuAdminProfile, menuNotifications, menuSettings, menuCustomerLogin, menuLogout;
+    private TextView menuDashboard, menuAdminProfile, menuSettings, menuCustomerLogin, menuLogout;
 
     private DatabaseHelper dbHelper;
     private BookingRepository bookingRepo;
@@ -50,7 +49,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawerLayout);
         imgAdminMenu = findViewById(R.id.imgAdminMenu);
-        imgAdminNotification = findViewById(R.id.imgAdminNotification);
 
         txtTotalBookings = findViewById(R.id.txtTotalBookings);
         txtPendingRepairs = findViewById(R.id.txtPendingRepairs);
@@ -61,12 +59,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardServices = findViewById(R.id.cardServices);
         cardTechnicians = findViewById(R.id.cardTechnicians);
         cardBranches = findViewById(R.id.cardBranches);
-        cardPayments = findViewById(R.id.cardPayments);
         cardInventory = findViewById(R.id.cardInventory);
 
         menuDashboard = findViewById(R.id.menuDashboard);
         menuAdminProfile = findViewById(R.id.menuAdminProfile);
-        menuNotifications = findViewById(R.id.menuNotifications);
         menuSettings = findViewById(R.id.menuSettings);
         menuCustomerLogin = findViewById(R.id.menuCustomerLogin);
         menuLogout = findViewById(R.id.menuLogout);
@@ -77,7 +73,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         loadStatistics();
 
         imgAdminMenu.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.START));
-        imgAdminNotification.setOnClickListener(v -> Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show());
 
         cardBookings.setOnClickListener(v -> startActivity(new Intent(this, AdminManageBookingsActivity.class)));
         cardServices.setOnClickListener(v -> startActivity(new Intent(this, AdminManageServicesActivity.class)));
@@ -89,7 +84,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
             intent.putExtra("IS_ADMIN", true);
             startActivity(intent);
         });
-        cardPayments.setOnClickListener(v -> startActivity(new Intent(this, AdminViewPaymentsActivity.class)));
 
         menuDashboard.setOnClickListener(v -> drawerLayout.closeDrawer(Gravity.START));
         menuAdminProfile.setOnClickListener(v -> {
@@ -111,7 +105,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         // Other menu items placeholders
-        menuNotifications.setOnClickListener(v -> Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show());
         menuSettings.setOnClickListener(v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
         menuCustomerLogin.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)));
 

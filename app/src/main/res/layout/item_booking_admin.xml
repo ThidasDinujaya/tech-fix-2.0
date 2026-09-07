@@ -100,60 +100,79 @@
             app:layout_constraintTop_toBottomOf="@id/tvAdminTech" />
 
         <LinearLayout
+            android:id="@+id/layoutAdminButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
+            android:orientation="vertical"
             android:layout_marginTop="20dp"
             app:layout_constraintTop_toBottomOf="@id/tvAdminDate"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAdminViewReceipt"
-                android:layout_width="wrap_content"
-                android:layout_height="45dp"
-                android:text="View Receipt"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@color/purple_primary"
-                android:textColor="@color/white" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewReview"
-                android:layout_width="wrap_content"
-                android:layout_height="45dp"
-                android:layout_marginStart="8dp"
-                android:text="View Review"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:visibility="gone"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@color/success_green"
-                android:textColor="@color/white" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAdminViewReceipt"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:text="View Receipt"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/purple_primary"
+                    android:textColor="@color/white" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnUpdateStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="45dp"
-                android:layout_marginStart="8dp"
-                android:text="Update"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@color/brand_blue" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewReview"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="View Review"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/success_green"
+                    android:textColor="@color/white" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteBooking"
-                android:layout_width="wrap_content"
-                android:layout_height="45dp"
-                android:layout_marginStart="8dp"
-                android:text="Delete"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@color/error" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="end">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUpdateStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:text="Update"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/brand_blue" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeleteBooking"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Delete"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/error" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

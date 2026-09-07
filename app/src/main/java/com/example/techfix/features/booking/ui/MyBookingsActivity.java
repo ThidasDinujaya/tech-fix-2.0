@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.viewmodel.MyBookingsViewModel;
 import com.example.techfix.features.payments.ui.PaymentReceiptActivity;
@@ -35,7 +36,12 @@ public class MyBookingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_bookings);
 
+        SessionManager sessionManager = new SessionManager(this);
         String userEmail = getIntent().getStringExtra("USER_EMAIL");
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = sessionManager.getEmail();
+        }
+
         dbHelper = new DatabaseHelper(this);
         userId = dbHelper.getUserIdByEmail(userEmail);
 

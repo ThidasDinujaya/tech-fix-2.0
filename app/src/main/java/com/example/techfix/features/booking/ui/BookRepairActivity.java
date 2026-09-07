@@ -2,6 +2,7 @@ package com.example.techfix.features.booking.ui;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -37,8 +38,8 @@ import java.util.Locale;
 public class BookRepairActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private AutoCompleteTextView autoDeviceType, autoBrand, autoBranch;
-    private TextInputEditText etModel, etProblemDesc, etAppointmentDate, etServiceName, etQuality;
+    private AutoCompleteTextView autoDeviceType, autoBrand, autoModel, autoBranch;
+    private TextInputEditText etProblemDesc, etAppointmentDate, etServiceName, etQuality;
     private TextInputLayout layoutQuality;
     private ImageView ivDevicePhoto;
     private BookRepairViewModel viewModel;
@@ -72,14 +73,14 @@ public class BookRepairActivity extends AppCompatActivity {
         
         if (prefilledServiceName != null) {
             etServiceName.setText(prefilledServiceName);
-            autoDeviceType.setText(prefilledDeviceType);
-            autoBrand.setText(prefilledBrand);
-            etModel.setText(prefilledModel);
+            autoDeviceType.setText(prefilledDeviceType, false);
+            autoBrand.setText(prefilledBrand, false);
+            autoModel.setText(prefilledModel, false);
 
             setReadOnly(etServiceName);
             setReadOnly(autoDeviceType);
             setReadOnly(autoBrand);
-            setReadOnly(etModel);
+            setReadOnly(autoModel);
 
             if (prefilledQuality != null) {
                 layoutQuality.setVisibility(View.VISIBLE);
@@ -115,8 +116,8 @@ public class BookRepairActivity extends AppCompatActivity {
         etServiceName = findViewById(R.id.etServiceName);
         autoDeviceType = findViewById(R.id.autoDeviceType);
         autoBrand = findViewById(R.id.autoBrand);
+        autoModel = findViewById(R.id.autoBookModel);
         autoBranch = findViewById(R.id.autoBookBranch);
-        etModel = findViewById(R.id.etModel);
         etQuality = findViewById(R.id.etQuality);
         layoutQuality = findViewById(R.id.layoutBookQuality);
         etProblemDesc = findViewById(R.id.etProblemDesc);
@@ -151,7 +152,7 @@ public class BookRepairActivity extends AppCompatActivity {
         String branch = autoBranch.getText().toString().trim();
         String type = autoDeviceType.getText().toString();
         String brand = autoBrand.getText().toString();
-        String model = etModel.getText().toString();
+        String model = autoModel.getText().toString();
         String quality = etQuality.getText().toString();
         String desc = etProblemDesc.getText().toString();
         String date = etAppointmentDate.getText().toString();
@@ -229,16 +230,58 @@ public class BookRepairActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
-        String[] deviceTypes = {"Mobile Phone", "Laptop", "Desktop", "Tablet"};
+        String[] deviceTypes = {"Phone", "Laptop", "Desktop", "Tablet"};
         autoDeviceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceTypes));
 
-        String[] brands = {"Samsung", "Apple", "Huawei", "HP", "Dell", "Asus"};
-        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brands));
+        autoDeviceType.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedCategory = (String) parent.getItemAtPosition(position);
+            updateBrands(selectedCategory);
+            autoModel.setText("");
+        });
+
+        autoBrand.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedBrand = (String) parent.getItemAtPosition(position);
+            updateModels(selectedBrand);
+        });
 
         List<Branch> branches = dbHelper.getAllBranches();
         List<String> branchNames = new ArrayList<>();
         for (Branch b : branches) branchNames.add(b.getName());
         autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
+    }
+
+    private void updateBrands(String category) {
+        List<String> brandNames = new ArrayList<>();
+        try (Cursor cursor = dbHelper.getBrandsByCategory(category)) {
+            while (cursor.moveToNext()) {
+                brandNames.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
+            }
+        }
+        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandNames));
+        autoBrand.setText("");
+    }
+
+    private void updateModels(String brandName) {
+        int brandId = -1;
+        try (Cursor cursor = dbHelper.getAllBrands()) {
+            while (cursor.moveToNext()) {
+                if (brandName.equals(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)))) {
+                    brandId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID));
+                    break;
+                }
+            }
+        }
+
+        if (brandId != -1) {
+            List<String> modelNames = new ArrayList<>();
+            try (Cursor cursor = dbHelper.getModelsByBrand(brandId)) {
+                while (cursor.moveToNext()) {
+                    modelNames.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
+                }
+            }
+            autoModel.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, modelNames));
+        }
+        autoModel.setText("");
     }
 
     private void setupDatePicker() {
