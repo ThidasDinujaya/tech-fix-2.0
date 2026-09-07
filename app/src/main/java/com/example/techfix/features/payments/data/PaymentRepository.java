@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.features.booking.data.Booking;
 
 public class PaymentRepository {
     private static PaymentRepository instance;
@@ -33,5 +34,46 @@ public class PaymentRepository {
         values.put(DatabaseHelper.COL_PAYMENT_DATE, payment.getPaymentDate());
 
         return db.insert(DatabaseHelper.TABLE_PAYMENTS, null, values);
+    }
+
+    public boolean insertBookingWithPayment(Booking booking, Payment payment) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // 1. Insert Booking
+            ContentValues bValues = new ContentValues();
+            bValues.put(DatabaseHelper.COL_BOOKING_SERVICE_ID, booking.getServiceId());
+            bValues.put(DatabaseHelper.COL_BOOKING_DEVICE_TYPE, booking.getDeviceType());
+            bValues.put(DatabaseHelper.COL_BOOKING_BRAND, booking.getBrand());
+            bValues.put(DatabaseHelper.COL_BOOKING_MODEL, booking.getModel());
+            bValues.put(DatabaseHelper.COL_BOOKING_DESC, booking.getDescription());
+            bValues.put(DatabaseHelper.COL_BOOKING_DATE, booking.getAppointmentDate());
+            bValues.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
+            bValues.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
+            bValues.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
+            bValues.put(DatabaseHelper.COL_BOOKING_BRANCH_NAME, booking.getBranchName());
+            bValues.put(DatabaseHelper.COL_BOOKING_TECH_NAME, booking.getTechnicianName());
+
+            long bookingId = db.insert(DatabaseHelper.TABLE_BOOKINGS, null, bValues);
+            if (bookingId == -1) return false;
+
+            // 2. Insert Payment
+            ContentValues pValues = new ContentValues();
+            pValues.put(DatabaseHelper.COL_PAYMENT_BOOKING_ID, (int) bookingId);
+            pValues.put(DatabaseHelper.COL_PAYMENT_AMOUNT, payment.getAmount());
+            pValues.put(DatabaseHelper.COL_PAYMENT_METHOD, payment.getMethod());
+            pValues.put(DatabaseHelper.COL_PAYMENT_CARD_NUM, payment.getCardNumber());
+            pValues.put(DatabaseHelper.COL_PAYMENT_EXPIRY, payment.getExpiryDate());
+            pValues.put(DatabaseHelper.COL_PAYMENT_CVV, payment.getCvv());
+            pValues.put(DatabaseHelper.COL_PAYMENT_DATE, payment.getPaymentDate());
+
+            long paymentId = db.insert(DatabaseHelper.TABLE_PAYMENTS, null, pValues);
+            if (paymentId == -1) return false;
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 }

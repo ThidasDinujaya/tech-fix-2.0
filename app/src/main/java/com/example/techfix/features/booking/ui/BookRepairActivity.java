@@ -17,8 +17,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.util.SessionManager;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.viewmodel.BookRepairViewModel;
 import com.example.techfix.features.branches.data.Branch;
+import com.example.techfix.features.payments.ui.PaymentActivity;
+import com.example.techfix.features.services.data.Service;
+import com.example.techfix.features.services.data.ServiceRepository;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -37,6 +43,7 @@ public class BookRepairActivity extends AppCompatActivity {
     private ImageView ivDevicePhoto;
     private BookRepairViewModel viewModel;
     private DatabaseHelper dbHelper;
+    private ServiceRepository serviceRepo;
     private int selectedServiceId = -1;
     private int userId = -1;
 
@@ -54,6 +61,7 @@ public class BookRepairActivity extends AppCompatActivity {
 
         SessionManager sessionManager = new SessionManager(this);
         dbHelper = new DatabaseHelper(this);
+        serviceRepo = ServiceRepository.getInstance(this);
         userId = dbHelper.getUserIdByEmail(sessionManager.getEmail());
 
         initializeViews();
@@ -164,7 +172,17 @@ public class BookRepairActivity extends AppCompatActivity {
         }
 
         String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
-        viewModel.submitBooking(selectedServiceId, type, brand, finalModel, desc, date, userId, branch);
+        
+        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, "", BookingStatus.PENDING, userId, branch, "");
+        
+        Service service = serviceRepo.getServiceById(selectedServiceId);
+        double price = (service != null) ? service.getPrice() : 0.0;
+
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putExtra("booking_data", newBooking);
+        intent.putExtra("service_price", price);
+        intent.putExtra("service_name", service != null ? service.getName() : "Repair Service");
+        startActivity(intent);
     }
 
     private boolean checkCapacity(String branch, String date) {

@@ -13,13 +13,20 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.techfix.R;
 import com.example.techfix.features.admin.ui.AdminInventoryActivity;
+import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.auth.data.LoginActivity;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingRepository;
+import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
+import com.example.techfix.features.payments.data.Payment;
 import com.example.techfix.features.payments.ui.PaymentActivity;
 import com.example.techfix.features.services.ui.AdminManageServicesActivity;
+import java.util.List;
+import java.util.Locale;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
@@ -32,6 +39,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardPayments, cardInventory;
 
     private TextView menuDashboard, menuAdminProfile, menuNotifications, menuSettings, menuCustomerLogin, menuLogout;
+
+    private DatabaseHelper dbHelper;
+    private BookingRepository bookingRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +71,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
         menuCustomerLogin = findViewById(R.id.menuCustomerLogin);
         menuLogout = findViewById(R.id.menuLogout);
 
-        txtTotalBookings.setText("128");
-        txtPendingRepairs.setText("32");
-        txtCompleted.setText("96");
-        txtTotalRevenue.setText("LKR 256,000");
+        dbHelper = new DatabaseHelper(this);
+        bookingRepo = BookingRepository.getInstance(this);
+
+        loadStatistics();
 
         imgAdminMenu.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.START));
         imgAdminNotification.setOnClickListener(v -> Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show());
@@ -112,9 +122,37 @@ public class AdminDashboardActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void loadStatistics() {
+        List<Booking> bookings = bookingRepo.getAllBookings();
+        List<Payment> payments = dbHelper.getAllPayments();
+
+        int totalBookings = bookings.size();
+        int pendingRepairs = 0;
+        int completedRepairs = 0;
+        double totalRevenue = 0;
+
+        for (Booking b : bookings) {
+            if (BookingStatus.PENDING.equals(b.getStatus()) || BookingStatus.ASSIGNED.equals(b.getStatus())) {
+                pendingRepairs++;
+            } else if (BookingStatus.COMPLETED.equals(b.getStatus())) {
+                completedRepairs++;
+            }
+        }
+
+        for (Payment p : payments) {
+            totalRevenue += p.getAmount();
+        }
+
+        txtTotalBookings.setText(String.valueOf(totalBookings));
+        txtPendingRepairs.setText(String.valueOf(pendingRepairs));
+        txtCompleted.setText(String.valueOf(completedRepairs));
+        txtTotalRevenue.setText(String.format(Locale.US, "LKR %.2f", totalRevenue));
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        loadStatistics();
         // Automatic Background Sync on return to dashboard
         Toast.makeText(this, "Syncing data to Cloud...", Toast.LENGTH_SHORT).show();
         new Thread(() -> {
