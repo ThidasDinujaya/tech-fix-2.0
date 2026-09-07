@@ -13,6 +13,10 @@ import com.example.techfix.features.branches.data.SparePart;
 import com.example.techfix.features.branches.data.TechAvailability;
 import com.example.techfix.features.branches.data.Technician;
 import com.example.techfix.features.payments.data.Payment;
+import com.example.techfix.features.admin.data.Brand;
+import com.example.techfix.features.admin.data.DeviceModel;
+import com.example.techfix.features.admin.data.PartQuality;
+import com.example.techfix.features.admin.data.ServiceCategory;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -341,15 +345,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public boolean insertUser(String name, String email, String phone, String password) {
+    public long insertUser(String name, String email, String phone, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_EMAIL, email);
         values.put(COL_PHONE, phone);
         values.put(COL_PASSWORD, password);
-        long result = db.insert(TABLE_USERS, null, values);
-        return result != -1;
+        return db.insert(TABLE_USERS, null, values);
     }
 
     public boolean checkEmail(String email) {
@@ -797,7 +800,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Review methods
-    public boolean addReview(int bookingId, float rating, String comment, String imageUri) {
+    public long addReview(int bookingId, float rating, String comment, String imageUri) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_REVIEW_BOOKING_ID, bookingId);
@@ -805,7 +808,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_REVIEW_COMMENT, comment);
         values.put(COL_REVIEW_IMAGE, imageUri);
         values.put(COL_REVIEW_DATE, DateFormat.getDateTimeInstance().format(new Date()));
-        return db.insert(TABLE_REVIEWS, null, values) != -1;
+        return db.insert(TABLE_REVIEWS, null, values);
     }
 
     public Review getReviewByBookingId(int bookingId) {
@@ -844,5 +847,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         boolean exists = (cursor != null && cursor.getCount() > 0);
         if (cursor != null) cursor.close();
         return exists;
+    }
+
+    public User getUserById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null, COL_ID + "=?", new String[]{String.valueOf(id)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            User user = new User(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PHONE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD))
+            );
+            cursor.close();
+            return user;
+        }
+        if (cursor != null) cursor.close();
+        return null;
+    }
+
+    public boolean insertFullUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, user.getId());
+        values.put(COL_NAME, user.getName());
+        values.put(COL_EMAIL, user.getEmail());
+        values.put(COL_PHONE, user.getPhone());
+        values.put(COL_PASSWORD, user.getPassword());
+        return db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1;
+    }
+
+    public boolean syncBrand(Brand b) {
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, b.getId());
+        values.put(COL_NAME, b.getName());
+        values.put(COL_BRAND_CATEGORY, b.getCategory());
+        return getWritableDatabase().insertWithOnConflict(TABLE_BRANDS, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1;
+    }
+
+    public boolean syncModel(DeviceModel m) {
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, m.getId());
+        values.put(COL_MODEL_BRAND_ID, m.getBrandId());
+        values.put(COL_NAME, m.getName());
+        return getWritableDatabase().insertWithOnConflict(TABLE_MODELS, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1;
+    }
+
+    public boolean syncQuality(PartQuality q) {
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, q.getId());
+        values.put(COL_NAME, q.getName());
+        return getWritableDatabase().insertWithOnConflict(TABLE_QUALITIES, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1;
+    }
+
+    public boolean syncServiceCategory(ServiceCategory sc) {
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, sc.getId());
+        values.put(COL_NAME, sc.getName());
+        return getWritableDatabase().insertWithOnConflict(TABLE_SERVICE_CATEGORIES, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1;
     }
 }

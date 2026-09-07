@@ -35,4 +35,5 @@ public class Payment implements Serializable {
     public String getPaymentDate() { return paymentDate; }
 
     public void setId(int id) { this.id = id; }
+    public void setBookingId(int bookingId) { this.bookingId = bookingId; }
 }

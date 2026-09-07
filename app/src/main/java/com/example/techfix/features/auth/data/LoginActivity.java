@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.admin.data.AdminLoginActivity;
 
@@ -112,37 +113,54 @@ public class LoginActivity extends AppCompatActivity {
                 );
 
         if (validUser) {
-
-            // Save customer session
-            sessionManager.createSession(email, SessionManager.ROLE_CUSTOMER);
-
-            Toast.makeText(
-                    LoginActivity.this,
-                    "Login Successful!",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            Intent intent = new Intent(
-                    LoginActivity.this,
-                    CustomerHomeActivity.class
-            );
-
-            intent.putExtra(
-                    "USER_EMAIL",
-                    email
-            );
-
-            startActivity(intent);
-
-            finish();
-
+            proceedToHome(email);
         } else {
-
-            Toast.makeText(
-                    LoginActivity.this,
-                    "Incorrect email or password",
-                    Toast.LENGTH_SHORT
-            ).show();
+            // Local login failed, try Cloud Pull for this specific user
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pullUserData(email, success -> {
+                if (success) {
+                    // Check again with newly pulled data
+                    if (databaseHelper.checkUser(email, password)) {
+                        proceedToHome(email);
+                    } else {
+                        showLoginError();
+                    }
+                } else {
+                    showLoginError();
+                }
+            });
         }
+    }
+
+    private void proceedToHome(String email) {
+        // Save customer session
+        sessionManager.createSession(email, SessionManager.ROLE_CUSTOMER);
+
+        Toast.makeText(
+                LoginActivity.this,
+                "Login Successful!",
+                Toast.LENGTH_SHORT
+        ).show();
+
+        Intent intent = new Intent(
+                LoginActivity.this,
+                CustomerHomeActivity.class
+        );
+
+        intent.putExtra(
+                "USER_EMAIL",
+                email
+        );
+
+        startActivity(intent);
+        finish();
+    }
+
+    private void showLoginError() {
+        Toast.makeText(
+                LoginActivity.this,
+                "Incorrect email or password",
+                Toast.LENGTH_SHORT
+        ).show();
     }
 }

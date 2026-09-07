@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.booking.ui.MyBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
@@ -235,14 +236,23 @@ public class CustomerHomeActivity extends AppCompatActivity {
     }
 
 
-    // Refresh after profile update
     @Override
     protected void onResume() {
         super.onResume();
 
         if (databaseHelper != null) {
-
             loadCustomerName();
         }
+
+        // Automatic Background Sync (Pull General Data + User Data)
+        FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+        syncRepo.pullGeneralData(success -> {
+            if (success) {
+                // Also pull user-specific data to keep bookings etc up to date
+                syncRepo.pullUserData(userEmail, userSuccess -> {
+                   if (userSuccess) loadCustomerName();
+                });
+            }
+        });
     }
 }

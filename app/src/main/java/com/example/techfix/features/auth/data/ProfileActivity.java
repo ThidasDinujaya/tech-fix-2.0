@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -328,6 +329,13 @@ public class ProfileActivity extends AppCompatActivity {
 
 
         if (updated) {
+            // Sync to Firebase
+            int userId = databaseHelper.getUserIdByEmail(userEmail);
+            User user = databaseHelper.getUserById(userId);
+            if (user != null) {
+                FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+                syncRepo.syncUser(user);
+            }
 
             Toast.makeText(
                     ProfileActivity.this,
