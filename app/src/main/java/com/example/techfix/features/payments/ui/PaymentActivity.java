@@ -28,8 +28,8 @@ public class PaymentActivity extends AppCompatActivity {
     private Button btnPayNow;
 
     private PaymentViewModel viewModel;
-    private Booking booking;
-    private double amount;
+    private int bookingId;
+    private double currentAmount = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,18 +41,11 @@ public class PaymentActivity extends AppCompatActivity {
         String serviceName = getIntent().getStringExtra("service_name");
 
         initViews();
-        setupListeners();
         setupViewModel();
+        setupListeners();
         
-        if (booking != null) {
-            tvBookingId.setText("New Repair Booking");
-            tvServiceName.setText(serviceName != null ? serviceName : "Repair Service");
-            tvAmount.setText(String.format(Locale.US, "LKR %.2f", amount));
-        } else {
-            // Handle regular payment (if any)
-            int bookingId = getIntent().getIntExtra("booking_id", -1);
-            tvBookingId.setText("Booking ID: TF" + String.format(Locale.US, "%04d", bookingId));
-        }
+        tvBookingId.setText("Booking ID: TF" + String.format("%04d", bookingId));
+        viewModel.loadBookingDetails(bookingId);
     }
 
     private void initViews() {
@@ -83,6 +76,15 @@ public class PaymentActivity extends AppCompatActivity {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(PaymentViewModel.class);
 
+        viewModel.getAmount().observe(this, amount -> {
+            this.currentAmount = amount;
+            tvAmount.setText(String.format("LKR %.2f", amount));
+        });
+
+        viewModel.getServiceName().observe(this, name -> {
+            tvServiceName.setText(name);
+        });
+
         viewModel.getPaymentSuccess().observe(this, success -> {
             if (Boolean.TRUE.equals(success)) {
                 showSuccessDialog();
@@ -108,12 +110,7 @@ public class PaymentActivity extends AppCompatActivity {
         String expiry = etExpiryDate.getText().toString().trim();
         String cvv = etCvv.getText().toString().trim();
 
-        if (booking != null) {
-            viewModel.processBookingPayment(booking, amount, method, cardNumber, expiry, cvv);
-        } else {
-            int bookingId = getIntent().getIntExtra("booking_id", -1);
-            viewModel.processPayment(bookingId, amount, method, cardNumber, expiry, cvv);
-        }
+        viewModel.processPayment(bookingId, currentAmount, method, cardNumber, expiry, cvv);
     }
 
     private void showSuccessDialog() {
