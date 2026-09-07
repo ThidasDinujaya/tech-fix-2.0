@@ -6,9 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.techfix.features.auth.data.User;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.SparePart;
+import com.example.techfix.features.branches.data.TechAvailability;
 import com.example.techfix.features.branches.data.Technician;
+import com.example.techfix.features.payments.data.Payment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 33;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -105,14 +108,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createUserTable = "CREATE TABLE " + TABLE_USERS + " (" +
+        db.execSQL("CREATE TABLE " + TABLE_USERS + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_NAME + " TEXT NOT NULL, " +
                 COL_EMAIL + " TEXT UNIQUE NOT NULL, " +
                 COL_PHONE + " TEXT NOT NULL, " +
-                COL_PASSWORD + " TEXT NOT NULL)";
+                COL_PASSWORD + " TEXT NOT NULL)");
 
-        String createServicesTable = "CREATE TABLE " + TABLE_SERVICES + " (" +
+        db.execSQL("CREATE TABLE " + TABLE_SERVICES + " (" +
                 COL_SERVICE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_SERVICE_NAME + " TEXT, " +
                 COL_SERVICE_DESC + " TEXT, " +
@@ -123,9 +126,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_SERVICE_BRAND + " TEXT, " +
                 COL_SERVICE_MODEL + " TEXT, " +
                 COL_SERVICE_QUALITY + " TEXT, " +
-                COL_SERVICE_PART_ID + " INTEGER)";
+                COL_SERVICE_PART_ID + " INTEGER)");
 
-        String createBookingsTable = "CREATE TABLE " + TABLE_BOOKINGS + " (" +
+        db.execSQL("CREATE TABLE " + TABLE_BOOKINGS + " (" +
                 COL_BOOKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_BOOKING_SERVICE_ID + " INTEGER, " +
                 COL_BOOKING_DEVICE_TYPE + " TEXT, " +
@@ -137,9 +140,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_STATUS + " TEXT, " +
                 COL_BOOKING_USER_ID + " INTEGER, " +
                 COL_BOOKING_BRANCH_NAME + " TEXT, " +
-                COL_BOOKING_TECH_NAME + " TEXT)";
+                COL_BOOKING_TECH_NAME + " TEXT)");
 
-        String createPaymentsTable = "CREATE TABLE " + TABLE_PAYMENTS + " (" +
+        db.execSQL("CREATE TABLE " + TABLE_PAYMENTS + " (" +
                 COL_ID_PAYMENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_PAYMENT_BOOKING_ID + " INTEGER, " +
                 COL_PAYMENT_AMOUNT + " REAL, " +
@@ -147,27 +150,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_PAYMENT_CARD_NUM + " TEXT, " +
                 COL_PAYMENT_EXPIRY + " TEXT, " +
                 COL_PAYMENT_CVV + " TEXT, " +
-                COL_PAYMENT_DATE + " TEXT)";
+                COL_PAYMENT_DATE + " TEXT)");
 
-        db.execSQL(createUserTable);
-        db.execSQL(createServicesTable);
-        db.execSQL(createBookingsTable);
-        db.execSQL(createPaymentsTable);
-        createBranchManagementTables(db);
-        createDeviceManagementTables(db);
-        createServiceManagementTables(db);
-        createAvailabilityTable(db);
-        populateInitialData(db);
-    }
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANCHES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_BRANCH_ADDRESS + " TEXT NOT NULL, "
+                + COL_PHONE + " TEXT NOT NULL, "
+                + COL_BRANCH_PHONE2 + " TEXT, "
+                + COL_BRANCH_HOURS_MON_FRI + " TEXT, "
+                + COL_BRANCH_HOURS_SAT + " TEXT, "
+                + COL_BRANCH_HOURS_SUN + " TEXT, "
+                + COL_BRANCH_HOURS + " TEXT, "
+                + COL_BRANCH_MAP_LINK + " TEXT, "
+                + COL_BRANCH_LATITUDE + " REAL, "
+                + COL_BRANCH_LONGITUDE + " REAL)");
 
-    private void createAvailabilityTable(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_TECH_AVAILABILITY + " (" +
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECHNICIANS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_TECHNICIAN_BRANCH + " TEXT NOT NULL, "
+                + COL_TECHNICIAN_STATUS + " TEXT NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SPARE_PARTS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_SPARE_PART_STOCK + " INTEGER NOT NULL, "
+                + COL_SPARE_PART_PRICE + " REAL NOT NULL, "
+                + COL_SPARE_PART_BRAND + " TEXT, "
+                + COL_SPARE_PART_MODEL + " TEXT, "
+                + COL_SPARE_PART_QUALITY + " TEXT)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANDS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + COL_BRAND_CATEGORY + " TEXT NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MODELS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_MODEL_BRAND_ID + " INTEGER NOT NULL, "
+                + COL_NAME + " TEXT NOT NULL, "
+                + "FOREIGN KEY(" + COL_MODEL_BRAND_ID + ") REFERENCES " + TABLE_BRANDS + "(" + COL_ID + ") ON DELETE CASCADE)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT UNIQUE NOT NULL)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECH_AVAILABILITY + " (" +
                 COL_AVAIL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_AVAIL_TECH_ID + " INTEGER, " +
                 COL_AVAIL_DATE + " TEXT, " +
                 COL_AVAIL_STATUS + " INTEGER, " +
-                "FOREIGN KEY(" + COL_AVAIL_TECH_ID + ") REFERENCES " + TABLE_TECHNICIANS + "(" + COL_ID + ") ON DELETE CASCADE)";
-        db.execSQL(createTable);
+                "FOREIGN KEY(" + COL_AVAIL_TECH_ID + ") REFERENCES " + TABLE_TECHNICIANS + "(" + COL_ID + ") ON DELETE CASCADE)");
+
+        populateInitialData(db);
     }
 
     private void populateInitialData(SQLiteDatabase db) {
@@ -257,6 +297,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS technician_roles");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKINGS);
@@ -275,60 +316,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
-    }
-
-    private void createBranchManagementTables(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANCHES + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + COL_BRANCH_ADDRESS + " TEXT NOT NULL, "
-                + COL_PHONE + " TEXT NOT NULL, "
-                + COL_BRANCH_PHONE2 + " TEXT, "
-                + COL_BRANCH_HOURS_MON_FRI + " TEXT, "
-                + COL_BRANCH_HOURS_SAT + " TEXT, "
-                + COL_BRANCH_HOURS_SUN + " TEXT, "
-                + COL_BRANCH_HOURS + " TEXT, "
-                + COL_BRANCH_MAP_LINK + " TEXT, "
-                + COL_BRANCH_LATITUDE + " REAL, "
-                + COL_BRANCH_LONGITUDE + " REAL)");
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TECHNICIANS + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + COL_TECHNICIAN_BRANCH + " TEXT NOT NULL, "
-                + COL_TECHNICIAN_STATUS + " TEXT NOT NULL)");
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SPARE_PARTS + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + COL_SPARE_PART_STOCK + " INTEGER NOT NULL, "
-                + COL_SPARE_PART_PRICE + " REAL NOT NULL, "
-                + COL_SPARE_PART_BRAND + " TEXT, "
-                + COL_SPARE_PART_MODEL + " TEXT, "
-                + COL_SPARE_PART_QUALITY + " TEXT)");
-    }
-    
-    private void createDeviceManagementTables(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANDS + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + COL_BRAND_CATEGORY + " TEXT NOT NULL)");
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MODELS + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_MODEL_BRAND_ID + " INTEGER NOT NULL, "
-                + COL_NAME + " TEXT NOT NULL, "
-                + "FOREIGN KEY(" + COL_MODEL_BRAND_ID + ") REFERENCES " + TABLE_BRANDS + "(" + COL_ID + ") ON DELETE CASCADE)");
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_QUALITIES + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT NOT NULL)");
-    }
-
-    private void createServiceManagementTables(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL_NAME + " TEXT UNIQUE NOT NULL)");
     }
 
     public boolean insertUser(String name, String email, String phone, String password) {
@@ -393,11 +380,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return userId;
-    }
-
-    public boolean deleteUser(String email) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_USERS, COL_EMAIL + " = ?", new String[]{email}) > 0;
     }
 
     public List<Branch> getAllBranches() {
@@ -510,9 +492,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_SPARE_PARTS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
-    public boolean addBranch(String name, String address, String phone, String phone2, 
+    public boolean addBranch(String name, String address, String phone, String phone2,
                              String hMonFri, String hSat, String hSun, String mapLink, double lat, double lon) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_BRANCH_ADDRESS, address);
@@ -521,11 +502,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_BRANCH_HOURS_MON_FRI, hMonFri);
         v.put(COL_BRANCH_HOURS_SAT, hSat);
         v.put(COL_BRANCH_HOURS_SUN, hSun);
-        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_LATITUDE, lat);
         v.put(COL_BRANCH_LONGITUDE, lon);
+        v.put(COL_BRANCH_MAP_LINK, mapLink);
         v.put(COL_BRANCH_HOURS, "Mon-Fri: " + hMonFri);
-        return db.insert(TABLE_BRANCHES, null, v) != -1;
+        return getWritableDatabase().insert(TABLE_BRANCHES, null, v) != -1;
     }
 
     public boolean updateBranch(int id, String name, String address, String phone, String phone2,
@@ -746,5 +727,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return availableTechs;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor cursor = db.query(TABLE_USERS, null, null, null, null, null, null)) {
+            while (cursor.moveToNext()) {
+                users.add(new User(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_EMAIL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PHONE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD))
+                ));
+            }
+        }
+        return users;
+    }
+
+    public List<Payment> getAllPayments() {
+        List<Payment> payments = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor cursor = db.query(TABLE_PAYMENTS, null, null, null, null, null, null)) {
+            while (cursor.moveToNext()) {
+                payments.add(new Payment(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID_PAYMENT)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_PAYMENT_BOOKING_ID)),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(COL_PAYMENT_AMOUNT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PAYMENT_METHOD)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PAYMENT_CARD_NUM)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PAYMENT_EXPIRY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PAYMENT_CVV)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PAYMENT_DATE))
+                ));
+            }
+        }
+        return payments;
+    }
+
+    public List<TechAvailability> getAllAvailability() {
+        List<TechAvailability> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor cursor = db.query(TABLE_TECH_AVAILABILITY, null, null, null, null, null, null)) {
+            while (cursor.moveToNext()) {
+                list.add(new TechAvailability(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_AVAIL_ID)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_AVAIL_TECH_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_AVAIL_DATE)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_AVAIL_STATUS))
+                ));
+            }
+        }
+        return list;
     }
 }

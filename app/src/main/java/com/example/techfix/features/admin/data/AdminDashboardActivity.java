@@ -104,6 +104,23 @@ public class AdminDashboardActivity extends AppCompatActivity {
         menuNotifications.setOnClickListener(v -> Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show());
         menuSettings.setOnClickListener(v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
         menuCustomerLogin.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)));
+
+        // Automatic Background Sync
+        new Thread(() -> {
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pushAllDataToFirebase();
+        }).start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Automatic Background Sync on return to dashboard
+        Toast.makeText(this, "Syncing data to Cloud...", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pushAllDataToFirebase();
+        }).start();
     }
 
     @Override

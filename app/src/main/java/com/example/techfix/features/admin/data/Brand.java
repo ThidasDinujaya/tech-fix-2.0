@@ -7,6 +7,8 @@ public class Brand implements Serializable {
     private String name;
     private String category;
 
+    public Brand() {} // Required for Firestore
+
     public Brand(int id, String name, String category) {
         this.id = id;
         this.name = name;

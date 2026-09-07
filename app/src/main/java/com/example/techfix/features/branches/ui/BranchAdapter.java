@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -83,7 +82,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
 
     static class BranchViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvAddress, tvPhone, tvHoursMonFri, tvHoursSat, tvHoursSun;
-        ImageView btnEdit, btnDelete;
+        View btnEdit, btnDelete;
         View adminActions;
 
         public BranchViewHolder(@NonNull View itemView) {

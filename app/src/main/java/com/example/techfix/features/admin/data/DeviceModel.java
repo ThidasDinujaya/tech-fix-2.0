@@ -8,6 +8,8 @@ public class DeviceModel implements Serializable {
     private String name;
     private String brandName; // Helper field for display
 
+    public DeviceModel() {} // Required for Firestore
+
     public DeviceModel(int id, int brandId, String name, String brandName) {
         this.id = id;
         this.brandId = brandId;

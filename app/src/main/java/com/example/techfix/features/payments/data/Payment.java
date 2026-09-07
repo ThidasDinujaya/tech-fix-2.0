@@ -12,6 +12,8 @@ public class Payment implements Serializable {
     private String cvv;
     private String paymentDate;
 
+    public Payment() {} // Required for Firestore
+
     public Payment(int id, int bookingId, double amount, String method, String cardNumber, String expiryDate, String cvv, String paymentDate) {
         this.id = id;
         this.bookingId = bookingId;

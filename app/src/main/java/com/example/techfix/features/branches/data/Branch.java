@@ -15,6 +15,8 @@ public class Branch implements Serializable {
     private double latitude;
     private double longitude;
 
+    public Branch() {} // Required for Firestore
+
     public Branch(int id, String name, String address, String phone, String phone2, 
                   String hoursMonFri, String hoursSat, String hoursSun, 
                   String mapLink, double latitude, double longitude) {

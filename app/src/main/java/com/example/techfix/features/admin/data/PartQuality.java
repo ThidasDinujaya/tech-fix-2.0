@@ -6,6 +6,8 @@ public class PartQuality implements Serializable {
     private int id;
     private String name;
 
+    public PartQuality() {} // Required for Firestore
+
     public PartQuality(int id, String name) {
         this.id = id;
         this.name = name;
