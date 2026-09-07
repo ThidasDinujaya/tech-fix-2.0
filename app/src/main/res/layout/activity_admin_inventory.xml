@@ -49,34 +49,9 @@
                 <GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="3"
+                    android:columnCount="2"
                     android:alignmentMode="alignMargins"
                     android:columnOrderPreserved="false">
-
-                    <!-- CATEGORIES -->
-                    <LinearLayout
-                        android:id="@+id/cardInvCategories"
-                        android:layout_width="0dp"
-                        android:layout_height="105dp"
-                        android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@android:drawable/ic_menu_sort_alphabetically"
-                            android:contentDescription="Categories" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Categories"
-                            android:textSize="12sp"
-                            android:layout_marginTop="7dp" />
-                    </LinearLayout>
 
                     <!-- BRANDS -->
                     <LinearLayout
@@ -124,6 +99,32 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Models"
+                            android:textSize="12sp"
+                            android:layout_marginTop="7dp" />
+                    </LinearLayout>
+
+                    <!-- CATEGORIES -->
+                    <LinearLayout
+                        android:id="@+id/cardInvCategories"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_columnWeight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginTop="10dp">
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@android:drawable/ic_menu_agenda"
+                            android:contentDescription="Categories" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Categories"
                             android:textSize="12sp"
                             android:layout_marginTop="7dp" />
                     </LinearLayout>

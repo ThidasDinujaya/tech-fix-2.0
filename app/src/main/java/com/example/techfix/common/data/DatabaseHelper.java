@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 33;
+    private static final int DATABASE_VERSION = 34;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -218,6 +218,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         insertServiceCategory(db, "Phone");
         insertServiceCategory(db, "Laptop");
+        insertServiceCategory(db, "Desktop");
+        insertServiceCategory(db, "Tablet");
 
         insertTechnician(db, "Kasun Perera", "Colombo Main", "Available");
         insertTechnician(db, "Amara Silva", "Kandy Branch", "Busy");
@@ -603,27 +605,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ==========================================
-    // SERVICE CATEGORIES CRUD
+    // SERVICE CATEGORIES
     // ==========================================
 
+    public Cursor getAllServiceCategories() {
+        return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
+    }
+
     public boolean addServiceCategory(String name) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, values) != -1;
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, v) != -1;
     }
 
     public boolean updateServiceCategory(int id, String name) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, name);
-        return getWritableDatabase().update(TABLE_SERVICE_CATEGORIES, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+        ContentValues v = new ContentValues();
+        v.put(COL_NAME, name);
+        return getWritableDatabase().update(TABLE_SERVICE_CATEGORIES, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
     public boolean deleteServiceCategory(int id) {
         return getWritableDatabase().delete(TABLE_SERVICE_CATEGORIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
-    }
-
-    public Cursor getAllServiceCategories() {
-        return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
     }
 
     // ==========================================
