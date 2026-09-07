@@ -19,9 +19,6 @@ public class AdminInventoryActivity extends AppCompatActivity {
         findViewById(R.id.cardInvModels).setOnClickListener(v -> 
             startActivity(new Intent(this, AdminManageModelsActivity.class)));
 
-        findViewById(R.id.cardInvCategories).setOnClickListener(v -> 
-            startActivity(new Intent(this, AdminManageCategoriesActivity.class)));
-
         findViewById(R.id.cardInvQualities).setOnClickListener(v -> 
             startActivity(new Intent(this, AdminManageQualitiesActivity.class)));
 

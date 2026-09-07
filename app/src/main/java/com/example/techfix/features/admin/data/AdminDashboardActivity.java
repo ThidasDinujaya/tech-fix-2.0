@@ -37,7 +37,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardInventory;
 
-    private TextView menuDashboard, menuAdminProfile, menuSettings, menuCustomerLogin, menuLogout;
+    private TextView menuDashboard, menuAdminProfile, menuCustomerLogin, menuLogout;
 
     private DatabaseHelper dbHelper;
     private BookingRepository bookingRepo;
@@ -63,7 +63,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         menuDashboard = findViewById(R.id.menuDashboard);
         menuAdminProfile = findViewById(R.id.menuAdminProfile);
-        menuSettings = findViewById(R.id.menuSettings);
         menuCustomerLogin = findViewById(R.id.menuCustomerLogin);
         menuLogout = findViewById(R.id.menuLogout);
 
@@ -105,7 +104,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         // Other menu items placeholders
-        menuSettings.setOnClickListener(v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
         menuCustomerLogin.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)));
 
         // Automatic Background Sync
