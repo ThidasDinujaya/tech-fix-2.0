@@ -12,6 +12,7 @@ import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.viewmodel.MyBookingsViewModel;
+import com.example.techfix.features.payments.ui.PaymentReceiptActivity;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,13 @@ public class MyBookingsActivity extends AppCompatActivity {
             @Override
             public void onViewReviewClick(Booking booking) {
                 Intent intent = new Intent(MyBookingsActivity.this, ViewReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReceiptClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, PaymentReceiptActivity.class);
                 intent.putExtra("booking_id", booking.getId());
                 startActivity(intent);
             }

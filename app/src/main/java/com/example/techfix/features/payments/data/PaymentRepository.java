@@ -2,6 +2,7 @@ package com.example.techfix.features.payments.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.features.booking.data.Booking;
@@ -75,5 +76,26 @@ public class PaymentRepository {
         } finally {
             db.endTransaction();
         }
+    }
+
+    public Payment getPaymentByBookingId(int bookingId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.query(DatabaseHelper.TABLE_PAYMENTS, null, 
+                DatabaseHelper.COL_PAYMENT_BOOKING_ID + " = ?", 
+                new String[]{String.valueOf(bookingId)}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return new Payment(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID_PAYMENT)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_BOOKING_ID)),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_AMOUNT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_METHOD)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_CARD_NUM)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_EXPIRY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_CVV)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PAYMENT_DATE))
+                );
+            }
+        }
+        return null;
     }
 }

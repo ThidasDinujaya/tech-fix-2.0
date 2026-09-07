@@ -1,5 +1,6 @@
 package com.example.techfix.features.payments.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -119,7 +120,13 @@ public class PaymentActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Payment Successful!")
                 .setMessage("Thank you for your payment. Your receipt has been generated.")
-                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setPositiveButton("OK", (dialog, which) -> {
+                    Intent intent = new Intent(this, PaymentReceiptActivity.class);
+                    intent.putExtra("booking_id", booking != null ? booking.getId() : getIntent().getIntExtra("booking_id", -1));
+                    intent.putExtra("service_name", tvServiceName.getText().toString().replace("Service: ", ""));
+                    startActivity(intent);
+                    finish();
+                })
                 .setCancelable(false)
                 .show();
     }

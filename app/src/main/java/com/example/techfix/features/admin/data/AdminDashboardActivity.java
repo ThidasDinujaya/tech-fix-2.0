@@ -23,7 +23,7 @@ import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
 import com.example.techfix.features.payments.data.Payment;
-import com.example.techfix.features.payments.ui.PaymentActivity;
+import com.example.techfix.features.payments.ui.AdminViewPaymentsActivity;
 import com.example.techfix.features.services.ui.AdminManageServicesActivity;
 import java.util.List;
 import java.util.Locale;
@@ -89,7 +89,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             intent.putExtra("IS_ADMIN", true);
             startActivity(intent);
         });
-        cardPayments.setOnClickListener(v -> startActivity(new Intent(this, PaymentActivity.class)));
+        cardPayments.setOnClickListener(v -> startActivity(new Intent(this, AdminViewPaymentsActivity.class)));
 
         menuDashboard.setOnClickListener(v -> drawerLayout.closeDrawer(Gravity.START));
         menuAdminProfile.setOnClickListener(v -> {

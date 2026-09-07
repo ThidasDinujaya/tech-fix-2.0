@@ -61,6 +61,8 @@
 
         <!-- Payments (Vinu) -->
         <activity android:name=".features.payments.ui.PaymentActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".features.payments.ui.PaymentReceiptActivity" android:exported="false" />
+        <activity android:name=".features.payments.ui.AdminViewPaymentsActivity" android:exported="false" />
 
         <!-- Branch Management & Resources (Stephani) -->
         <activity android:name=".features.branches.ui.BranchesActivity" android:exported="false" />

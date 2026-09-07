@@ -110,9 +110,21 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAdminViewReceipt"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:text="View Receipt"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="8dp"
+                app:backgroundTint="@color/purple_primary"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnViewReview"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"
+                android:layout_marginStart="8dp"
                 android:text="View Review"
                 android:textAllCaps="false"
                 android:textSize="12sp"

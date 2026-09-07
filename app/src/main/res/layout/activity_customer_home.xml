@@ -82,21 +82,6 @@
                 android:layout_marginTop="4dp" />
 
 
-            <!-- Search -->
-
-            <EditText
-                android:id="@+id/edtSearchService"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_marginTop="22dp"
-                android:background="@drawable/bg_search"
-                android:drawableStart="@drawable/ic_search"
-                android:drawablePadding="10dp"
-                android:hint="Search services..."
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:singleLine="true"
-                android:textSize="14sp" />
 
 
             <!-- Quick Services Header -->

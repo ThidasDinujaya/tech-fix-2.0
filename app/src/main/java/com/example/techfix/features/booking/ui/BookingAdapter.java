@@ -26,6 +26,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         void onBookingClick(Booking booking);
         void onAddReviewClick(Booking booking);
         void onViewReviewClick(Booking booking);
+        void onViewReceiptClick(Booking booking);
     }
 
     public BookingAdapter(List<Booking> bookings, OnBookingClickListener listener, DatabaseHelper dbHelper) {
@@ -50,7 +51,8 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
         Booking booking = bookings.get(position);
         boolean isReviewed = dbHelper.hasReview(booking.getId());
-        holder.bind(booking, listener, isReviewed);
+        boolean hasPayment = dbHelper.hasPayment(booking.getId());
+        holder.bind(booking, listener, isReviewed, hasPayment);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
         TextView tvBookingId, tvStatus, tvServiceName, tvDeviceModel, tvDateTime, tvTech;
-        Button btnReview;
+        Button btnReview, btnReceipt;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,14 +72,22 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             tvDeviceModel = itemView.findViewById(R.id.tvDeviceModel);
             tvDateTime = itemView.findViewById(R.id.tvDateTime);
             btnReview = itemView.findViewById(R.id.btnReview);
+            btnReceipt = itemView.findViewById(R.id.btnViewReceipt);
         }
 
-        public void bind(final Booking booking, final OnBookingClickListener listener, boolean isReviewed) {
+        public void bind(final Booking booking, final OnBookingClickListener listener, boolean isReviewed, boolean hasPayment) {
             tvBookingId.setText("TF" + (1000 + booking.getId()));
             tvStatus.setText(booking.getStatus());
             tvServiceName.setText("Repair Request");
             tvDeviceModel.setText(booking.getBrand() + " " + booking.getModel());
             tvDateTime.setText(booking.getAppointmentDate());
+
+            if (hasPayment) {
+                btnReceipt.setVisibility(View.VISIBLE);
+                btnReceipt.setOnClickListener(v -> listener.onViewReceiptClick(booking));
+            } else {
+                btnReceipt.setVisibility(View.GONE);
+            }
 
             if (booking.getTechnicianName() != null && !booking.getTechnicianName().isEmpty()) {
                 tvDeviceModel.setText(booking.getBrand() + " " + booking.getModel() + "\nAssigned: " + booking.getTechnicianName());

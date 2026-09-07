@@ -836,4 +836,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor != null) cursor.close();
         return exists;
     }
+
+    public boolean hasPayment(int bookingId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_PAYMENTS, new String[]{COL_ID_PAYMENT}, COL_PAYMENT_BOOKING_ID + " = ?",
+                new String[]{String.valueOf(bookingId)}, null, null, null);
+        boolean exists = (cursor != null && cursor.getCount() > 0);
+        if (cursor != null) cursor.close();
+        return exists;
+    }
 }

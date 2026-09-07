@@ -22,6 +22,7 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         void onUpdateStatus(Booking booking);
         void onDelete(Booking booking);
         void onViewReview(Booking booking);
+        void onViewReceipt(Booking booking);
     }
 
     public AdminBookingAdapter(List<Booking> bookings, OnBookingActionListener listener, DatabaseHelper dbHelper) {
@@ -41,7 +42,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
         Booking booking = bookings.get(position);
         boolean hasReview = dbHelper.hasReview(booking.getId());
-        holder.bind(booking, listener, hasReview);
+        boolean hasPayment = dbHelper.hasPayment(booking.getId());
+        holder.bind(booking, listener, hasReview, hasPayment);
     }
 
     @Override
@@ -51,7 +53,7 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvId, tvStatus, tvService, tvDevice, tvDate, tvBranch, tvTech;
-        private final View btnUpdate, btnDelete, btnViewReview;
+        private final View btnUpdate, btnDelete, btnViewReview, btnViewReceipt;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -65,9 +67,10 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             btnUpdate = itemView.findViewById(R.id.btnUpdateStatus);
             btnDelete = itemView.findViewById(R.id.btnDeleteBooking);
             btnViewReview = itemView.findViewById(R.id.btnViewReview);
+            btnViewReceipt = itemView.findViewById(R.id.btnAdminViewReceipt);
         }
 
-        public void bind(Booking booking, OnBookingActionListener listener, boolean hasReview) {
+        public void bind(Booking booking, OnBookingActionListener listener, boolean hasReview, boolean hasPayment) {
             tvId.setText("TF" + (1000 + booking.getId()));
             tvStatus.setText(booking.getStatus());
             tvService.setText("Repair Request");
@@ -80,6 +83,13 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
 
             btnUpdate.setOnClickListener(v -> listener.onUpdateStatus(booking));
             btnDelete.setOnClickListener(v -> listener.onDelete(booking));
+            
+            if (hasPayment) {
+                btnViewReceipt.setVisibility(View.VISIBLE);
+                btnViewReceipt.setOnClickListener(v -> listener.onViewReceipt(booking));
+            } else {
+                btnViewReceipt.setVisibility(View.GONE);
+            }
 
             if (BookingStatus.COMPLETED.equals(booking.getStatus()) && hasReview) {
                 btnViewReview.setVisibility(View.VISIBLE);

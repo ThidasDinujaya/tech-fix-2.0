@@ -2,7 +2,6 @@ package com.example.techfix.features.auth.data;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -28,8 +27,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
     // Welcome
     private TextView txtWelcome;
 
-    // Search / View All
-    private EditText edtSearchService;
+    // View All
     private TextView txtViewAll;
 
     // Service cards
@@ -76,10 +74,7 @@ public class CustomerHomeActivity extends AppCompatActivity {
                 findViewById(R.id.txtWelcome);
 
 
-        // Search / View all
-        edtSearchService =
-                findViewById(R.id.edtSearchService);
-
+        // View all
         txtViewAll =
                 findViewById(R.id.txtViewAll);
 
@@ -202,11 +197,6 @@ public class CustomerHomeActivity extends AppCompatActivity {
 
 
     private void refreshDashboard() {
-        if (edtSearchService != null) {
-            edtSearchService.setText("");
-            edtSearchService.clearFocus();
-        }
-        
         loadCustomerName();
         
         if (scrollViewHome != null) {
