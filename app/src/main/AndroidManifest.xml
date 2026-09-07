@@ -56,6 +56,8 @@
         <activity android:name=".features.booking.ui.MyBookingsActivity" android:exported="false" />
         <activity android:name=".features.booking.ui.RepairHistoryActivity" android:exported="false" />
         <activity android:name=".features.booking.ui.TrackRepairActivity" android:exported="false" />
+        <activity android:name=".features.booking.ui.AddReviewActivity" android:exported="false" />
+        <activity android:name=".features.booking.ui.ViewReviewActivity" android:exported="false" />
 
         <!-- Payments (Vinu) -->
         <activity android:name=".features.payments.ui.PaymentActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />

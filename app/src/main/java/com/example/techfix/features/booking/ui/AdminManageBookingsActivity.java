@@ -1,5 +1,6 @@
 package com.example.techfix.features.booking.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,14 @@ public class AdminManageBookingsActivity extends AppCompatActivity {
                         .setNegativeButton("Cancel", null)
                         .show();
             }
-        });
+
+            @Override
+            public void onViewReview(Booking booking) {
+                Intent intent = new Intent(AdminManageBookingsActivity.this, ViewReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+        }, dbHelper);
         ((RecyclerView) findViewById(R.id.rvAdminBookings)).setAdapter(adapter);
     }
 

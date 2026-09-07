@@ -7,19 +7,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.techfix.features.auth.data.User;
+import com.example.techfix.features.booking.data.Review;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.SparePart;
 import com.example.techfix.features.branches.data.TechAvailability;
 import com.example.techfix.features.branches.data.Technician;
 import com.example.techfix.features.payments.data.Payment;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix_db";
-    private static final int DATABASE_VERSION = 34;
+    private static final int DATABASE_VERSION = 35;
 
     public static final String TABLE_USERS = "users";
     public static final String COL_ID = "id";
@@ -79,6 +82,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_AVAIL_TECH_ID = "technician_id";
     public static final String COL_AVAIL_DATE = "available_date"; 
     public static final String COL_AVAIL_STATUS = "is_available"; 
+
+    public static final String TABLE_REVIEWS = "reviews";
+    public static final String COL_REVIEW_ID = "id";
+    public static final String COL_REVIEW_BOOKING_ID = "booking_id";
+    public static final String COL_REVIEW_RATING = "rating";
+    public static final String COL_REVIEW_COMMENT = "comment";
+    public static final String COL_REVIEW_IMAGE = "image_uri";
+    public static final String COL_REVIEW_DATE = "review_date";
 
     public static final String COL_BRANCH_ADDRESS = "address";
     public static final String COL_BRANCH_HOURS = "hours";
@@ -207,6 +218,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_AVAIL_STATUS + " INTEGER, " +
                 "FOREIGN KEY(" + COL_AVAIL_TECH_ID + ") REFERENCES " + TABLE_TECHNICIANS + "(" + COL_ID + ") ON DELETE CASCADE)");
 
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_REVIEWS + " (" +
+                COL_REVIEW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_REVIEW_BOOKING_ID + " INTEGER NOT NULL, " +
+                COL_REVIEW_RATING + " REAL NOT NULL, " +
+                COL_REVIEW_COMMENT + " TEXT, " +
+                COL_REVIEW_IMAGE + " TEXT, " +
+                COL_REVIEW_DATE + " TEXT, " +
+                "FOREIGN KEY(" + COL_REVIEW_BOOKING_ID + ") REFERENCES " + TABLE_BOOKINGS + "(" + COL_BOOKING_ID + ") ON DELETE CASCADE)");
+
         populateInitialData(db);
     }
 
@@ -312,6 +332,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUALITIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVICE_CATEGORIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TECH_AVAILABILITY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REVIEWS);
         onCreate(db);
     }
 
@@ -773,5 +794,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return list;
+    }
+
+    // Review methods
+    public boolean addReview(int bookingId, float rating, String comment, String imageUri) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_REVIEW_BOOKING_ID, bookingId);
+        values.put(COL_REVIEW_RATING, rating);
+        values.put(COL_REVIEW_COMMENT, comment);
+        values.put(COL_REVIEW_IMAGE, imageUri);
+        values.put(COL_REVIEW_DATE, DateFormat.getDateTimeInstance().format(new Date()));
+        return db.insert(TABLE_REVIEWS, null, values) != -1;
+    }
+
+    public Review getReviewByBookingId(int bookingId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_REVIEWS, null, COL_REVIEW_BOOKING_ID + " = ?",
+                new String[]{String.valueOf(bookingId)}, null, null, null);
+        
+        Review review = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            review = new Review(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(COL_REVIEW_ID)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(COL_REVIEW_BOOKING_ID)),
+                    cursor.getFloat(cursor.getColumnIndexOrThrow(COL_REVIEW_RATING)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_REVIEW_COMMENT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_REVIEW_IMAGE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_REVIEW_DATE))
+            );
+            cursor.close();
+        }
+        return review;
+    }
+
+    public boolean hasReview(int bookingId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_REVIEWS, new String[]{COL_REVIEW_ID}, COL_REVIEW_BOOKING_ID + " = ?",
+                new String[]{String.valueOf(bookingId)}, null, null, null);
+        boolean exists = (cursor != null && cursor.getCount() > 0);
+        if (cursor != null) cursor.close();
+        return exists;
     }
 }

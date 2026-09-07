@@ -24,6 +24,7 @@ public class MyBookingsActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private TextView tvEmptyMessage;
     private int userId;
+    private DatabaseHelper dbHelper;
 
     private List<Booking> upcomingList = new ArrayList<>();
     private List<Booking> completedList = new ArrayList<>();
@@ -34,14 +35,18 @@ public class MyBookingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_bookings);
 
         String userEmail = getIntent().getStringExtra("USER_EMAIL");
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper = new DatabaseHelper(this);
         userId = dbHelper.getUserIdByEmail(userEmail);
 
         initViews();
         setupRecyclerView();
         setupViewModel();
         setupTabLayout();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         viewModel.loadBookings(userId);
     }
 
@@ -52,11 +57,28 @@ public class MyBookingsActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new BookingAdapter(new ArrayList<>(), booking -> {
-            Intent intent = new Intent(MyBookingsActivity.this, TrackRepairActivity.class);
-            intent.putExtra("booking_id", booking.getId());
-            startActivity(intent);
-        });
+        adapter = new BookingAdapter(new ArrayList<>(), new BookingAdapter.OnBookingClickListener() {
+            @Override
+            public void onBookingClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, TrackRepairActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAddReviewClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, AddReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReviewClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, ViewReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+        }, dbHelper);
         rvBookings.setLayoutManager(new LinearLayoutManager(this));
         rvBookings.setAdapter(adapter);
     }
