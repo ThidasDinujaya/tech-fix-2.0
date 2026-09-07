@@ -28,6 +28,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Button btnPayNow;
 
     private PaymentViewModel viewModel;
+    private Booking booking;
     private int bookingId;
     private double currentAmount = 0.0;
 
@@ -37,15 +38,30 @@ public class PaymentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_payment);
 
         booking = (Booking) getIntent().getSerializableExtra("booking_data");
-        amount = getIntent().getDoubleExtra("service_price", 0.0);
+        if (booking != null) {
+            bookingId = booking.getId();
+        } else {
+            bookingId = getIntent().getIntExtra("booking_id", -1);
+        }
+
+        currentAmount = getIntent().getDoubleExtra("service_price", 0.0);
         String serviceName = getIntent().getStringExtra("service_name");
 
         initViews();
         setupViewModel();
         setupListeners();
         
-        tvBookingId.setText("Booking ID: TF" + String.format("%04d", bookingId));
-        viewModel.loadBookingDetails(bookingId);
+        tvBookingId.setText("Booking ID: TF" + String.format(Locale.US, "%04d", bookingId));
+        if (serviceName != null) {
+            tvServiceName.setText("Service: " + serviceName);
+        }
+        if (currentAmount > 0) {
+            tvAmount.setText(String.format(Locale.US, "LKR %.2f", currentAmount));
+        }
+
+        if (bookingId != -1) {
+            viewModel.loadBookingDetails(bookingId);
+        }
     }
 
     private void initViews() {
@@ -100,9 +116,10 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void processPayment() {
         String method = "Cash";
-        if (rbCard.isChecked()) {
+        int checkedId = rgPaymentMethod.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbCard) {
             method = "Card";
-        } else if (findViewById(R.id.rbTransfer).getId() == rgPaymentMethod.getCheckedRadioButtonId()) {
+        } else if (checkedId == R.id.rbTransfer) {
             method = "Online Transfer";
         }
 
@@ -119,7 +136,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setMessage("Thank you for your payment. Your receipt has been generated.")
                 .setPositiveButton("OK", (dialog, which) -> {
                     Intent intent = new Intent(this, PaymentReceiptActivity.class);
-                    intent.putExtra("booking_id", booking != null ? booking.getId() : getIntent().getIntExtra("booking_id", -1));
+                    intent.putExtra("booking_id", bookingId);
                     intent.putExtra("service_name", tvServiceName.getText().toString().replace("Service: ", ""));
                     startActivity(intent);
                     finish();
