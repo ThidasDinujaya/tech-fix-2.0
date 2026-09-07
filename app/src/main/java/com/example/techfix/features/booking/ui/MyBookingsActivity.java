@@ -10,8 +10,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.util.SessionManager;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.viewmodel.MyBookingsViewModel;
+import com.example.techfix.features.payments.ui.PaymentReceiptActivity;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ public class MyBookingsActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private TextView tvEmptyMessage;
     private int userId;
+    private DatabaseHelper dbHelper;
 
     private List<Booking> upcomingList = new ArrayList<>();
     private List<Booking> completedList = new ArrayList<>();
@@ -33,15 +36,24 @@ public class MyBookingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_bookings);
 
+        SessionManager sessionManager = new SessionManager(this);
         String userEmail = getIntent().getStringExtra("USER_EMAIL");
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = sessionManager.getEmail();
+        }
+
+        dbHelper = new DatabaseHelper(this);
         userId = dbHelper.getUserIdByEmail(userEmail);
 
         initViews();
         setupRecyclerView();
         setupViewModel();
         setupTabLayout();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         viewModel.loadBookings(userId);
     }
 
@@ -52,11 +64,35 @@ public class MyBookingsActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new BookingAdapter(new ArrayList<>(), booking -> {
-            Intent intent = new Intent(MyBookingsActivity.this, TrackRepairActivity.class);
-            intent.putExtra("booking_id", booking.getId());
-            startActivity(intent);
-        });
+        adapter = new BookingAdapter(new ArrayList<>(), new BookingAdapter.OnBookingClickListener() {
+            @Override
+            public void onBookingClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, TrackRepairActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAddReviewClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, AddReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReviewClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, ViewReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReceiptClick(Booking booking) {
+                Intent intent = new Intent(MyBookingsActivity.this, PaymentReceiptActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+        }, dbHelper);
         rvBookings.setLayoutManager(new LinearLayoutManager(this));
         rvBookings.setAdapter(adapter);
     }

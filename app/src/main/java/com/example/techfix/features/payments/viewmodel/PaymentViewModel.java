@@ -1,7 +1,7 @@
 package com.example.techfix.features.payments.viewmodel;
 
 import android.app.Application;
-
+import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -23,7 +23,7 @@ public class PaymentViewModel extends AndroidViewModel {
     private final MutableLiveData<Double> amount = new MutableLiveData<>();
     private final MutableLiveData<String> serviceName = new MutableLiveData<>();
 
-    public PaymentViewModel( Application application) {
+    public PaymentViewModel(@NonNull Application application) {
         super(application);
         repository = PaymentRepository.getInstance(application);
         bookingRepository = BookingRepository.getInstance(application);
@@ -73,7 +73,7 @@ public class PaymentViewModel extends AndroidViewModel {
             }
         }
 
-        String currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+        String currentDate = DateFormat.getDateTimeInstance().format(new Date());
         Payment payment = new Payment(0, bookingId, amount, method, cardNumber, expiryDate, cvv, currentDate);
 
         new Thread(() -> {

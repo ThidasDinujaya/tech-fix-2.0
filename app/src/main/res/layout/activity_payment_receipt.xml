@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_light">
+
+    <!-- BLUE HEADER -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarReceipt"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/brand_blue"
+        android:paddingTop="20dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Payment Receipt"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center_horizontal">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_payment"
+                app:tint="@color/brand_blue"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Payment Successful!"
+                android:textColor="@color/brand_blue"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvReceiptBookingId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Booking ID: TF1024"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvReceiptService"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Service: Screen Repair" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/tvReceiptAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Amount: LKR 2,500.00"
+                        android:textStyle="bold"
+                        android:textColor="@color/brand_blue" />
+
+                    <TextView
+                        android:id="@+id/tvReceiptMethod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Method: Credit Card" />
+
+                    <TextView
+                        android:id="@+id/tvReceiptDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Date: May 21, 2024" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackToHome"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="40dp"
+                android:text="Back to Home"
+                android:textColor="@color/black"
+                app:backgroundTint="@color/yellow_primary"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

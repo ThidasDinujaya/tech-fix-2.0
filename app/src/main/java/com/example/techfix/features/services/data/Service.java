@@ -16,6 +16,8 @@ public class Service implements Serializable {
     private String quality;
     private int sparePartId;
 
+    public Service() {} // Required for Firestore
+
     public Service(int id, String name, String description, double price, String warranty, 
                    String imageUrl, String category, String brand, String model, 
                    String quality, int sparePartId) {

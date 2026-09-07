@@ -6,6 +6,8 @@ public class ServiceCategory implements Serializable {
     private int id;
     private String name;
 
+    public ServiceCategory() {} // Required for Firestore
+
     public ServiceCategory(int id, String name) {
         this.id = id;
         this.name = name;

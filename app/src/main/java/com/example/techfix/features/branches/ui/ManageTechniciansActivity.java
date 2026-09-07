@@ -16,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.ui.TechnicianEditActivity;
 import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.Technician;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TechnicianAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
     private List<Technician> technicianList;
 
     @Override
@@ -36,6 +39,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_technicians);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvTechnicians);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -65,6 +69,10 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + technician.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteTechnician(technician.getId())) {
+                                FirebaseFirestore.getInstance()
+                                        .collection("technicians")
+                                        .document(String.valueOf(technician.getId()))
+                                        .delete();
                                 loadData();
                                 Toast.makeText(ManageTechniciansActivity.this, "Technician deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -96,6 +104,13 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
             if (!name.isEmpty() && !branch.isEmpty()) {
                 if (dbHelper.addTechnician(name, branch, "Available")) {
+                    List<Technician> all = dbHelper.getAllTechnicians();
+                    for (Technician t : all) {
+                        if (t.getName().equals(name) && t.getBranchName().equals(branch)) {
+                            syncRepo.syncTechnician(t);
+                            break;
+                        }
+                    }
                     loadData();
                     Toast.makeText(this, "Technician added", Toast.LENGTH_SHORT).show();
                 }

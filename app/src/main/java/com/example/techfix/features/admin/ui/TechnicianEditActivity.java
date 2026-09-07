@@ -10,7 +10,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
@@ -37,7 +39,8 @@ public class TechnicianEditActivity extends AppCompatActivity {
 
     private TextInputEditText etName;
     private AutoCompleteTextView autoBranch;
-    private TextView tvMonthYear, tvDateLabel;
+    private TextView tvMonthYear;
+    private TextView tvDateLabel;
     private GridLayout calendarGrid;
     private MaterialButton btnToggle;
 
@@ -46,8 +49,10 @@ public class TechnicianEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_technician_edit);
 
-        tech = (Technician) getIntent().getSerializableExtra("TECH_DATA");
-        if (tech == null) {
+        Object data = getIntent().getSerializableExtra("TECH_DATA");
+        if (data instanceof Technician) {
+            tech = (Technician) data;
+        } else {
             finish();
             return;
         }
@@ -68,7 +73,9 @@ public class TechnicianEditActivity extends AppCompatActivity {
         calendarGrid = findViewById(R.id.calendarGrid);
         btnToggle = findViewById(R.id.btnToggleDateAvail);
 
-        etName.setText(tech.getName());
+        if (tech != null) {
+            etName.setText(tech.getName());
+        }
 
         findViewById(R.id.btnPrevMonth).setOnClickListener(v -> {
             calendar.add(Calendar.MONTH, -1);
@@ -81,11 +88,10 @@ public class TechnicianEditActivity extends AppCompatActivity {
         });
 
         btnToggle.setOnClickListener(v -> {
-            if (selectedDateStr == null) return;
+            if (selectedDateStr == null || tech == null) return;
             boolean isAvailable = dbHelper.isTechAvailable(tech.getId(), selectedDateStr);
             dbHelper.setTechAvailability(tech.getId(), selectedDateStr, !isAvailable);
             
-            // Sync updated technician state to Firebase
             syncRepo.syncTechnician(tech);
             
             updateCalendar();
@@ -98,6 +104,8 @@ public class TechnicianEditActivity extends AppCompatActivity {
     }
 
     private void updateCalendar() {
+        if (tvMonthYear == null || calendarGrid == null) return;
+
         tvMonthYear.setText(monthYearFormat.format(calendar.getTime()));
         calendarGrid.removeAllViews();
 
@@ -119,8 +127,8 @@ public class TechnicianEditActivity extends AppCompatActivity {
 
         for (int day = 1; day <= daysInMonth; day++) {
             tempCal.set(Calendar.DAY_OF_MONTH, day);
-            String dateKey = sdf.format(tempCal.getTime());
-            boolean available = dbHelper.isTechAvailable(tech.getId(), dateKey);
+            final String dateKey = sdf.format(tempCal.getTime());
+            final boolean available = dbHelper.isTechAvailable(tech.getId(), dateKey);
 
             TextView tvDay = createDayTextView(String.valueOf(day), true);
             int bgColor = available ? Color.parseColor("#28A745") : Color.parseColor("#DC3545");
@@ -170,6 +178,7 @@ public class TechnicianEditActivity extends AppCompatActivity {
     }
 
     private void setupData() {
+        if (autoBranch == null || tech == null) return;
         List<Branch> branches = dbHelper.getAllBranches();
         List<String> names = new ArrayList<>();
         for (Branch b : branches) names.add(b.getName());
@@ -178,6 +187,7 @@ public class TechnicianEditActivity extends AppCompatActivity {
     }
 
     private void saveChanges() {
+        if (etName == null || autoBranch == null || tech == null) return;
         String name = etName.getText().toString().trim();
         String branch = autoBranch.getText().toString().trim();
         if (!name.isEmpty() && !branch.isEmpty()) {

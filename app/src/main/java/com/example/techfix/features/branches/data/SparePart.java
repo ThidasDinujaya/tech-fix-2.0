@@ -12,6 +12,8 @@ public class SparePart implements Serializable {
     private String quality;
     private String category;
 
+    public SparePart() {} // Required for Firestore
+
     public SparePart(int id, String name, int stock, double price, String brand, String model, String quality, String category) {
         this.id = id;
         this.name = name;

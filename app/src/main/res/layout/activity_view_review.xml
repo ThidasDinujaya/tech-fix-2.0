@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_light">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarViewReview"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/brand_blue"
+        android:paddingTop="20dp"
+        app:contentInsetStart="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Customer Review"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tvViewReviewBookingId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booking ID: TF1024"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
+
+            <RatingBar
+                android:id="@+id/viewRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:numStars="5"
+                android:isIndicator="true"
+                android:theme="@style/Widget.AppCompat.RatingBar" />
+
+            <TextView
+                android:id="@+id/tvViewReviewDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reviewed on: 2024-05-21"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="10dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <TextView
+                    android:id="@+id/tvViewReviewComment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Great service! My phone was fixed in no time."
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvReviewPhotoLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Attached Photo"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:layout_gravity="start" />
+
+            <ImageView
+                android:id="@+id/ivViewReviewPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/gray_100"
+                android:scaleType="centerInside"
+                android:contentDescription="Review Photo" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

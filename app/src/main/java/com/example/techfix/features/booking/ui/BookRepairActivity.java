@@ -2,43 +2,82 @@ package com.example.techfix.features.booking.ui;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.util.SessionManager;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.viewmodel.BookRepairViewModel;
 import com.example.techfix.features.branches.data.Branch;
+import com.example.techfix.features.payments.ui.PaymentActivity;
+import com.example.techfix.features.services.data.Service;
+import com.example.techfix.features.services.data.ServiceRepository;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.io.File;
+import java.io.IOException;
 
 public class BookRepairActivity extends AppCompatActivity {
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private AutoCompleteTextView autoDeviceType, autoBrand, autoBranch;
-    private TextInputEditText etModel, etProblemDesc, etAppointmentDate, etServiceName, etQuality;
+    private AutoCompleteTextView autoDeviceType, autoBrand, autoModel, autoBranch;
+    private TextInputEditText etProblemDesc, etAppointmentDate, etServiceName, etQuality;
     private TextInputLayout layoutQuality;
     private ImageView ivDevicePhoto;
     private BookRepairViewModel viewModel;
     private DatabaseHelper dbHelper;
+    private ServiceRepository serviceRepo;
     private int selectedServiceId = -1;
     private int userId = -1;
+    private Uri capturedImageUri;
+    private String selectedImagePath = "";
+
+    private final ActivityResultLauncher<String> galleryLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    selectedImagePath = uri.toString();
+                    ivDevicePhoto.setImageURI(uri);
+                    ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    try {
+                        getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } catch (Exception ignored) {}
+                }
+            });
+
+    private final ActivityResultLauncher<Uri> cameraLauncher =
+            registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+                if (success && capturedImageUri != null) {
+                    selectedImagePath = capturedImageUri.toString();
+                    ivDevicePhoto.setImageURI(capturedImageUri);
+                    ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +93,25 @@ public class BookRepairActivity extends AppCompatActivity {
 
         SessionManager sessionManager = new SessionManager(this);
         dbHelper = new DatabaseHelper(this);
+        serviceRepo = ServiceRepository.getInstance(this);
         userId = dbHelper.getUserIdByEmail(sessionManager.getEmail());
 
         initializeViews();
         setupDropdowns();
         setupDatePicker();
-        setupCamera();
+        setupImageAttachment();
         setupViewModel();
         
         if (prefilledServiceName != null) {
             etServiceName.setText(prefilledServiceName);
-            autoDeviceType.setText(prefilledDeviceType);
-            autoBrand.setText(prefilledBrand);
-            etModel.setText(prefilledModel);
+            autoDeviceType.setText(prefilledDeviceType, false);
+            autoBrand.setText(prefilledBrand, false);
+            autoModel.setText(prefilledModel, false);
 
             setReadOnly(etServiceName);
             setReadOnly(autoDeviceType);
             setReadOnly(autoBrand);
-            setReadOnly(etModel);
+            setReadOnly(autoModel);
 
             if (prefilledQuality != null) {
                 layoutQuality.setVisibility(View.VISIBLE);
@@ -107,8 +147,8 @@ public class BookRepairActivity extends AppCompatActivity {
         etServiceName = findViewById(R.id.etServiceName);
         autoDeviceType = findViewById(R.id.autoDeviceType);
         autoBrand = findViewById(R.id.autoBrand);
+        autoModel = findViewById(R.id.autoBookModel);
         autoBranch = findViewById(R.id.autoBookBranch);
-        etModel = findViewById(R.id.etModel);
         etQuality = findViewById(R.id.etQuality);
         layoutQuality = findViewById(R.id.layoutBookQuality);
         etProblemDesc = findViewById(R.id.etProblemDesc);
@@ -143,7 +183,7 @@ public class BookRepairActivity extends AppCompatActivity {
         String branch = autoBranch.getText().toString().trim();
         String type = autoDeviceType.getText().toString();
         String brand = autoBrand.getText().toString();
-        String model = etModel.getText().toString();
+        String model = autoModel.getText().toString();
         String quality = etQuality.getText().toString();
         String desc = etProblemDesc.getText().toString();
         String date = etAppointmentDate.getText().toString();
@@ -164,7 +204,17 @@ public class BookRepairActivity extends AppCompatActivity {
         }
 
         String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
-        viewModel.submitBooking(selectedServiceId, type, brand, finalModel, desc, date, userId, branch);
+        
+        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, selectedImagePath, BookingStatus.PENDING, userId, branch, "");
+        
+        Service service = serviceRepo.getServiceById(selectedServiceId);
+        double price = (service != null) ? service.getPrice() : 0.0;
+
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putExtra("booking_data", newBooking);
+        intent.putExtra("service_price", price);
+        intent.putExtra("service_name", service != null ? service.getName() : "Repair Service");
+        startActivity(intent);
     }
 
     private boolean checkCapacity(String branch, String date) {
@@ -188,39 +238,92 @@ public class BookRepairActivity extends AppCompatActivity {
         return true;
     }
 
-    private void setupCamera() {
+    private void setupImageAttachment() {
         ivDevicePhoto.setOnClickListener(v -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } else {
-                Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
-            }
+            String[] options = {"Take Photo", "Choose from Gallery"};
+            new AlertDialog.Builder(this)
+                    .setTitle("Add Photo")
+                    .setItems(options, (dialog, which) -> {
+                        if (which == 0) {
+                            openCamera();
+                        } else {
+                            galleryLauncher.launch("image/*");
+                        }
+                    })
+                    .show();
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            ivDevicePhoto.setImageBitmap(imageBitmap);
-            ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    private void openCamera() {
+        try {
+            File photoFile = createImageFile();
+            capturedImageUri = FileProvider.getUriForFile(this, "com.example.techfix.fileprovider", photoFile);
+            cameraLauncher.launch(capturedImageUri);
+        } catch (IOException e) {
+            Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
     private void setupDropdowns() {
-        String[] deviceTypes = {"Mobile Phone", "Laptop", "Desktop", "Tablet"};
+        String[] deviceTypes = {"Phone", "Laptop", "Desktop", "Tablet"};
         autoDeviceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceTypes));
 
-        String[] brands = {"Samsung", "Apple", "Huawei", "HP", "Dell", "Asus"};
-        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brands));
+        autoDeviceType.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedCategory = (String) parent.getItemAtPosition(position);
+            updateBrands(selectedCategory);
+            autoModel.setText("");
+        });
+
+        autoBrand.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedBrand = (String) parent.getItemAtPosition(position);
+            updateModels(selectedBrand);
+        });
 
         List<Branch> branches = dbHelper.getAllBranches();
         List<String> branchNames = new ArrayList<>();
         for (Branch b : branches) branchNames.add(b.getName());
         autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
+    }
+
+    private void updateBrands(String category) {
+        List<String> brandNames = new ArrayList<>();
+        try (Cursor cursor = dbHelper.getBrandsByCategory(category)) {
+            while (cursor.moveToNext()) {
+                brandNames.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
+            }
+        }
+        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandNames));
+        autoBrand.setText("");
+    }
+
+    private void updateModels(String brandName) {
+        int brandId = -1;
+        try (Cursor cursor = dbHelper.getAllBrands()) {
+            while (cursor.moveToNext()) {
+                if (brandName.equals(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)))) {
+                    brandId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID));
+                    break;
+                }
+            }
+        }
+
+        if (brandId != -1) {
+            List<String> modelNames = new ArrayList<>();
+            try (Cursor cursor = dbHelper.getModelsByBrand(brandId)) {
+                while (cursor.moveToNext()) {
+                    modelNames.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
+                }
+            }
+            autoModel.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, modelNames));
+        }
+        autoModel.setText("");
     }
 
     private void setupDatePicker() {

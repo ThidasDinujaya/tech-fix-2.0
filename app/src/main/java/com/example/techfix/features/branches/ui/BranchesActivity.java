@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.branches.data.Branch;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -30,6 +31,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,6 +42,7 @@ public class BranchesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BranchAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
     private boolean isAdmin = false;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int PERMISSION_ID = 44;
@@ -58,6 +61,7 @@ public class BranchesActivity extends AppCompatActivity {
         etSearchLocation = findViewById(R.id.etSearchLocation);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         loadData();
 
         FloatingActionButton fab = findViewById(R.id.fabAddBranch);
@@ -88,6 +92,11 @@ public class BranchesActivity extends AppCompatActivity {
                             .setMessage("Are you sure you want to delete " + branch.getName() + "?")
                             .setPositiveButton("Delete", (dialog, which) -> {
                                 if (dbHelper.deleteBranch(branch.getId())) {
+                                    // Delete from Cloud
+                                    FirebaseFirestore.getInstance()
+                                            .collection("branches")
+                                            .document(String.valueOf(branch.getId()))
+                                            .delete();
                                     loadData();
                                     Toast.makeText(BranchesActivity.this, "Branch deleted", Toast.LENGTH_SHORT).show();
                                 }
@@ -270,8 +279,21 @@ public class BranchesActivity extends AppCompatActivity {
                     boolean success;
                     if (branch == null) {
                         success = dbHelper.addBranch(name, addr, phone, phone2, monFri, sat, sun, mapLink, lat, lon);
+                        if (success) {
+                            // Find the newly added branch to sync it
+                            List<Branch> all = dbHelper.getAllBranches();
+                            for (Branch b : all) {
+                                if (b.getName().equals(name) && b.getAddress().equals(addr)) {
+                                    syncRepo.syncBranch(b);
+                                    break;
+                                }
+                            }
+                        }
                     } else {
                         success = dbHelper.updateBranch(branch.getId(), name, addr, phone, phone2, monFri, sat, sun, mapLink, lat, lon);
+                        if (success) {
+                            syncRepo.syncBranch(new Branch(branch.getId(), name, addr, phone, phone2, monFri, sat, sun, mapLink, lat, lon));
+                        }
                     }
 
                     if (success) {

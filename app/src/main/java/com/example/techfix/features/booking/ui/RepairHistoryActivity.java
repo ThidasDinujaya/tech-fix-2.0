@@ -10,8 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.util.SessionManager;
+import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.viewmodel.MyBookingsViewModel;
+import com.example.techfix.features.payments.ui.PaymentReceiptActivity;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RepairHistoryActivity extends AppCompatActivity {
 
@@ -19,14 +23,20 @@ public class RepairHistoryActivity extends AppCompatActivity {
     private BookingAdapter adapter;
     private MyBookingsViewModel viewModel;
     private TextView tvEmptyMessage;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repair_history);
 
+        SessionManager sessionManager = new SessionManager(this);
         String userEmail = getIntent().getStringExtra("USER_EMAIL");
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = sessionManager.getEmail();
+        }
+
+        dbHelper = new DatabaseHelper(this);
         int userId = dbHelper.getUserIdByEmail(userEmail);
 
         initViews();
@@ -40,11 +50,35 @@ public class RepairHistoryActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new BookingAdapter(new ArrayList<>(), booking -> {
-            Intent intent = new Intent(RepairHistoryActivity.this, TrackRepairActivity.class);
-            intent.putExtra("booking_id", booking.getId());
-            startActivity(intent);
-        });
+        adapter = new BookingAdapter(new ArrayList<>(), new BookingAdapter.OnBookingClickListener() {
+            @Override
+            public void onBookingClick(Booking booking) {
+                Intent intent = new Intent(RepairHistoryActivity.this, TrackRepairActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAddReviewClick(Booking booking) {
+                Intent intent = new Intent(RepairHistoryActivity.this, AddReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReviewClick(Booking booking) {
+                Intent intent = new Intent(RepairHistoryActivity.this, ViewReviewActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onViewReceiptClick(Booking booking) {
+                Intent intent = new Intent(RepairHistoryActivity.this, PaymentReceiptActivity.class);
+                intent.putExtra("booking_id", booking.getId());
+                startActivity(intent);
+            }
+        }, dbHelper);
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
         rvHistory.setAdapter(adapter);
     }

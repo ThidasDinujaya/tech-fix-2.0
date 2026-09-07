@@ -51,16 +51,6 @@
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/imgAdminNotification"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_notification"
-                    android:padding="4dp"
-                    android:contentDescription="Notifications" />
-
             </RelativeLayout>
 
         </androidx.appcompat.widget.Toolbar>
@@ -278,7 +268,6 @@
                             android:layout_height="wrap_content"
                             android:text="Inventory"
                             android:textSize="13sp"
-                            android:textStyle="bold"
                             android:layout_marginTop="7dp" />
 
                     </LinearLayout>
@@ -408,34 +397,6 @@
 
                     </LinearLayout>
 
-                    <!-- PAYMENTS -->
-                    <LinearLayout
-                        android:id="@+id/cardPayments"
-                        android:layout_width="0dp"
-                        android:layout_height="105dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@drawable/ic_payment"
-                            android:contentDescription="Payments" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Payments"
-                            android:textSize="13sp"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
                 </LinearLayout>
 
             </LinearLayout>
@@ -480,7 +441,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:gravity="center_vertical"
-            android:text="🏠   Dashboard"
+            android:text="Dashboard"
             android:textColor="@color/brand_blue"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -491,27 +452,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:gravity="center_vertical"
-            android:text="👤   Admin Profile"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:paddingStart="10dp" />
-
-        <TextView
-            android:id="@+id/menuNotifications"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:gravity="center_vertical"
-            android:text="🔔   Notifications"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:paddingStart="10dp" />
-
-        <TextView
-            android:id="@+id/menuSettings"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:gravity="center_vertical"
-            android:text="⚙   Settings"
+            android:text="Admin Profile"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
@@ -521,7 +462,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:gravity="center_vertical"
-            android:text="🔄   Sync to Cloud"
+            android:text="Sync to Cloud"
             android:textColor="@color/brand_blue"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -539,7 +480,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:gravity="center_vertical"
-            android:text="👥   Customer Login"
+            android:text="Customer Login"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:paddingStart="10dp" />
@@ -549,7 +490,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:gravity="center_vertical"
-            android:text="🚪   Logout"
+            android:text="Logout"
             android:textColor="@color/error"
             android:textSize="16sp"
             android:textStyle="bold"

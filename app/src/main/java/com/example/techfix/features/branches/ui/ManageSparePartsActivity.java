@@ -78,24 +78,28 @@ public class ManageSparePartsActivity extends AppCompatActivity {
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_spare_part, null);
         EditText etName = view.findViewById(R.id.etPartName);
+        AutoCompleteTextView autoCategory = view.findViewById(R.id.autoPartCategory);
         AutoCompleteTextView autoBrand = view.findViewById(R.id.autoPartBrand);
         AutoCompleteTextView autoModel = view.findViewById(R.id.autoPartModel);
         AutoCompleteTextView autoQuality = view.findViewById(R.id.autoPartQuality);
         EditText etStock = view.findViewById(R.id.etPartStock);
         EditText etPrice = view.findViewById(R.id.etPartPrice);
 
-        // Load Brands
-        List<String> brandNames = new ArrayList<>();
-        brandIdMap.clear();
-        try (Cursor cursor = dbHelper.getAllBrands()) {
+        // Load Categories
+        List<String> categories = new ArrayList<>();
+        try (Cursor cursor = dbHelper.getAllServiceCategories()) {
             while (cursor.moveToNext()) {
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME));
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID));
-                brandNames.add(name);
-                brandIdMap.put(name, id);
+                categories.add(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME)));
             }
         }
-        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandNames));
+        autoCategory.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories));
+
+        // Load Brands (Filtered by Category)
+        autoCategory.setOnItemClickListener((parent, v, position, id) -> {
+            String selectedCategory = (String) parent.getItemAtPosition(position);
+            updateBrands(autoBrand, selectedCategory);
+            autoModel.setText("");
+        });
 
         // Handle Brand selection to update Model list
         autoBrand.setOnItemClickListener((parent, v, position, id) -> {
@@ -156,6 +160,21 @@ public class ManageSparePartsActivity extends AppCompatActivity {
         });
         builder.setNegativeButton("Cancel", null);
         builder.show();
+    }
+
+    private void updateBrands(AutoCompleteTextView autoBrand, String category) {
+        List<String> brandNames = new ArrayList<>();
+        brandIdMap.clear();
+        try (Cursor cursor = dbHelper.getBrandsByCategory(category)) {
+            while (cursor.moveToNext()) {
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME));
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID));
+                brandNames.add(name);
+                brandIdMap.put(name, id);
+            }
+        }
+        autoBrand.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, brandNames));
+        autoBrand.setText("");
     }
 
     private void updateModels(AutoCompleteTextView autoModel, Integer brandId) {

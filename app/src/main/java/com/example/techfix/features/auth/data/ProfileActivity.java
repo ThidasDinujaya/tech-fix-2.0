@@ -47,19 +47,12 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
 
-        // =====================================
-        // DATABASE
-        // =====================================
-
+        // Database
         databaseHelper =
                 new DatabaseHelper(this);
 
 
-        // =====================================
-        // SHARED PREFERENCES
-        // Used to save profile image URI
-        // =====================================
-
+        // Shared preferences for profile image URI
         sharedPreferences =
                 getSharedPreferences(
                         "TechFixProfile",
@@ -67,10 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
                 );
 
 
-        // =====================================
-        // CONNECT XML
-        // =====================================
-
+        // Connect XML
         imgProfile =
                 findViewById(R.id.imgProfile);
 
@@ -93,20 +83,14 @@ public class ProfileActivity extends AppCompatActivity {
                 findViewById(R.id.btnProfileLogout);
 
 
-        // =====================================
-        // GET LOGGED-IN EMAIL
-        // =====================================
-
+        // Get logged-in email
         userEmail =
                 getIntent().getStringExtra(
                         "USER_EMAIL"
                 );
 
 
-        // =====================================
-        // IMAGE PICKER
-        // =====================================
-
+        // Image picker
         imagePickerLauncher =
                 registerForActivityResult(
 
@@ -154,19 +138,13 @@ public class ProfileActivity extends AppCompatActivity {
                 );
 
 
-        // =====================================
-        // LOAD PROFILE
-        // =====================================
-
+        // Load profile
         loadUserDetails();
 
         loadProfileImage();
 
 
-        // =====================================
-        // CHANGE PHOTO
-        // =====================================
-
+        // Change photo
         txtChangePhoto.setOnClickListener(v -> {
 
             imagePickerLauncher.launch(
@@ -183,20 +161,14 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
 
-        // =====================================
-        // UPDATE PROFILE
-        // =====================================
-
+        // Update profile
         btnUpdateProfile.setOnClickListener(v -> {
 
             updateProfile();
         });
 
 
-        // =====================================
-        // LOGOUT
-        // =====================================
-
+        // Logout
         btnProfileLogout.setOnClickListener(v -> {
 
             logoutUser();
@@ -204,10 +176,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // LOAD USER DETAILS FROM SQLITE
-    // =========================================
-
+    // Load user details from SQLite
     private void loadUserDetails() {
 
         if (userEmail == null ||
@@ -295,10 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // UPDATE USER PROFILE
-    // =========================================
-
+    // Update user profile
     private void updateProfile() {
 
         String name =
@@ -383,10 +349,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // SAVE PROFILE IMAGE URI
-    // =========================================
-
+    // Save profile image URI
     private void saveProfileImage(Uri uri) {
 
         if (userEmail == null) {
@@ -408,10 +371,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // LOAD PROFILE IMAGE
-    // =========================================
-
+    // Load profile image
     private void loadProfileImage() {
 
         if (userEmail == null) {
@@ -455,10 +415,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    // =========================================
-    // LOGOUT
-    // =========================================
-
+    // Logout user
     private void logoutUser() {
 
         Toast.makeText(

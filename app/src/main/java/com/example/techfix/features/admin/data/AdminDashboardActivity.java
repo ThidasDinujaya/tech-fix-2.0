@@ -13,25 +13,34 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.techfix.R;
 import com.example.techfix.features.admin.ui.AdminInventoryActivity;
+import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.auth.data.LoginActivity;
+import com.example.techfix.features.booking.data.Booking;
+import com.example.techfix.features.booking.data.BookingRepository;
+import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
 import com.example.techfix.features.branches.ui.ManageTechniciansActivity;
-import com.example.techfix.features.payments.ui.PaymentActivity;
+import com.example.techfix.features.payments.data.Payment;
+import com.example.techfix.features.payments.ui.AdminViewPaymentsActivity;
 import com.example.techfix.features.services.ui.AdminManageServicesActivity;
+import java.util.List;
+import java.util.Locale;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ImageView imgAdminMenu;
-    private ImageView imgAdminNotification;
 
     private TextView txtTotalBookings, txtPendingRepairs, txtCompleted, txtTotalRevenue;
 
-    private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardPayments, cardInventory;
+    private LinearLayout cardBookings, cardServices, cardTechnicians, cardBranches, cardInventory;
 
-    private TextView menuDashboard, menuAdminProfile, menuNotifications, menuSettings, menuCustomerLogin, menuLogout;
+    private TextView menuDashboard, menuAdminProfile, menuCustomerLogin, menuLogout;
+
+    private DatabaseHelper dbHelper;
+    private BookingRepository bookingRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +49,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawerLayout);
         imgAdminMenu = findViewById(R.id.imgAdminMenu);
-        imgAdminNotification = findViewById(R.id.imgAdminNotification);
 
         txtTotalBookings = findViewById(R.id.txtTotalBookings);
         txtPendingRepairs = findViewById(R.id.txtPendingRepairs);
@@ -51,23 +59,19 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardServices = findViewById(R.id.cardServices);
         cardTechnicians = findViewById(R.id.cardTechnicians);
         cardBranches = findViewById(R.id.cardBranches);
-        cardPayments = findViewById(R.id.cardPayments);
         cardInventory = findViewById(R.id.cardInventory);
 
         menuDashboard = findViewById(R.id.menuDashboard);
         menuAdminProfile = findViewById(R.id.menuAdminProfile);
-        menuNotifications = findViewById(R.id.menuNotifications);
-        menuSettings = findViewById(R.id.menuSettings);
         menuCustomerLogin = findViewById(R.id.menuCustomerLogin);
         menuLogout = findViewById(R.id.menuLogout);
 
-        txtTotalBookings.setText("128");
-        txtPendingRepairs.setText("32");
-        txtCompleted.setText("96");
-        txtTotalRevenue.setText("LKR 256,000");
+        dbHelper = new DatabaseHelper(this);
+        bookingRepo = BookingRepository.getInstance(this);
+
+        loadStatistics();
 
         imgAdminMenu.setOnClickListener(v -> drawerLayout.openDrawer(Gravity.START));
-        imgAdminNotification.setOnClickListener(v -> Toast.makeText(this, "No new notifications", Toast.LENGTH_SHORT).show());
 
         cardBookings.setOnClickListener(v -> startActivity(new Intent(this, AdminManageBookingsActivity.class)));
         cardServices.setOnClickListener(v -> startActivity(new Intent(this, AdminManageServicesActivity.class)));
@@ -79,7 +83,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
             intent.putExtra("IS_ADMIN", true);
             startActivity(intent);
         });
-        cardPayments.setOnClickListener(v -> startActivity(new Intent(this, PaymentActivity.class)));
 
         menuDashboard.setOnClickListener(v -> drawerLayout.closeDrawer(Gravity.START));
         menuAdminProfile.setOnClickListener(v -> {
@@ -101,9 +104,52 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         // Other menu items placeholders
-        menuNotifications.setOnClickListener(v -> Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show());
-        menuSettings.setOnClickListener(v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
         menuCustomerLogin.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)));
+
+        // Automatic Background Sync
+        new Thread(() -> {
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pushAllDataToFirebase();
+        }).start();
+    }
+
+    private void loadStatistics() {
+        List<Booking> bookings = bookingRepo.getAllBookings();
+        List<Payment> payments = dbHelper.getAllPayments();
+
+        int totalBookings = bookings.size();
+        int pendingRepairs = 0;
+        int completedRepairs = 0;
+        double totalRevenue = 0;
+
+        for (Booking b : bookings) {
+            if (BookingStatus.PENDING.equals(b.getStatus()) || BookingStatus.ASSIGNED.equals(b.getStatus())) {
+                pendingRepairs++;
+            } else if (BookingStatus.COMPLETED.equals(b.getStatus())) {
+                completedRepairs++;
+            }
+        }
+
+        for (Payment p : payments) {
+            totalRevenue += p.getAmount();
+        }
+
+        txtTotalBookings.setText(String.valueOf(totalBookings));
+        txtPendingRepairs.setText(String.valueOf(pendingRepairs));
+        txtCompleted.setText(String.valueOf(completedRepairs));
+        txtTotalRevenue.setText(String.format(Locale.US, "LKR %.2f", totalRevenue));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadStatistics();
+        // Automatic Background Sync on return to dashboard
+        Toast.makeText(this, "Syncing data to Cloud...", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
+            syncRepo.pushAllDataToFirebase();
+        }).start();
     }
 
     @Override
