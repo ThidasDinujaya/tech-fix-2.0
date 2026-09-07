@@ -4,16 +4,22 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
@@ -32,12 +38,14 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.io.File;
+import java.io.IOException;
 
 public class BookRepairActivity extends AppCompatActivity {
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private AutoCompleteTextView autoDeviceType, autoBrand, autoModel, autoBranch;
     private TextInputEditText etProblemDesc, etAppointmentDate, etServiceName, etQuality;
     private TextInputLayout layoutQuality;
@@ -47,6 +55,29 @@ public class BookRepairActivity extends AppCompatActivity {
     private ServiceRepository serviceRepo;
     private int selectedServiceId = -1;
     private int userId = -1;
+    private Uri capturedImageUri;
+    private String selectedImagePath = "";
+
+    private final ActivityResultLauncher<String> galleryLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    selectedImagePath = uri.toString();
+                    ivDevicePhoto.setImageURI(uri);
+                    ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    try {
+                        getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } catch (Exception ignored) {}
+                }
+            });
+
+    private final ActivityResultLauncher<Uri> cameraLauncher =
+            registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+                if (success && capturedImageUri != null) {
+                    selectedImagePath = capturedImageUri.toString();
+                    ivDevicePhoto.setImageURI(capturedImageUri);
+                    ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +99,7 @@ public class BookRepairActivity extends AppCompatActivity {
         initializeViews();
         setupDropdowns();
         setupDatePicker();
-        setupCamera();
+        setupImageAttachment();
         setupViewModel();
         
         if (prefilledServiceName != null) {
@@ -174,7 +205,7 @@ public class BookRepairActivity extends AppCompatActivity {
 
         String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
         
-        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, "", BookingStatus.PENDING, userId, branch, "");
+        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, selectedImagePath, BookingStatus.PENDING, userId, branch, "");
         
         Service service = serviceRepo.getServiceById(selectedServiceId);
         double price = (service != null) ? service.getPrice() : 0.0;
@@ -207,26 +238,37 @@ public class BookRepairActivity extends AppCompatActivity {
         return true;
     }
 
-    private void setupCamera() {
+    private void setupImageAttachment() {
         ivDevicePhoto.setOnClickListener(v -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } else {
-                Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
-            }
+            String[] options = {"Take Photo", "Choose from Gallery"};
+            new AlertDialog.Builder(this)
+                    .setTitle("Add Photo")
+                    .setItems(options, (dialog, which) -> {
+                        if (which == 0) {
+                            openCamera();
+                        } else {
+                            galleryLauncher.launch("image/*");
+                        }
+                    })
+                    .show();
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            ivDevicePhoto.setImageBitmap(imageBitmap);
-            ivDevicePhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    private void openCamera() {
+        try {
+            File photoFile = createImageFile();
+            capturedImageUri = FileProvider.getUriForFile(this, "com.example.techfix.fileprovider", photoFile);
+            cameraLauncher.launch(capturedImageUri);
+        } catch (IOException e) {
+            Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     private void setupDropdowns() {
