@@ -1,6 +1,7 @@
 package com.example.techfix.features.services.data;
 
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -14,9 +15,11 @@ public class ServiceRepository {
     private static final String TAG = "ServiceRepository";
     private static ServiceRepository instance;
     private DatabaseHelper dbHelper;
+    private Context context;
 
     private ServiceRepository(Context context) {
-        this.dbHelper = new DatabaseHelper(context.getApplicationContext());
+        this.context = context.getApplicationContext();
+        this.dbHelper = new DatabaseHelper(this.context);
     }
 
     public static synchronized ServiceRepository getInstance(Context context) {
@@ -27,6 +30,11 @@ public class ServiceRepository {
     }
 
     private void ensureInitialData() {
+        SharedPreferences prefs = context.getSharedPreferences("techfix_prefs", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("initial_services_loaded", false)) {
+            return;
+        }
+
         Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -36,6 +44,7 @@ public class ServiceRepository {
                 if (count == 0) {
                     loadMockDataIntoDb();
                 }
+                prefs.edit().putBoolean("initial_services_loaded", true).apply();
             }
         } catch (Exception e) {
             Log.e(TAG, "Error checking DB data", e);
@@ -143,8 +152,8 @@ public class ServiceRepository {
         return service;
     }
 
-    public boolean addService(String name, String desc, double price, String warranty, String url, 
-                              String category, String brand, String model, String quality, int partId) {
+    public long addService(String name, String desc, double price, String warranty, String url, 
+                           String category, String brand, String model, String quality, int partId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COL_SERVICE_NAME, name);
@@ -157,7 +166,7 @@ public class ServiceRepository {
         values.put(DatabaseHelper.COL_SERVICE_MODEL, model);
         values.put(DatabaseHelper.COL_SERVICE_QUALITY, quality);
         values.put(DatabaseHelper.COL_SERVICE_PART_ID, partId);
-        return db.insert(DatabaseHelper.TABLE_SERVICES, null, values) != -1;
+        return db.insert(DatabaseHelper.TABLE_SERVICES, null, values);
     }
 
     public boolean updateService(int id, String name, String desc, double price, String warranty, 

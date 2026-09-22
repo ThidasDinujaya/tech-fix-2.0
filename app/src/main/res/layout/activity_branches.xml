@@ -18,10 +18,11 @@
             android:paddingTop="20dp">
 
             <TextView
+                android:id="@+id/tvBranchesTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Our Branches"
+                android:text="Manage Branches"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />

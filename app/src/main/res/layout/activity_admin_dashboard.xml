@@ -70,169 +70,7 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
-                <!-- ========================= -->
-                <!-- STATISTICS ROW 1 -->
-                <!-- ========================= -->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="7dp"
-                        android:background="@drawable/bg_card_blue"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total Bookings"
-                            android:textColor="@color/gray_700"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/txtTotalBookings"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="128"
-                            android:textColor="@color/brand_blue"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginStart="7dp"
-                        android:background="@drawable/bg_card_orange"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Pending Repairs"
-                            android:textColor="@color/gray_700"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/txtPendingRepairs"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="32"
-                            android:textColor="#F57C00"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-
-                <!-- ========================= -->
-                <!-- STATISTICS ROW 2 -->
-                <!-- ========================= -->
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="14dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="7dp"
-                        android:background="@drawable/bg_card_green"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Completed"
-                            android:textColor="@color/gray_700"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/txtCompleted"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="96"
-                            android:textColor="#159447"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginStart="7dp"
-                        android:background="@drawable/bg_card_purple"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total Revenue"
-                            android:textColor="@color/gray_700"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/txtTotalRevenue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="LKR 256,000"
-                            android:textColor="#3F51B5"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-
-                <!-- DIVIDER -->
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider"
-                    android:layout_marginTop="22dp"
-                    android:layout_marginBottom="20dp" />
-
-
-                <!-- QUICK ACCESS -->
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Quick Access"
-                    android:textColor="#111111"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="18dp" />
 
 
                 <!-- ========================= -->
@@ -244,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- INVENTORY HUB -->
+                    <!-- INVENTORY -->
                     <LinearLayout
                         android:id="@+id/cardInventory"
                         android:layout_width="0dp"
@@ -267,6 +105,103 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Inventory"
+                            android:textSize="13sp"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+                    <!-- BRANCHES -->
+                    <LinearLayout
+                        android:id="@+id/cardBranches"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@drawable/ic_location"
+                            android:contentDescription="Branches" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Branches"
+                            android:textSize="13sp"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+                    <!-- TECHNICIANS -->
+                    <LinearLayout
+                        android:id="@+id/cardTechnicians"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@drawable/ic_technician"
+                            android:contentDescription="Technicians" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Technicians"
+                            android:textSize="13sp"
+                            android:layout_marginTop="7dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- ========================= -->
+                <!-- QUICK ACCESS ROW 2 -->
+                <!-- ========================= -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <!-- SERVICES -->
+                    <LinearLayout
+                        android:id="@+id/cardServices"
+                        android:layout_width="0dp"
+                        android:layout_height="105dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:background="@drawable/bg_quick_icon"
+                            android:padding="14dp"
+                            android:src="@drawable/ic_services"
+                            android:contentDescription="Services" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Services"
                             android:textSize="13sp"
                             android:layout_marginTop="7dp" />
 
@@ -300,102 +235,11 @@
 
                     </LinearLayout>
 
-                    <!-- SERVICES -->
-                    <LinearLayout
-                        android:id="@+id/cardServices"
+                    <!-- EMPTY PLACEHOLDER TO MATCH 3-COLUMN ALIGNMENT -->
+                    <View
                         android:layout_width="0dp"
                         android:layout_height="105dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@drawable/ic_services"
-                            android:contentDescription="Services" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Services"
-                            android:textSize="13sp"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-
-                <!-- ========================= -->
-                <!-- QUICK ACCESS ROW 2 -->
-                <!-- ========================= -->
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="10dp">
-
-                    <!-- TECHNICIANS -->
-                    <LinearLayout
-                        android:id="@+id/cardTechnicians"
-                        android:layout_width="0dp"
-                        android:layout_height="105dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@drawable/ic_technician"
-                            android:contentDescription="Technicians" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Technicians"
-                            android:textSize="13sp"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
-
-                    <!-- BRANCHES -->
-                    <LinearLayout
-                        android:id="@+id/cardBranches"
-                        android:layout_width="0dp"
-                        android:layout_height="105dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:background="@drawable/bg_quick_icon"
-                            android:padding="14dp"
-                            android:src="@drawable/ic_location"
-                            android:contentDescription="Branches" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Branches"
-                            android:textSize="13sp"
-                            android:layout_marginTop="7dp" />
-
-                    </LinearLayout>
+                        android:layout_weight="1" />
 
                 </LinearLayout>
 

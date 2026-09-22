@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +166,12 @@ public class FirebaseSyncRepository {
         firestore.collection("services").document(String.valueOf(s.getId())).set(s, SetOptions.merge());
     }
 
+    public void deleteService(int serviceId) {
+        firestore.collection("services").document(String.valueOf(serviceId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Service deleted from Firebase: " + serviceId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting service from Firebase: " + serviceId, e));
+    }
+
     public void syncBooking(Booking b) {
         firestore.collection("bookings").document(String.valueOf(b.getId())).set(b, SetOptions.merge());
     }
@@ -212,10 +219,12 @@ public class FirebaseSyncRepository {
     // PULL GENERAL DATA (For Customers & Admins)
     public void pullGeneralData(OnSyncCompleteListener listener) {
         firestore.collection("services").get().addOnSuccessListener(services -> {
+            List<Service> serviceList = new ArrayList<>();
             for (DocumentSnapshot d : services) {
                 Service s = d.toObject(Service.class);
-                if (s != null) insertServiceLocally(s);
+                if (s != null) serviceList.add(s);
             }
+            syncServicesLocally(serviceList);
             
             firestore.collection("branches").get().addOnSuccessListener(branches -> {
                 for (DocumentSnapshot d : branches) {
@@ -249,10 +258,12 @@ public class FirebaseSyncRepository {
             }
             
             firestore.collection("services").get().addOnSuccessListener(services -> {
+                List<Service> serviceList = new ArrayList<>();
                 for (DocumentSnapshot d : services) {
                     Service s = d.toObject(Service.class);
-                    if (s != null) insertServiceLocally(s);
+                    if (s != null) serviceList.add(s);
                 }
+                syncServicesLocally(serviceList);
                 
                 firestore.collection("bookings").get().addOnSuccessListener(bookings -> {
                     for (DocumentSnapshot d : bookings) {
@@ -343,20 +354,45 @@ public class FirebaseSyncRepository {
         });
     }
 
-    private void insertServiceLocally(Service s) {
-        ContentValues v = new ContentValues();
-        v.put(DatabaseHelper.COL_SERVICE_ID, s.getId());
-        v.put(DatabaseHelper.COL_SERVICE_NAME, s.getName());
-        v.put(DatabaseHelper.COL_SERVICE_DESC, s.getDescription());
-        v.put(DatabaseHelper.COL_SERVICE_PRICE, s.getPrice());
-        v.put(DatabaseHelper.COL_SERVICE_WARRANTY, s.getWarranty());
-        v.put(DatabaseHelper.COL_SERVICE_IMAGE, s.getImageUrl());
-        v.put(DatabaseHelper.COL_SERVICE_CATEGORY, s.getCategory());
-        v.put(DatabaseHelper.COL_SERVICE_BRAND, s.getBrand());
-        v.put(DatabaseHelper.COL_SERVICE_MODEL, s.getModel());
-        v.put(DatabaseHelper.COL_SERVICE_QUALITY, s.getQuality());
-        v.put(DatabaseHelper.COL_SERVICE_PART_ID, s.getSparePartId());
-        dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_SERVICES, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    private void syncServicesLocally(List<Service> remoteServices) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (Service s : remoteServices) {
+                remoteIds.add(s.getId());
+                ContentValues v = new ContentValues();
+                v.put(DatabaseHelper.COL_SERVICE_ID, s.getId());
+                v.put(DatabaseHelper.COL_SERVICE_NAME, s.getName());
+                v.put(DatabaseHelper.COL_SERVICE_DESC, s.getDescription());
+                v.put(DatabaseHelper.COL_SERVICE_PRICE, s.getPrice());
+                v.put(DatabaseHelper.COL_SERVICE_WARRANTY, s.getWarranty());
+                v.put(DatabaseHelper.COL_SERVICE_IMAGE, s.getImageUrl());
+                v.put(DatabaseHelper.COL_SERVICE_CATEGORY, s.getCategory());
+                v.put(DatabaseHelper.COL_SERVICE_BRAND, s.getBrand());
+                v.put(DatabaseHelper.COL_SERVICE_MODEL, s.getModel());
+                v.put(DatabaseHelper.COL_SERVICE_QUALITY, s.getQuality());
+                v.put(DatabaseHelper.COL_SERVICE_PART_ID, s.getSparePartId());
+                db.insertWithOnConflict(DatabaseHelper.TABLE_SERVICES, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SERVICES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_SERVICE_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SERVICES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing services locally", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void insertBranchLocally(Branch br) {
