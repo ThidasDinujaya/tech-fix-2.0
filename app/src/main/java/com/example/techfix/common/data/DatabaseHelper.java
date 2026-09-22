@@ -113,6 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_SPARE_PART_BRAND = "brand";
     public static final String COL_SPARE_PART_MODEL = "model";
     public static final String COL_SPARE_PART_QUALITY = "quality";
+    public static final String COL_SPARE_PART_BRANCH = "branch_name";
     
     public static final String COL_BRAND_CATEGORY = "category";
     public static final String COL_MODEL_BRAND_ID = "brand_id";
@@ -194,7 +195,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_SPARE_PART_PRICE + " REAL NOT NULL, "
                 + COL_SPARE_PART_BRAND + " TEXT, "
                 + COL_SPARE_PART_MODEL + " TEXT, "
-                + COL_SPARE_PART_QUALITY + " TEXT)");
+                + COL_SPARE_PART_QUALITY + " TEXT, "
+                + COL_SPARE_PART_BRANCH + " TEXT)");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BRANDS + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -310,7 +312,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_TECHNICIANS, null, v);
     }
 
-    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price, String brand, String model, String quality) {
+    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price, String brand, String model, String quality, String branch) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
         v.put(COL_SPARE_PART_STOCK, stock);
@@ -318,7 +320,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_SPARE_PART_BRAND, brand);
         v.put(COL_SPARE_PART_MODEL, model);
         v.put(COL_SPARE_PART_QUALITY, quality);
+        v.put(COL_SPARE_PART_BRANCH, branch);
         db.insert(TABLE_SPARE_PARTS, null, v);
+    }
+
+    private void insertSparePart(SQLiteDatabase db, String name, int stock, double price, String brand, String model, String quality) {
+        insertSparePart(db, name, stock, price, brand, model, quality, "Colombo Main");
     }
 
     @Override
@@ -472,6 +479,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
         try (Cursor cursor = getReadableDatabase().rawQuery(query, null)) {
             while (cursor.moveToNext()) {
+                int branchIdx = cursor.getColumnIndex(COL_SPARE_PART_BRANCH);
+                String branch = (branchIdx != -1 && !cursor.isNull(branchIdx)) ? cursor.getString(branchIdx) : "All Branches";
+
                 spareParts.add(new SparePart(
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
@@ -480,7 +490,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_BRAND)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_MODEL)),
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_SPARE_PART_QUALITY)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRAND_CATEGORY))));
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_BRAND_CATEGORY)),
+                        branch));
             }
         }
         return spareParts;
@@ -492,7 +503,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{brand, model}, null, null, COL_NAME + " ASC");
     }
 
-    public boolean addSparePart(String name, int stock, double price, String brand, String model, String quality) {
+    public boolean addSparePart(String name, int stock, double price, String brand, String model, String quality, String branch) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_SPARE_PART_STOCK, stock);
@@ -500,10 +511,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_SPARE_PART_BRAND, brand);
         values.put(COL_SPARE_PART_MODEL, model);
         values.put(COL_SPARE_PART_QUALITY, quality);
+        values.put(COL_SPARE_PART_BRANCH, branch);
         return getWritableDatabase().insert(TABLE_SPARE_PARTS, null, values) != -1;
     }
 
-    public boolean updateSparePart(int id, String name, int stock, double price, String brand, String model, String quality) {
+    public boolean addSparePart(String name, int stock, double price, String brand, String model, String quality) {
+        return addSparePart(name, stock, price, brand, model, quality, "All Branches");
+    }
+
+    public boolean updateSparePart(int id, String name, int stock, double price, String brand, String model, String quality, String branch) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_SPARE_PART_STOCK, stock);
@@ -511,7 +527,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_SPARE_PART_BRAND, brand);
         values.put(COL_SPARE_PART_MODEL, model);
         values.put(COL_SPARE_PART_QUALITY, quality);
+        values.put(COL_SPARE_PART_BRANCH, branch);
         return getWritableDatabase().update(TABLE_SPARE_PARTS, values, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean updateSparePart(int id, String name, int stock, double price, String brand, String model, String quality) {
+        return updateSparePart(id, name, stock, price, brand, model, quality, "All Branches");
     }
 
     public boolean deleteSparePart(int id) {

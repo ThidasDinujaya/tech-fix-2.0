@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
+import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.branches.data.SparePart;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -29,7 +31,8 @@ public class ManageSparePartsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SparePartAdapter adapter;
     private DatabaseHelper dbHelper;
-    private Map<String, Integer> brandIdMap = new HashMap<>();
+    private FirebaseSyncRepository syncRepo;
+    private final Map<String, Integer> brandIdMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class ManageSparePartsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_spare_parts);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvSpareParts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -61,6 +65,7 @@ public class ManageSparePartsActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + part.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteSparePart(part.getId())) {
+                                syncRepo.pushAllDataToFirebase();
                                 loadData();
                                 Toast.makeText(ManageSparePartsActivity.this, "Part deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -82,6 +87,7 @@ public class ManageSparePartsActivity extends AppCompatActivity {
         AutoCompleteTextView autoBrand = view.findViewById(R.id.autoPartBrand);
         AutoCompleteTextView autoModel = view.findViewById(R.id.autoPartModel);
         AutoCompleteTextView autoQuality = view.findViewById(R.id.autoPartQuality);
+        AutoCompleteTextView autoBranch = view.findViewById(R.id.autoPartBranch);
         EditText etStock = view.findViewById(R.id.etPartStock);
         EditText etPrice = view.findViewById(R.id.etPartPrice);
 
@@ -116,12 +122,28 @@ public class ManageSparePartsActivity extends AppCompatActivity {
         }
         autoQuality.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, qualityNames));
 
+        // Load Branches
+        List<Branch> branches = dbHelper.getAllBranches();
+        List<String> branchNames = new ArrayList<>();
+        for (Branch b : branches) {
+            branchNames.add(b.getName());
+        }
+        if (branchNames.isEmpty()) {
+            branchNames.add("Colombo Main");
+            branchNames.add("Kandy Branch");
+        }
+        if (!branchNames.contains("All Branches")) {
+            branchNames.add("All Branches");
+        }
+        autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
+
         if (part != null) {
             etName.setText(part.getName());
             autoBrand.setText(part.getBrand(), false);
             updateModels(autoModel, brandIdMap.get(part.getBrand()));
             autoModel.setText(part.getModel(), false);
             autoQuality.setText(part.getQuality(), false);
+            autoBranch.setText(part.getBranchName(), false);
             etStock.setText(String.valueOf(part.getStock()));
             etPrice.setText(String.valueOf(part.getPrice()));
         }
@@ -132,22 +154,28 @@ public class ManageSparePartsActivity extends AppCompatActivity {
             String brand = autoBrand.getText().toString().trim();
             String model = autoModel.getText().toString().trim();
             String quality = autoQuality.getText().toString().trim();
+            String branch = autoBranch.getText().toString().trim();
             String stockStr = etStock.getText().toString().trim();
             String priceStr = etPrice.getText().toString().trim();
+
+            if (branch.isEmpty()) {
+                branch = "All Branches";
+            }
 
             if (!name.isEmpty() && !brand.isEmpty() && !model.isEmpty() && !quality.isEmpty() && !stockStr.isEmpty() && !priceStr.isEmpty()) {
                 try {
                     int stock = Integer.parseInt(stockStr);
                     double price = Double.parseDouble(priceStr);
                     boolean success;
-                    
+
                     if (part == null) {
-                        success = dbHelper.addSparePart(name, stock, price, brand, model, quality);
+                        success = dbHelper.addSparePart(name, stock, price, brand, model, quality, branch);
                     } else {
-                        success = dbHelper.updateSparePart(part.getId(), name, stock, price, brand, model, quality);
+                        success = dbHelper.updateSparePart(part.getId(), name, stock, price, brand, model, quality, branch);
                     }
 
                     if (success) {
+                        syncRepo.pushAllDataToFirebase();
                         loadData();
                         Toast.makeText(this, part == null ? "Part added" : "Part updated", Toast.LENGTH_SHORT).show();
                     }

@@ -429,6 +429,7 @@ public class FirebaseSyncRepository {
         v.put(DatabaseHelper.COL_SPARE_PART_BRAND, sp.getBrand());
         v.put(DatabaseHelper.COL_SPARE_PART_MODEL, sp.getModel());
         v.put(DatabaseHelper.COL_SPARE_PART_QUALITY, sp.getQuality());
+        v.put(DatabaseHelper.COL_SPARE_PART_BRANCH, sp.getBranchName());
         dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_SPARE_PARTS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
     }
 

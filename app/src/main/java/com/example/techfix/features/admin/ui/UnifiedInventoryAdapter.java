@@ -33,6 +33,7 @@ public class UnifiedInventoryAdapter extends RecyclerView.Adapter<UnifiedInvento
         holder.tvBrand.setText(p.getBrand());
         holder.tvModel.setText(p.getModel());
         holder.tvQuality.setText(p.getQuality());
+        holder.tvBranch.setText(p.getBranchName() != null ? p.getBranchName() : "All Branches");
         holder.tvStock.setText(String.valueOf(p.getStock()));
         holder.tvPrice.setText(String.format(Locale.US, "%,.2f", p.getPrice()));
         holder.tvCategory.setText(p.getCategory() != null ? p.getCategory() : "-"); 
@@ -42,7 +43,7 @@ public class UnifiedInventoryAdapter extends RecyclerView.Adapter<UnifiedInvento
     public int getItemCount() { return parts.size(); }
 
     static class UnifiedViewHolder extends RecyclerView.ViewHolder {
-        TextView tvPartName, tvCategory, tvBrand, tvModel, tvQuality, tvStock, tvPrice;
+        TextView tvPartName, tvCategory, tvBrand, tvModel, tvQuality, tvBranch, tvStock, tvPrice;
 
         public UnifiedViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -51,6 +52,7 @@ public class UnifiedInventoryAdapter extends RecyclerView.Adapter<UnifiedInvento
             tvBrand = itemView.findViewById(R.id.tvUnifiedBrand);
             tvModel = itemView.findViewById(R.id.tvUnifiedModel);
             tvQuality = itemView.findViewById(R.id.tvUnifiedQuality);
+            tvBranch = itemView.findViewById(R.id.tvUnifiedBranch);
             tvStock = itemView.findViewById(R.id.tvUnifiedStock);
             tvPrice = itemView.findViewById(R.id.tvUnifiedPrice);
         }
