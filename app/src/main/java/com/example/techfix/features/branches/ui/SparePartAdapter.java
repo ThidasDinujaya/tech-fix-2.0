@@ -38,7 +38,7 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Part
     public void onBindViewHolder(@NonNull PartViewHolder holder, int position) {
         SparePart p = list.get(position);
         holder.tvName.setText(p.getName());
-        String branchStr = (p.getBranchName() != null && !p.getBranchName().isEmpty()) ? p.getBranchName() : "All Branches";
+        String branchStr = (p.getBranchName() != null && !p.getBranchName().isEmpty()) ? p.getBranchName() : "Main Branch";
         holder.tvStock.setText("Stock: " + p.getStock() + " | Branch: " + branchStr + " | " + p.getQuality());
         holder.tvPrice.setText(String.format("LKR %,.2f", p.getPrice()));
         

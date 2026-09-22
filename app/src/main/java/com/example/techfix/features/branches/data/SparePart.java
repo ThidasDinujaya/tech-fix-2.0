@@ -16,7 +16,7 @@ public class SparePart implements Serializable {
     public SparePart() {} // Required for Firestore
 
     public SparePart(int id, String name, int stock, double price, String brand, String model, String quality, String category) {
-        this(id, name, stock, price, brand, model, quality, category, "All Branches");
+        this(id, name, stock, price, brand, model, quality, category, "Colombo Main");
     }
 
     public SparePart(int id, String name, int stock, double price, String brand, String model, String quality, String category, String branchName) {
@@ -39,7 +39,7 @@ public class SparePart implements Serializable {
     public String getModel() { return model; }
     public String getQuality() { return quality; }
     public String getCategory() { return category; }
-    public String getBranchName() { return branchName != null ? branchName : "All Branches"; }
+    public String getBranchName() { return branchName != null ? branchName : ""; }
 
     public void setId(int id) { this.id = id; }
     public void setName(String name) { this.name = name; }

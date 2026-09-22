@@ -65,7 +65,7 @@ public class ManageSparePartsActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + part.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteSparePart(part.getId())) {
-                                syncRepo.pushAllDataToFirebase();
+                                syncRepo.deleteSparePart(part.getId());
                                 loadData();
                                 Toast.makeText(ManageSparePartsActivity.this, "Part deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -132,9 +132,6 @@ public class ManageSparePartsActivity extends AppCompatActivity {
             branchNames.add("Colombo Main");
             branchNames.add("Kandy Branch");
         }
-        if (!branchNames.contains("All Branches")) {
-            branchNames.add("All Branches");
-        }
         autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
 
         if (part != null) {
@@ -151,6 +148,7 @@ public class ManageSparePartsActivity extends AppCompatActivity {
         builder.setView(view);
         builder.setPositiveButton(part == null ? "Add" : "Update", (dialog, which) -> {
             String name = etName.getText().toString().trim();
+            String category = autoCategory.getText().toString().trim();
             String brand = autoBrand.getText().toString().trim();
             String model = autoModel.getText().toString().trim();
             String quality = autoQuality.getText().toString().trim();
@@ -158,26 +156,31 @@ public class ManageSparePartsActivity extends AppCompatActivity {
             String stockStr = etStock.getText().toString().trim();
             String priceStr = etPrice.getText().toString().trim();
 
-            if (branch.isEmpty()) {
-                branch = "All Branches";
-            }
-
-            if (!name.isEmpty() && !brand.isEmpty() && !model.isEmpty() && !quality.isEmpty() && !stockStr.isEmpty() && !priceStr.isEmpty()) {
+            if (!name.isEmpty() && !brand.isEmpty() && !model.isEmpty() && !quality.isEmpty() && !branch.isEmpty() && !stockStr.isEmpty() && !priceStr.isEmpty()) {
                 try {
                     int stock = Integer.parseInt(stockStr);
                     double price = Double.parseDouble(priceStr);
-                    boolean success;
 
                     if (part == null) {
-                        success = dbHelper.addSparePart(name, stock, price, brand, model, quality, branch);
+                        long newId = dbHelper.addSparePart(name, stock, price, brand, model, quality, branch);
+                        if (newId != -1) {
+                            SparePart newPart = new SparePart((int) newId, name, stock, price, brand, model, quality, category, branch);
+                            syncRepo.syncSparePart(newPart);
+                            loadData();
+                            Toast.makeText(this, "Part added", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Failed to add part", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        success = dbHelper.updateSparePart(part.getId(), name, stock, price, brand, model, quality, branch);
-                    }
-
-                    if (success) {
-                        syncRepo.pushAllDataToFirebase();
-                        loadData();
-                        Toast.makeText(this, part == null ? "Part added" : "Part updated", Toast.LENGTH_SHORT).show();
+                        boolean success = dbHelper.updateSparePart(part.getId(), name, stock, price, brand, model, quality, branch);
+                        if (success) {
+                            SparePart updatedPart = new SparePart(part.getId(), name, stock, price, brand, model, quality, category, branch);
+                            syncRepo.syncSparePart(updatedPart);
+                            loadData();
+                            Toast.makeText(this, "Part updated", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Failed to update part", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (NumberFormatException e) {
                     Toast.makeText(this, "Invalid numbers", Toast.LENGTH_SHORT).show();

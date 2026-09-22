@@ -192,6 +192,12 @@ public class FirebaseSyncRepository {
         firestore.collection("spare_parts").document(String.valueOf(sp.getId())).set(sp, SetOptions.merge());
     }
 
+    public void deleteSparePart(int partId) {
+        firestore.collection("spare_parts").document(String.valueOf(partId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Spare part deleted from Firebase: " + partId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting spare part from Firebase: " + partId, e));
+    }
+
     public void syncAvailability(TechAvailability a) {
         firestore.collection("technician_availability").document(String.valueOf(a.getId())).set(a, SetOptions.merge());
     }
@@ -306,10 +312,12 @@ public class FirebaseSyncRepository {
                 }
                 
                 firestore.collection("spare_parts").get().addOnSuccessListener(parts -> {
+                    List<SparePart> remoteList = new ArrayList<>();
                     for (DocumentSnapshot d : parts) {
                         SparePart sp = d.toObject(SparePart.class);
-                        if (sp != null) insertSparePartLocally(sp);
+                        if (sp != null) remoteList.add(sp);
                     }
+                    syncSparePartsLocally(remoteList);
                     
                     firestore.collection("technician_availability").get().addOnSuccessListener(avail -> {
                         for (DocumentSnapshot d : avail) {
@@ -420,17 +428,42 @@ public class FirebaseSyncRepository {
         dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_TECHNICIANS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    private void insertSparePartLocally(SparePart sp) {
-        ContentValues v = new ContentValues();
-        v.put(DatabaseHelper.COL_ID, sp.getId());
-        v.put(DatabaseHelper.COL_NAME, sp.getName());
-        v.put(DatabaseHelper.COL_SPARE_PART_STOCK, sp.getStock());
-        v.put(DatabaseHelper.COL_SPARE_PART_PRICE, sp.getPrice());
-        v.put(DatabaseHelper.COL_SPARE_PART_BRAND, sp.getBrand());
-        v.put(DatabaseHelper.COL_SPARE_PART_MODEL, sp.getModel());
-        v.put(DatabaseHelper.COL_SPARE_PART_QUALITY, sp.getQuality());
-        v.put(DatabaseHelper.COL_SPARE_PART_BRANCH, sp.getBranchName());
-        dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_SPARE_PARTS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    private void syncSparePartsLocally(List<SparePart> remoteParts) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (SparePart sp : remoteParts) {
+                remoteIds.add(sp.getId());
+                ContentValues v = new ContentValues();
+                v.put(DatabaseHelper.COL_ID, sp.getId());
+                v.put(DatabaseHelper.COL_NAME, sp.getName());
+                v.put(DatabaseHelper.COL_SPARE_PART_STOCK, sp.getStock());
+                v.put(DatabaseHelper.COL_SPARE_PART_PRICE, sp.getPrice());
+                v.put(DatabaseHelper.COL_SPARE_PART_BRAND, sp.getBrand());
+                v.put(DatabaseHelper.COL_SPARE_PART_MODEL, sp.getModel());
+                v.put(DatabaseHelper.COL_SPARE_PART_QUALITY, sp.getQuality());
+                v.put(DatabaseHelper.COL_SPARE_PART_BRANCH, sp.getBranchName());
+                db.insertWithOnConflict(DatabaseHelper.TABLE_SPARE_PARTS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SPARE_PARTS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SPARE_PARTS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing spare parts locally", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void insertAvailabilityLocally(TechAvailability a) {

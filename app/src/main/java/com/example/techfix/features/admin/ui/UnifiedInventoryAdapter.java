@@ -33,7 +33,7 @@ public class UnifiedInventoryAdapter extends RecyclerView.Adapter<UnifiedInvento
         holder.tvBrand.setText(p.getBrand());
         holder.tvModel.setText(p.getModel());
         holder.tvQuality.setText(p.getQuality());
-        holder.tvBranch.setText(p.getBranchName() != null ? p.getBranchName() : "All Branches");
+        holder.tvBranch.setText((p.getBranchName() != null && !p.getBranchName().isEmpty()) ? p.getBranchName() : "Main Branch");
         holder.tvStock.setText(String.valueOf(p.getStock()));
         holder.tvPrice.setText(String.format(Locale.US, "%,.2f", p.getPrice()));
         holder.tvCategory.setText(p.getCategory() != null ? p.getCategory() : "-"); 
