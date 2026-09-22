@@ -596,11 +596,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     
     // Brands, models, qualities CRUD
-    public boolean addBrand(String name, String category) {
+    public long addBrand(String name, String category) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
         values.put(COL_BRAND_CATEGORY, category);
-        return getWritableDatabase().insert(TABLE_BRANDS, null, values) != -1;
+        return getWritableDatabase().insert(TABLE_BRANDS, null, values);
     }
 
     public boolean updateBrand(int id, String name, String category) {
@@ -622,11 +622,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getReadableDatabase().query(TABLE_BRANDS, null, null, null, null, null, COL_NAME + " ASC");
     }
 
-    public boolean addModel(int brandId, String name) {
+    public long addModel(int brandId, String name) {
         ContentValues values = new ContentValues();
         values.put(COL_MODEL_BRAND_ID, brandId);
         values.put(COL_NAME, name);
-        return getWritableDatabase().insert(TABLE_MODELS, null, values) != -1;
+        return getWritableDatabase().insert(TABLE_MODELS, null, values);
     }
 
     public boolean updateModel(int id, int brandId, String name) {
@@ -644,10 +644,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getReadableDatabase().query(TABLE_MODELS, null, COL_MODEL_BRAND_ID + " = ?", new String[]{String.valueOf(brandId)}, null, null, COL_NAME + " ASC");
     }
 
-    public boolean addQuality(String name) {
+    public long addQuality(String name) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, name);
-        return getWritableDatabase().insert(TABLE_QUALITIES, null, values) != -1;
+        return getWritableDatabase().insert(TABLE_QUALITIES, null, values);
     }
 
     public boolean updateQuality(int id, String name) {
@@ -669,10 +669,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getReadableDatabase().query(TABLE_SERVICE_CATEGORIES, null, null, null, null, null, COL_NAME + " ASC");
     }
 
-    public boolean addServiceCategory(String name) {
+    public long addServiceCategory(String name) {
         ContentValues v = new ContentValues();
         v.put(COL_NAME, name);
-        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, v) != -1;
+        return getWritableDatabase().insert(TABLE_SERVICE_CATEGORIES, null, v);
     }
 
     public boolean updateServiceCategory(int id, String name) {

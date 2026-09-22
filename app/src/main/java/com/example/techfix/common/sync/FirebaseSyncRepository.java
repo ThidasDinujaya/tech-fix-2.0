@@ -206,16 +206,40 @@ public class FirebaseSyncRepository {
         firestore.collection("brands").document(String.valueOf(b.getId())).set(b, SetOptions.merge());
     }
 
+    public void deleteBrand(int brandId) {
+        firestore.collection("brands").document(String.valueOf(brandId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Brand deleted from Firebase: " + brandId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting brand from Firebase: " + brandId, e));
+    }
+
     public void syncModel(DeviceModel m) {
         firestore.collection("models").document(String.valueOf(m.getId())).set(m, SetOptions.merge());
+    }
+
+    public void deleteModel(int modelId) {
+        firestore.collection("models").document(String.valueOf(modelId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Model deleted from Firebase: " + modelId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting model from Firebase: " + modelId, e));
     }
 
     public void syncQuality(PartQuality q) {
         firestore.collection("qualities").document(String.valueOf(q.getId())).set(q, SetOptions.merge());
     }
 
+    public void deleteQuality(int qualityId) {
+        firestore.collection("qualities").document(String.valueOf(qualityId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Quality deleted from Firebase: " + qualityId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting quality from Firebase: " + qualityId, e));
+    }
+
     public void syncServiceCategory(ServiceCategory sc) {
         firestore.collection("service_categories").document(String.valueOf(sc.getId())).set(sc, SetOptions.merge());
+    }
+
+    public void deleteServiceCategory(int catId) {
+        firestore.collection("service_categories").document(String.valueOf(catId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Category deleted from Firebase: " + catId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting category from Firebase: " + catId, e));
     }
 
     public void syncReview(Review r) {
@@ -333,33 +357,157 @@ public class FirebaseSyncRepository {
 
     private void pullMetadata(OnSyncCompleteListener listener) {
         firestore.collection("brands").get().addOnSuccessListener(brands -> {
+            List<Brand> remoteBrands = new ArrayList<>();
             for (DocumentSnapshot d : brands) {
                 Brand b = d.toObject(Brand.class);
-                if (b != null) dbHelper.syncBrand(b);
+                if (b != null) remoteBrands.add(b);
             }
+            syncBrandsLocally(remoteBrands);
             
             firestore.collection("models").get().addOnSuccessListener(models -> {
+                List<DeviceModel> remoteModels = new ArrayList<>();
                 for (DocumentSnapshot d : models) {
                     DeviceModel m = d.toObject(DeviceModel.class);
-                    if (m != null) dbHelper.syncModel(m);
+                    if (m != null) remoteModels.add(m);
                 }
+                syncModelsLocally(remoteModels);
 
                 firestore.collection("qualities").get().addOnSuccessListener(qualities -> {
+                    List<PartQuality> remoteQualities = new ArrayList<>();
                     for (DocumentSnapshot d : qualities) {
                         PartQuality q = d.toObject(PartQuality.class);
-                        if (q != null) dbHelper.syncQuality(q);
+                        if (q != null) remoteQualities.add(q);
                     }
+                    syncQualitiesLocally(remoteQualities);
 
                     firestore.collection("service_categories").get().addOnSuccessListener(cats -> {
+                        List<ServiceCategory> remoteCats = new ArrayList<>();
                         for (DocumentSnapshot d : cats) {
                             ServiceCategory sc = d.toObject(ServiceCategory.class);
-                            if (sc != null) dbHelper.syncServiceCategory(sc);
+                            if (sc != null) remoteCats.add(sc);
                         }
+                        syncServiceCategoriesLocally(remoteCats);
                         listener.onSyncComplete(true);
                     });
                 });
             });
         });
+    }
+
+    private void syncBrandsLocally(List<Brand> remoteBrands) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (Brand b : remoteBrands) {
+                if (b == null) continue;
+                remoteIds.add(b.getId());
+                dbHelper.syncBrand(b);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_BRANDS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_BRANDS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing brands locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncModelsLocally(List<DeviceModel> remoteModels) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (DeviceModel m : remoteModels) {
+                if (m == null) continue;
+                remoteIds.add(m.getId());
+                dbHelper.syncModel(m);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_MODELS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_MODELS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing models locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncQualitiesLocally(List<PartQuality> remoteQualities) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (PartQuality q : remoteQualities) {
+                if (q == null) continue;
+                remoteIds.add(q.getId());
+                dbHelper.syncQuality(q);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_QUALITIES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_QUALITIES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing qualities locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncServiceCategoriesLocally(List<ServiceCategory> remoteCats) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (ServiceCategory sc : remoteCats) {
+                if (sc == null) continue;
+                remoteIds.add(sc.getId());
+                dbHelper.syncServiceCategory(sc);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SERVICE_CATEGORIES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SERVICE_CATEGORIES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing service categories locally", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void syncServicesLocally(List<Service> remoteServices) {
