@@ -49,6 +49,15 @@
                 android:textColor="@color/success_green"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSlotCapacity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Bookings: 0 / 2"
+                android:textColor="@color/gray_700"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

@@ -1,5 +1,6 @@
 package com.example.techfix.features.admin.ui;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +20,15 @@ import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.TimeSlot;
 import com.example.techfix.features.branches.data.Branch;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class AdminManageTimeSlotsActivity extends AppCompatActivity {
 
@@ -32,6 +37,10 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private FirebaseSyncRepository syncRepo;
     private String selectedBranchName;
+    private String selectedDate;
+
+    private TextView tvSelectedDateLabel, tvCapacityTitle, tvCapacitySub;
+    private MaterialButton btnChangeSlotDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +49,18 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
 
         selectedBranchName = getIntent().getStringExtra("BRANCH_NAME");
 
+        // Default to today's date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        selectedDate = sdf.format(Calendar.getInstance().getTime());
+
         dbHelper = new DatabaseHelper(this);
         syncRepo = new FirebaseSyncRepository(this);
+
+        tvSelectedDateLabel = findViewById(R.id.tvSelectedDateLabel);
+        tvCapacityTitle = findViewById(R.id.tvCapacityTitle);
+        tvCapacitySub = findViewById(R.id.tvCapacitySub);
+        btnChangeSlotDate = findViewById(R.id.btnChangeSlotDate);
+
         recyclerView = findViewById(R.id.rvTimeSlots);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -50,13 +69,44 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
             tvTitle.setText("Time Slots - " + selectedBranchName);
         }
 
+        btnChangeSlotDate.setOnClickListener(v -> showDatePicker());
+
         loadData();
 
         FloatingActionButton fab = findViewById(R.id.fabAddTimeSlot);
         fab.setOnClickListener(v -> showAddEditDialog(null));
     }
 
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
+            Calendar selectedCal = Calendar.getInstance();
+            selectedCal.set(selectedYear, selectedMonth, selectedDay);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            selectedDate = sdf.format(selectedCal.getTime());
+            loadData();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
+    }
+
     private void loadData() {
+        String activeBranch = (selectedBranchName != null && !selectedBranchName.isEmpty()) ? selectedBranchName : "Colombo Main";
+
+        // Query technician capacity for this branch on the selected date
+        int techCount = dbHelper.getAvailableTechCount(activeBranch, selectedDate);
+
+        if (tvSelectedDateLabel != null) {
+            tvSelectedDateLabel.setText("Date: " + selectedDate);
+        }
+        if (tvCapacityTitle != null) {
+            tvCapacityTitle.setText("Concurrent Slot Capacity: " + techCount + (techCount == 1 ? " Booking" : " Bookings"));
+        }
+        if (tvCapacitySub != null) {
+            tvCapacitySub.setText("Based on " + techCount + " active technician(s) at " + activeBranch + " on " + selectedDate);
+        }
+
         List<TimeSlot> slotList;
         if (selectedBranchName != null && !selectedBranchName.isEmpty()) {
             slotList = dbHelper.getTimeSlotsByBranch(selectedBranchName);
@@ -64,29 +114,33 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
             slotList = dbHelper.getAllTimeSlots();
         }
 
-        adapter = new TimeSlotAdapter(slotList, new TimeSlotAdapter.OnTimeSlotActionListener() {
-            @Override
-            public void onEdit(TimeSlot slot) {
-                showAddEditDialog(slot);
-            }
+        if (adapter == null) {
+            adapter = new TimeSlotAdapter(slotList, new TimeSlotAdapter.OnTimeSlotActionListener() {
+                @Override
+                public void onEdit(TimeSlot slot) {
+                    showAddEditDialog(slot);
+                }
 
-            @Override
-            public void onDelete(TimeSlot slot) {
-                new AlertDialog.Builder(AdminManageTimeSlotsActivity.this)
-                        .setTitle("Delete Time Slot")
-                        .setMessage("Are you sure you want to delete " + slot.getSlotName() + "?")
-                        .setPositiveButton("Delete", (dialog, which) -> {
-                            if (dbHelper.deleteTimeSlot(slot.getId())) {
-                                syncRepo.deleteTimeSlot(slot.getId());
-                                loadData();
-                                Toast.makeText(AdminManageTimeSlotsActivity.this, "Time slot deleted", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .show();
-            }
-        });
-        recyclerView.setAdapter(adapter);
+                @Override
+                public void onDelete(TimeSlot slot) {
+                    new AlertDialog.Builder(AdminManageTimeSlotsActivity.this)
+                            .setTitle("Delete Time Slot")
+                            .setMessage("Are you sure you want to delete " + slot.getSlotName() + "?")
+                            .setPositiveButton("Delete", (dialog, which) -> {
+                                if (dbHelper.deleteTimeSlot(slot.getId())) {
+                                    syncRepo.deleteTimeSlot(slot.getId());
+                                    loadData();
+                                    Toast.makeText(AdminManageTimeSlotsActivity.this, "Time slot deleted", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+            }, dbHelper, selectedDate, techCount);
+            recyclerView.setAdapter(adapter);
+        } else {
+            adapter.updateData(slotList, selectedDate, techCount);
+        }
     }
 
     private void showAddEditDialog(TimeSlot slot) {
