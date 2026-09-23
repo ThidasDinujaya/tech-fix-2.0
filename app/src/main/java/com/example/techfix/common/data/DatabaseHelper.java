@@ -541,7 +541,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception ignored) {}
 
         String query = "SELECT s.id AS _part_id, s.name, s.stock, s.price, s.brand, s.model, s.quality, s.branch_name, b." + COL_BRAND_CATEGORY + " FROM " + TABLE_SPARE_PARTS + " s " +
-                "LEFT JOIN " + TABLE_BRANDS + " b ON s." + COL_SPARE_PART_BRAND + " = b." + COL_NAME;
+                "LEFT JOIN " + TABLE_BRANDS + " b ON s." + COL_SPARE_PART_BRAND + " = b." + COL_NAME + " GROUP BY s.id";
         
         try (Cursor cursor = getReadableDatabase().rawQuery(query, null)) {
             while (cursor.moveToNext()) {
