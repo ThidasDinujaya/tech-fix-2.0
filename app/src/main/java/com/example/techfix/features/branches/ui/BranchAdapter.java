@@ -23,6 +23,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
     public interface OnBranchActionListener {
         void onEdit(Branch branch);
         void onDelete(Branch branch);
+        void onManageTimeSlots(Branch branch);
     }
 
     public BranchAdapter(List<Branch> branchList, boolean isAdmin, OnBranchActionListener listener) {
@@ -70,6 +71,9 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             holder.adminActions.setVisibility(View.VISIBLE);
             holder.btnEdit.setOnClickListener(v -> listener.onEdit(branch));
             holder.btnDelete.setOnClickListener(v -> listener.onDelete(branch));
+            if (holder.btnTimeSlots != null) {
+                holder.btnTimeSlots.setOnClickListener(v -> listener.onManageTimeSlots(branch));
+            }
         } else {
             holder.adminActions.setVisibility(View.GONE);
         }
@@ -82,7 +86,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
 
     static class BranchViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvAddress, tvPhone, tvHoursMonFri, tvHoursSat, tvHoursSun;
-        View btnEdit, btnDelete;
+        View btnEdit, btnDelete, btnTimeSlots;
         View adminActions;
 
         public BranchViewHolder(@NonNull View itemView) {
@@ -95,6 +99,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             tvHoursSun = itemView.findViewById(R.id.tvBranchHoursSun);
             btnEdit = itemView.findViewById(R.id.btnEditBranch);
             btnDelete = itemView.findViewById(R.id.btnDeleteBranch);
+            btnTimeSlots = itemView.findViewById(R.id.btnTimeSlotsBranch);
             adminActions = itemView.findViewById(R.id.layoutAdminActions);
         }
     }

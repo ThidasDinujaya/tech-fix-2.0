@@ -67,10 +67,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
             startActivity(new Intent(this, AdminProfileActivity.class));
         });
-        findViewById(R.id.menuTimeSlots).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(this, AdminManageTimeSlotsActivity.class));
-        });
         menuLogout.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminLoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

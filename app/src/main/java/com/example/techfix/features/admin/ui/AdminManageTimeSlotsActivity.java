@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -19,6 +20,7 @@ import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.TimeSlot;
 import com.example.techfix.features.branches.data.Branch;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,16 +31,24 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
     private TimeSlotAdapter adapter;
     private DatabaseHelper dbHelper;
     private FirebaseSyncRepository syncRepo;
+    private String selectedBranchName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_manage_time_slots);
 
+        selectedBranchName = getIntent().getStringExtra("BRANCH_NAME");
+
         dbHelper = new DatabaseHelper(this);
         syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvTimeSlots);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        TextView tvTitle = findViewById(R.id.tvToolbarTimeSlotsTitle);
+        if (tvTitle != null && selectedBranchName != null && !selectedBranchName.isEmpty()) {
+            tvTitle.setText("Time Slots - " + selectedBranchName);
+        }
 
         loadData();
 
@@ -47,7 +57,13 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        List<TimeSlot> slotList = dbHelper.getAllTimeSlots();
+        List<TimeSlot> slotList;
+        if (selectedBranchName != null && !selectedBranchName.isEmpty()) {
+            slotList = dbHelper.getTimeSlotsByBranch(selectedBranchName);
+        } else {
+            slotList = dbHelper.getAllTimeSlots();
+        }
+
         adapter = new TimeSlotAdapter(slotList, new TimeSlotAdapter.OnTimeSlotActionListener() {
             @Override
             public void onEdit(TimeSlot slot) {
@@ -102,8 +118,20 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
             autoBranch.setText(slot.getBranchName(), false);
             autoStatus.setText(slot.getStatus(), false);
         } else {
-            autoBranch.setText("Colombo Main", false);
+            if (selectedBranchName != null && !selectedBranchName.isEmpty()) {
+                autoBranch.setText(selectedBranchName, false);
+            } else {
+                autoBranch.setText("Colombo Main", false);
+            }
             autoStatus.setText("Available", false);
+        }
+
+        // Lock branch selection if managing for a specific branch
+        if (selectedBranchName != null && !selectedBranchName.isEmpty()) {
+            autoBranch.setEnabled(false);
+            if (autoBranch.getParent().getParent() instanceof TextInputLayout) {
+                ((TextInputLayout) autoBranch.getParent().getParent()).setEndIconMode(TextInputLayout.END_ICON_NONE);
+            }
         }
 
         builder.setView(view);
@@ -113,7 +141,7 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
             String status = autoStatus.getText().toString().trim();
 
             if (branch.isEmpty()) {
-                branch = "Colombo Main";
+                branch = (selectedBranchName != null && !selectedBranchName.isEmpty()) ? selectedBranchName : "Colombo Main";
             }
             if (status.isEmpty()) {
                 status = "Available";
