@@ -8,15 +8,19 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.Brand;
 import com.example.techfix.features.admin.data.DeviceModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +31,10 @@ public class AdminManageModelsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private DeviceModelAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
     
-    private List<Brand> allBrands = new ArrayList<>();
-    private List<String> categories = new ArrayList<>();
+    private final List<Brand> allBrands = new ArrayList<>();
+    private final List<String> categories = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,7 @@ public class AdminManageModelsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_manage_models);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvModels);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -98,6 +104,7 @@ public class AdminManageModelsActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + model.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteModel(model.getId())) {
+                                syncRepo.deleteModel(model.getId());
                                 loadData();
                                 Toast.makeText(AdminManageModelsActivity.this, "Model deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -159,16 +166,20 @@ public class AdminManageModelsActivity extends AppCompatActivity {
             if (!selectedBrandStr.isEmpty() && !name.isEmpty()) {
                 Integer brandId = currentBrandNameIdMap.get(selectedBrandStr);
                 if (brandId != null) {
-                    boolean success;
                     if (model == null) {
-                        success = dbHelper.addModel(brandId, name);
+                        long newId = dbHelper.addModel(brandId, name);
+                        if (newId != -1) {
+                            syncRepo.syncModel(new DeviceModel((int) newId, brandId, name, selectedBrandStr));
+                            loadData();
+                            Toast.makeText(this, "Model added", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        success = dbHelper.updateModel(model.getId(), brandId, name);
-                    }
-
-                    if (success) {
-                        loadData();
-                        Toast.makeText(this, model == null ? "Model added" : "Model updated", Toast.LENGTH_SHORT).show();
+                        boolean success = dbHelper.updateModel(model.getId(), brandId, name);
+                        if (success) {
+                            syncRepo.syncModel(new DeviceModel(model.getId(), brandId, name, selectedBrandStr));
+                            loadData();
+                            Toast.makeText(this, "Model updated", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             } else {

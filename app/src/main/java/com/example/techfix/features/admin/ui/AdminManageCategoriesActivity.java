@@ -6,14 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.ServiceCategory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +26,7 @@ public class AdminManageCategoriesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ServiceCategoryAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,7 @@ public class AdminManageCategoriesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_manage_categories);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvCategories);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -61,6 +67,7 @@ public class AdminManageCategoriesActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + category.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteServiceCategory(category.getId())) {
+                                syncRepo.deleteServiceCategory(category.getId());
                                 loadData();
                                 Toast.makeText(AdminManageCategoriesActivity.this, "Category deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -88,16 +95,20 @@ public class AdminManageCategoriesActivity extends AppCompatActivity {
             String name = etName.getText().toString().trim();
 
             if (!name.isEmpty()) {
-                boolean success;
                 if (category == null) {
-                    success = dbHelper.addServiceCategory(name);
+                    long newId = dbHelper.addServiceCategory(name);
+                    if (newId != -1) {
+                        syncRepo.syncServiceCategory(new ServiceCategory((int) newId, name));
+                        loadData();
+                        Toast.makeText(this, "Category added", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    success = dbHelper.updateServiceCategory(category.getId(), name);
-                }
-
-                if (success) {
-                    loadData();
-                    Toast.makeText(this, category == null ? "Category added" : "Category updated", Toast.LENGTH_SHORT).show();
+                    boolean success = dbHelper.updateServiceCategory(category.getId(), name);
+                    if (success) {
+                        syncRepo.syncServiceCategory(new ServiceCategory(category.getId(), name));
+                        loadData();
+                        Toast.makeText(this, "Category updated", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else {
                 Toast.makeText(this, "Please enter a category name", Toast.LENGTH_SHORT).show();

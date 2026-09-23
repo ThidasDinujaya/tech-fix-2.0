@@ -111,6 +111,22 @@
                 android:paddingHorizontal="12dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTimeSlotsBranch"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:text="Time Slots"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/purple_primary"
+                app:cornerRadius="8dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="80dp"
+                android:paddingHorizontal="10dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteBranch"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"

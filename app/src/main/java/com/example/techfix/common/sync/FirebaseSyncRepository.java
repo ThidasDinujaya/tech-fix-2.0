@@ -19,6 +19,7 @@ import com.example.techfix.features.admin.data.Brand;
 import com.example.techfix.features.admin.data.DeviceModel;
 import com.example.techfix.features.admin.data.ServiceCategory;
 import com.example.techfix.features.admin.data.PartQuality;
+import com.example.techfix.features.admin.data.TimeSlot;
 import com.example.techfix.features.auth.data.User;
 import com.example.techfix.features.booking.data.Review;
 import com.example.techfix.features.services.data.Service;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,6 +157,12 @@ public class FirebaseSyncRepository {
                 }
             }
         } catch (Exception e) { Log.e(TAG, "Sync Error (service_categories): " + e.getMessage()); }
+
+        // 13. time_slots
+        try {
+            List<TimeSlot> timeSlots = dbHelper.getAllTimeSlots();
+            for (TimeSlot ts : timeSlots) syncTimeSlot(ts);
+        } catch (Exception e) { Log.e(TAG, "Sync Error (time_slots): " + e.getMessage()); }
     }
 
     public void syncUser(User u) {
@@ -163,6 +171,12 @@ public class FirebaseSyncRepository {
 
     public void syncService(Service s) {
         firestore.collection("services").document(String.valueOf(s.getId())).set(s, SetOptions.merge());
+    }
+
+    public void deleteService(int serviceId) {
+        firestore.collection("services").document(String.valueOf(serviceId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Service deleted from Firebase: " + serviceId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting service from Firebase: " + serviceId, e));
     }
 
     public void syncBooking(Booking b) {
@@ -185,6 +199,12 @@ public class FirebaseSyncRepository {
         firestore.collection("spare_parts").document(String.valueOf(sp.getId())).set(sp, SetOptions.merge());
     }
 
+    public void deleteSparePart(int partId) {
+        firestore.collection("spare_parts").document(String.valueOf(partId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Spare part deleted from Firebase: " + partId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting spare part from Firebase: " + partId, e));
+    }
+
     public void syncAvailability(TechAvailability a) {
         firestore.collection("technician_availability").document(String.valueOf(a.getId())).set(a, SetOptions.merge());
     }
@@ -193,16 +213,50 @@ public class FirebaseSyncRepository {
         firestore.collection("brands").document(String.valueOf(b.getId())).set(b, SetOptions.merge());
     }
 
+    public void deleteBrand(int brandId) {
+        firestore.collection("brands").document(String.valueOf(brandId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Brand deleted from Firebase: " + brandId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting brand from Firebase: " + brandId, e));
+    }
+
     public void syncModel(DeviceModel m) {
         firestore.collection("models").document(String.valueOf(m.getId())).set(m, SetOptions.merge());
+    }
+
+    public void deleteModel(int modelId) {
+        firestore.collection("models").document(String.valueOf(modelId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Model deleted from Firebase: " + modelId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting model from Firebase: " + modelId, e));
     }
 
     public void syncQuality(PartQuality q) {
         firestore.collection("qualities").document(String.valueOf(q.getId())).set(q, SetOptions.merge());
     }
 
+    public void deleteQuality(int qualityId) {
+        firestore.collection("qualities").document(String.valueOf(qualityId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Quality deleted from Firebase: " + qualityId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting quality from Firebase: " + qualityId, e));
+    }
+
     public void syncServiceCategory(ServiceCategory sc) {
         firestore.collection("service_categories").document(String.valueOf(sc.getId())).set(sc, SetOptions.merge());
+    }
+
+    public void deleteServiceCategory(int catId) {
+        firestore.collection("service_categories").document(String.valueOf(catId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Category deleted from Firebase: " + catId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting category from Firebase: " + catId, e));
+    }
+
+    public void syncTimeSlot(TimeSlot slot) {
+        firestore.collection("time_slots").document(String.valueOf(slot.getId())).set(slot, SetOptions.merge());
+    }
+
+    public void deleteTimeSlot(int slotId) {
+        firestore.collection("time_slots").document(String.valueOf(slotId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Time slot deleted from Firebase: " + slotId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting time slot from Firebase: " + slotId, e));
     }
 
     public void syncReview(Review r) {
@@ -212,10 +266,12 @@ public class FirebaseSyncRepository {
     // PULL GENERAL DATA (For Customers & Admins)
     public void pullGeneralData(OnSyncCompleteListener listener) {
         firestore.collection("services").get().addOnSuccessListener(services -> {
+            List<Service> serviceList = new ArrayList<>();
             for (DocumentSnapshot d : services) {
                 Service s = d.toObject(Service.class);
-                if (s != null) insertServiceLocally(s);
+                if (s != null) serviceList.add(s);
             }
+            syncServicesLocally(serviceList);
             
             firestore.collection("branches").get().addOnSuccessListener(branches -> {
                 for (DocumentSnapshot d : branches) {
@@ -249,10 +305,12 @@ public class FirebaseSyncRepository {
             }
             
             firestore.collection("services").get().addOnSuccessListener(services -> {
+                List<Service> serviceList = new ArrayList<>();
                 for (DocumentSnapshot d : services) {
                     Service s = d.toObject(Service.class);
-                    if (s != null) insertServiceLocally(s);
+                    if (s != null) serviceList.add(s);
                 }
+                syncServicesLocally(serviceList);
                 
                 firestore.collection("bookings").get().addOnSuccessListener(bookings -> {
                     for (DocumentSnapshot d : bookings) {
@@ -295,10 +353,12 @@ public class FirebaseSyncRepository {
                 }
                 
                 firestore.collection("spare_parts").get().addOnSuccessListener(parts -> {
+                    List<SparePart> remoteList = new ArrayList<>();
                     for (DocumentSnapshot d : parts) {
                         SparePart sp = d.toObject(SparePart.class);
-                        if (sp != null) insertSparePartLocally(sp);
+                        if (sp != null) remoteList.add(sp);
                     }
+                    syncSparePartsLocally(remoteList);
                     
                     firestore.collection("technician_availability").get().addOnSuccessListener(avail -> {
                         for (DocumentSnapshot d : avail) {
@@ -314,49 +374,236 @@ public class FirebaseSyncRepository {
 
     private void pullMetadata(OnSyncCompleteListener listener) {
         firestore.collection("brands").get().addOnSuccessListener(brands -> {
+            List<Brand> remoteBrands = new ArrayList<>();
             for (DocumentSnapshot d : brands) {
                 Brand b = d.toObject(Brand.class);
-                if (b != null) dbHelper.syncBrand(b);
+                if (b != null) remoteBrands.add(b);
             }
+            syncBrandsLocally(remoteBrands);
             
             firestore.collection("models").get().addOnSuccessListener(models -> {
+                List<DeviceModel> remoteModels = new ArrayList<>();
                 for (DocumentSnapshot d : models) {
                     DeviceModel m = d.toObject(DeviceModel.class);
-                    if (m != null) dbHelper.syncModel(m);
+                    if (m != null) remoteModels.add(m);
                 }
+                syncModelsLocally(remoteModels);
 
                 firestore.collection("qualities").get().addOnSuccessListener(qualities -> {
+                    List<PartQuality> remoteQualities = new ArrayList<>();
                     for (DocumentSnapshot d : qualities) {
                         PartQuality q = d.toObject(PartQuality.class);
-                        if (q != null) dbHelper.syncQuality(q);
+                        if (q != null) remoteQualities.add(q);
                     }
+                    syncQualitiesLocally(remoteQualities);
 
                     firestore.collection("service_categories").get().addOnSuccessListener(cats -> {
+                        List<ServiceCategory> remoteCats = new ArrayList<>();
                         for (DocumentSnapshot d : cats) {
                             ServiceCategory sc = d.toObject(ServiceCategory.class);
-                            if (sc != null) dbHelper.syncServiceCategory(sc);
+                            if (sc != null) remoteCats.add(sc);
                         }
-                        listener.onSyncComplete(true);
+                        syncServiceCategoriesLocally(remoteCats);
+
+                        firestore.collection("time_slots").get().addOnSuccessListener(timeSlots -> {
+                            List<TimeSlot> remoteSlots = new ArrayList<>();
+                            for (DocumentSnapshot d : timeSlots) {
+                                TimeSlot ts = d.toObject(TimeSlot.class);
+                                if (ts != null) remoteSlots.add(ts);
+                            }
+                            syncTimeSlotsLocally(remoteSlots);
+                            listener.onSyncComplete(true);
+                        });
                     });
                 });
             });
         });
     }
 
-    private void insertServiceLocally(Service s) {
-        ContentValues v = new ContentValues();
-        v.put(DatabaseHelper.COL_SERVICE_ID, s.getId());
-        v.put(DatabaseHelper.COL_SERVICE_NAME, s.getName());
-        v.put(DatabaseHelper.COL_SERVICE_DESC, s.getDescription());
-        v.put(DatabaseHelper.COL_SERVICE_PRICE, s.getPrice());
-        v.put(DatabaseHelper.COL_SERVICE_WARRANTY, s.getWarranty());
-        v.put(DatabaseHelper.COL_SERVICE_IMAGE, s.getImageUrl());
-        v.put(DatabaseHelper.COL_SERVICE_CATEGORY, s.getCategory());
-        v.put(DatabaseHelper.COL_SERVICE_BRAND, s.getBrand());
-        v.put(DatabaseHelper.COL_SERVICE_MODEL, s.getModel());
-        v.put(DatabaseHelper.COL_SERVICE_QUALITY, s.getQuality());
-        v.put(DatabaseHelper.COL_SERVICE_PART_ID, s.getSparePartId());
-        dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_SERVICES, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    private void syncBrandsLocally(List<Brand> remoteBrands) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (Brand b : remoteBrands) {
+                if (b == null) continue;
+                remoteIds.add(b.getId());
+                dbHelper.syncBrand(b);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_BRANDS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_BRANDS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing brands locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncModelsLocally(List<DeviceModel> remoteModels) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (DeviceModel m : remoteModels) {
+                if (m == null) continue;
+                remoteIds.add(m.getId());
+                dbHelper.syncModel(m);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_MODELS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_MODELS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing models locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncQualitiesLocally(List<PartQuality> remoteQualities) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (PartQuality q : remoteQualities) {
+                if (q == null) continue;
+                remoteIds.add(q.getId());
+                dbHelper.syncQuality(q);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_QUALITIES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_QUALITIES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing qualities locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncServiceCategoriesLocally(List<ServiceCategory> remoteCats) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (ServiceCategory sc : remoteCats) {
+                if (sc == null) continue;
+                remoteIds.add(sc.getId());
+                dbHelper.syncServiceCategory(sc);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SERVICE_CATEGORIES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SERVICE_CATEGORIES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing service categories locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncTimeSlotsLocally(List<TimeSlot> remoteSlots) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (TimeSlot ts : remoteSlots) {
+                if (ts == null) continue;
+                remoteIds.add(ts.getId());
+                dbHelper.syncTimeSlot(ts);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_TIME_SLOTS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_TIME_SLOTS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing time slots locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncServicesLocally(List<Service> remoteServices) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (Service s : remoteServices) {
+                remoteIds.add(s.getId());
+                ContentValues v = new ContentValues();
+                v.put(DatabaseHelper.COL_SERVICE_ID, s.getId());
+                v.put(DatabaseHelper.COL_SERVICE_NAME, s.getName());
+                v.put(DatabaseHelper.COL_SERVICE_DESC, s.getDescription());
+                v.put(DatabaseHelper.COL_SERVICE_PRICE, s.getPrice());
+                v.put(DatabaseHelper.COL_SERVICE_WARRANTY, s.getWarranty());
+                v.put(DatabaseHelper.COL_SERVICE_IMAGE, s.getImageUrl());
+                v.put(DatabaseHelper.COL_SERVICE_CATEGORY, s.getCategory());
+                v.put(DatabaseHelper.COL_SERVICE_BRAND, s.getBrand());
+                v.put(DatabaseHelper.COL_SERVICE_MODEL, s.getModel());
+                v.put(DatabaseHelper.COL_SERVICE_QUALITY, s.getQuality());
+                v.put(DatabaseHelper.COL_SERVICE_PART_ID, s.getSparePartId());
+                db.insertWithOnConflict(DatabaseHelper.TABLE_SERVICES, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SERVICES, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_SERVICE_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SERVICES, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing services locally", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void insertBranchLocally(Branch br) {
@@ -384,16 +631,42 @@ public class FirebaseSyncRepository {
         dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_TECHNICIANS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    private void insertSparePartLocally(SparePart sp) {
-        ContentValues v = new ContentValues();
-        v.put(DatabaseHelper.COL_ID, sp.getId());
-        v.put(DatabaseHelper.COL_NAME, sp.getName());
-        v.put(DatabaseHelper.COL_SPARE_PART_STOCK, sp.getStock());
-        v.put(DatabaseHelper.COL_SPARE_PART_PRICE, sp.getPrice());
-        v.put(DatabaseHelper.COL_SPARE_PART_BRAND, sp.getBrand());
-        v.put(DatabaseHelper.COL_SPARE_PART_MODEL, sp.getModel());
-        v.put(DatabaseHelper.COL_SPARE_PART_QUALITY, sp.getQuality());
-        dbHelper.getWritableDatabase().insertWithOnConflict(DatabaseHelper.TABLE_SPARE_PARTS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    private void syncSparePartsLocally(List<SparePart> remoteParts) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (SparePart sp : remoteParts) {
+                remoteIds.add(sp.getId());
+                ContentValues v = new ContentValues();
+                v.put(DatabaseHelper.COL_ID, sp.getId());
+                v.put(DatabaseHelper.COL_NAME, sp.getName());
+                v.put(DatabaseHelper.COL_SPARE_PART_STOCK, sp.getStock());
+                v.put(DatabaseHelper.COL_SPARE_PART_PRICE, sp.getPrice());
+                v.put(DatabaseHelper.COL_SPARE_PART_BRAND, sp.getBrand());
+                v.put(DatabaseHelper.COL_SPARE_PART_MODEL, sp.getModel());
+                v.put(DatabaseHelper.COL_SPARE_PART_QUALITY, sp.getQuality());
+                v.put(DatabaseHelper.COL_SPARE_PART_BRANCH, sp.getBranchName());
+                db.insertWithOnConflict(DatabaseHelper.TABLE_SPARE_PARTS, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_SPARE_PARTS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_SPARE_PARTS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing spare parts locally", e);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void insertAvailabilityLocally(TechAvailability a) {

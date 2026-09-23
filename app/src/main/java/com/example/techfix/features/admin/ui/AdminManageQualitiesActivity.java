@@ -6,14 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.PartQuality;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +26,7 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PartQualityAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,7 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_manage_qualities);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvQualities);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -61,6 +67,7 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + quality.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteQuality(quality.getId())) {
+                                syncRepo.deleteQuality(quality.getId());
                                 loadData();
                                 Toast.makeText(AdminManageQualitiesActivity.this, "Quality deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -88,16 +95,20 @@ public class AdminManageQualitiesActivity extends AppCompatActivity {
             String name = etName.getText().toString().trim();
 
             if (!name.isEmpty()) {
-                boolean success;
                 if (quality == null) {
-                    success = dbHelper.addQuality(name);
+                    long newId = dbHelper.addQuality(name);
+                    if (newId != -1) {
+                        syncRepo.syncQuality(new PartQuality((int) newId, name));
+                        loadData();
+                        Toast.makeText(this, "Quality added", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    success = dbHelper.updateQuality(quality.getId(), name);
-                }
-
-                if (success) {
-                    loadData();
-                    Toast.makeText(this, quality == null ? "Quality added" : "Quality updated", Toast.LENGTH_SHORT).show();
+                    boolean success = dbHelper.updateQuality(quality.getId(), name);
+                    if (success) {
+                        syncRepo.syncQuality(new PartQuality(quality.getId(), name));
+                        loadData();
+                        Toast.makeText(this, "Quality updated", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else {
                 Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();

@@ -8,14 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.Brand;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,7 @@ public class AdminManageBrandsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BrandAdapter adapter;
     private DatabaseHelper dbHelper;
+    private FirebaseSyncRepository syncRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,7 @@ public class AdminManageBrandsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_manage_brands);
 
         dbHelper = new DatabaseHelper(this);
+        syncRepo = new FirebaseSyncRepository(this);
         recyclerView = findViewById(R.id.rvBrands);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -64,6 +70,7 @@ public class AdminManageBrandsActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + brand.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (dbHelper.deleteBrand(brand.getId())) {
+                                syncRepo.deleteBrand(brand.getId());
                                 loadData();
                                 Toast.makeText(AdminManageBrandsActivity.this, "Brand deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -105,16 +112,20 @@ public class AdminManageBrandsActivity extends AppCompatActivity {
             String category = autoCategory.getText().toString().trim();
 
             if (!name.isEmpty() && !category.isEmpty()) {
-                boolean success;
                 if (brand == null) {
-                    success = dbHelper.addBrand(name, category);
+                    long newId = dbHelper.addBrand(name, category);
+                    if (newId != -1) {
+                        syncRepo.syncBrand(new Brand((int) newId, name, category));
+                        loadData();
+                        Toast.makeText(this, "Brand added", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    success = dbHelper.updateBrand(brand.getId(), name, category);
-                }
-
-                if (success) {
-                    loadData();
-                    Toast.makeText(this, brand == null ? "Brand added" : "Brand updated", Toast.LENGTH_SHORT).show();
+                    boolean success = dbHelper.updateBrand(brand.getId(), name, category);
+                    if (success) {
+                        syncRepo.syncBrand(new Brand(brand.getId(), name, category));
+                        loadData();
+                        Toast.makeText(this, "Brand updated", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();

@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
+import com.example.techfix.features.admin.ui.AdminManageTimeSlotsActivity;
 import com.example.techfix.features.branches.data.Branch;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -55,6 +57,11 @@ public class BranchesActivity extends AppCompatActivity {
 
         isAdmin = getIntent().getBooleanExtra("IS_ADMIN", false);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        TextView tvTitle = findViewById(R.id.tvBranchesTitle);
+        if (tvTitle != null) {
+            tvTitle.setText(isAdmin ? "Manage Branches" : "Our Branches");
+        }
 
         recyclerView = findViewById(R.id.recyclerViewBranches);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -103,6 +110,15 @@ public class BranchesActivity extends AppCompatActivity {
                             })
                             .setNegativeButton("Cancel", null)
                             .show();
+                }
+            }
+
+            @Override
+            public void onManageTimeSlots(Branch branch) {
+                if (isAdmin) {
+                    Intent intent = new Intent(BranchesActivity.this, AdminManageTimeSlotsActivity.class);
+                    intent.putExtra("BRANCH_NAME", branch.getName());
+                    startActivity(intent);
                 }
             }
         });

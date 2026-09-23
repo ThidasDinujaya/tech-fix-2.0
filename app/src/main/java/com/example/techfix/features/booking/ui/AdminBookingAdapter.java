@@ -75,7 +75,12 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             tvStatus.setText(booking.getStatus());
             tvService.setText("Repair Request");
             tvDevice.setText(booking.getBrand() + " " + booking.getModel());
-            tvDate.setText(booking.getAppointmentDate());
+            
+            String dateTimeStr = booking.getAppointmentDate();
+            if (booking.getAppointmentTime() != null && !booking.getAppointmentTime().isEmpty()) {
+                dateTimeStr += " • " + booking.getAppointmentTime();
+            }
+            tvDate.setText(dateTimeStr);
             tvBranch.setText("Branch: " + booking.getBranchName());
             
             String tech = booking.getTechnicianName();

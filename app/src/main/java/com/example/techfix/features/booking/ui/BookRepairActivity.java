@@ -3,11 +3,9 @@ package com.example.techfix.features.booking.ui;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -16,14 +14,15 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.util.SessionManager;
+import com.example.techfix.features.admin.data.TimeSlot;
 import com.example.techfix.features.booking.data.Booking;
 import com.example.techfix.features.booking.data.BookingStatus;
 import com.example.techfix.features.booking.viewmodel.BookRepairViewModel;
@@ -31,22 +30,21 @@ import com.example.techfix.features.branches.data.Branch;
 import com.example.techfix.features.payments.ui.PaymentActivity;
 import com.example.techfix.features.services.data.Service;
 import com.example.techfix.features.services.data.ServiceRepository;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.io.File;
-import java.io.IOException;
 
 public class BookRepairActivity extends AppCompatActivity {
 
-    private AutoCompleteTextView autoDeviceType, autoBrand, autoModel, autoBranch;
+    private AutoCompleteTextView autoDeviceType, autoBrand, autoModel, autoBranch, autoTimeSlot;
     private TextInputEditText etProblemDesc, etAppointmentDate, etServiceName, etQuality;
     private TextInputLayout layoutQuality;
     private ImageView ivDevicePhoto;
@@ -149,6 +147,7 @@ public class BookRepairActivity extends AppCompatActivity {
         autoBrand = findViewById(R.id.autoBrand);
         autoModel = findViewById(R.id.autoBookModel);
         autoBranch = findViewById(R.id.autoBookBranch);
+        autoTimeSlot = findViewById(R.id.autoTimeSlot);
         etQuality = findViewById(R.id.etQuality);
         layoutQuality = findViewById(R.id.layoutBookQuality);
         etProblemDesc = findViewById(R.id.etProblemDesc);
@@ -187,9 +186,15 @@ public class BookRepairActivity extends AppCompatActivity {
         String quality = etQuality.getText().toString();
         String desc = etProblemDesc.getText().toString();
         String date = etAppointmentDate.getText().toString();
+        String timeSlot = autoTimeSlot.getText().toString().trim();
 
-        if (branch.isEmpty() || type.isEmpty() || brand.isEmpty() || model.isEmpty() || date.isEmpty()) {
-            Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
+        if (branch.isEmpty() || type.isEmpty() || brand.isEmpty() || model.isEmpty() || date.isEmpty() || timeSlot.isEmpty()) {
+            Toast.makeText(this, "Please fill all required fields, including time slot", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (timeSlot.contains("(Full)") || timeSlot.contains("(Unavailable)")) {
+            Toast.makeText(this, "Selected time slot is unavailable. Please choose an available time slot.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -198,14 +203,15 @@ public class BookRepairActivity extends AppCompatActivity {
             return;
         }
 
-        // Final capacity check
-        if (!checkCapacity(branch, date)) {
+        String assignedTech = dbHelper.getAvailableTechnicianForSlot(branch, date, timeSlot);
+        if (assignedTech == null) {
+            Toast.makeText(this, "No technician available for this time slot. Please pick another slot.", Toast.LENGTH_LONG).show();
             return;
         }
 
         String finalModel = quality.isEmpty() ? model : model + " (" + quality + ")";
         
-        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, selectedImagePath, BookingStatus.PENDING, userId, branch, "");
+        Booking newBooking = new Booking(0, selectedServiceId, type, brand, finalModel, desc, date, timeSlot, selectedImagePath, BookingStatus.PENDING, userId, branch, assignedTech);
         
         Service service = serviceRepo.getServiceById(selectedServiceId);
         double price = (service != null) ? service.getPrice() : 0.0;
@@ -215,27 +221,6 @@ public class BookRepairActivity extends AppCompatActivity {
         intent.putExtra("service_price", price);
         intent.putExtra("service_name", service != null ? service.getName() : "Repair Service");
         startActivity(intent);
-    }
-
-    private boolean checkCapacity(String branch, String date) {
-        int techCount = dbHelper.getAvailableTechCount(branch, date);
-        if (techCount == 0) {
-            Toast.makeText(this, "No technicians available at this branch on " + date, Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        int capacity = techCount * 15;
-        int currentBookings = dbHelper.getBookingCount(branch, date);
-
-        if (currentBookings >= capacity) {
-            new AlertDialog.Builder(this)
-                .setTitle("Branch Fully Booked")
-                .setMessage("Sorry, " + branch + " has reached its repair capacity for " + date + ". Please select another date or branch.")
-                .setPositiveButton("OK", null)
-                .show();
-            return false;
-        }
-        return true;
     }
 
     private void setupImageAttachment() {
@@ -271,6 +256,64 @@ public class BookRepairActivity extends AppCompatActivity {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
+    private List<String> generate15MinTimeSlots() {
+        List<String> slots = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 8);
+        cal.set(Calendar.MINUTE, 30);
+        cal.set(Calendar.SECOND, 0);
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.set(Calendar.HOUR_OF_DAY, 18);
+        endCal.set(Calendar.MINUTE, 0);
+        endCal.set(Calendar.SECOND, 0);
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.US);
+
+        while (cal.before(endCal)) {
+            String startTime = timeFormat.format(cal.getTime());
+            cal.add(Calendar.MINUTE, 15);
+            String endTime = timeFormat.format(cal.getTime());
+            slots.add(startTime + " - " + endTime);
+        }
+        return slots;
+    }
+
+    private void updateAvailableTimeSlots() {
+        String branch = autoBranch.getText().toString().trim();
+        String date = etAppointmentDate.getText().toString().trim();
+
+        if (branch.isEmpty() || date.isEmpty()) {
+            return;
+        }
+
+        int techCount = dbHelper.getAvailableTechCount(branch, date);
+        if (techCount == 0) {
+            techCount = 1;
+        }
+
+        List<TimeSlot> branchSlots = dbHelper.getTimeSlotsByBranch(branch);
+        List<String> displaySlots = new ArrayList<>();
+
+        for (TimeSlot ts : branchSlots) {
+            if (ts == null) continue;
+            String slotName = ts.getSlotName();
+            if ("Unavailable".equalsIgnoreCase(ts.getStatus())) {
+                displaySlots.add(slotName + " (Unavailable)");
+            } else {
+                int bookedCount = dbHelper.getBookingCountForSlot(branch, date, slotName);
+                if (bookedCount >= techCount) {
+                    displaySlots.add(slotName + " (Full)");
+                } else {
+                    displaySlots.add(slotName);
+                }
+            }
+        }
+
+        autoTimeSlot.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displaySlots));
+        autoTimeSlot.setText("");
+    }
+
     private void setupDropdowns() {
         String[] deviceTypes = {"Phone", "Laptop", "Desktop", "Tablet"};
         autoDeviceType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceTypes));
@@ -290,6 +333,10 @@ public class BookRepairActivity extends AppCompatActivity {
         List<String> branchNames = new ArrayList<>();
         for (Branch b : branches) branchNames.add(b.getName());
         autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
+
+        autoBranch.setOnItemClickListener((parent, view, position, id) -> {
+            updateAvailableTimeSlots();
+        });
     }
 
     private void updateBrands(String category) {
@@ -341,9 +388,8 @@ public class BookRepairActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String dateStr = sdf.format(selectedCal.getTime());
                 
-                if (checkCapacity(branch, dateStr)) {
-                    etAppointmentDate.setText(dateStr);
-                }
+                etAppointmentDate.setText(dateStr);
+                updateAvailableTimeSlots();
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             
             datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());

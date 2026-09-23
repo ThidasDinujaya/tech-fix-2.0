@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
+import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.services.data.Service;
 import com.example.techfix.features.services.data.ServiceRepository;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class AdminManageServicesActivity extends AppCompatActivity {
                         .setMessage("Are you sure you want to delete " + service.getName() + "?")
                         .setPositiveButton("Delete", (dialog, which) -> {
                             if (repository.deleteService(service.getId())) {
+                                new FirebaseSyncRepository(AdminManageServicesActivity.this).deleteService(service.getId());
                                 loadData();
                                 Toast.makeText(AdminManageServicesActivity.this, "Service deleted", Toast.LENGTH_SHORT).show();
                             }
@@ -217,16 +219,27 @@ public class AdminManageServicesActivity extends AppCompatActivity {
 
             if (!name.isEmpty() && !priceStr.isEmpty() && !category.isEmpty()) {
                 double price = Double.parseDouble(priceStr);
-                boolean success;
+                FirebaseSyncRepository syncRepo = new FirebaseSyncRepository(this);
                 if (service == null) {
-                    success = repository.addService(name, desc, price, warranty, image, category, brand, model, quality, partId);
+                    long newId = repository.addService(name, desc, price, warranty, image, category, brand, model, quality, partId);
+                    if (newId != -1) {
+                        Service newService = new Service((int) newId, name, desc, price, warranty, image, category, brand, model, quality, partId);
+                        syncRepo.syncService(newService);
+                        loadData();
+                        Toast.makeText(this, "Service added", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Failed to add service", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    success = repository.updateService(service.getId(), name, desc, price, warranty, image, category, brand, model, quality, partId);
-                }
-
-                if (success) {
-                    loadData();
-                    Toast.makeText(this, service == null ? "Service added" : "Service updated", Toast.LENGTH_SHORT).show();
+                    boolean success = repository.updateService(service.getId(), name, desc, price, warranty, image, category, brand, model, quality, partId);
+                    if (success) {
+                        Service updatedService = new Service(service.getId(), name, desc, price, warranty, image, category, brand, model, quality, partId);
+                        syncRepo.syncService(updatedService);
+                        loadData();
+                        Toast.makeText(this, "Service updated", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Failed to update service", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else {
                 Toast.makeText(this, "Required fields missing", Toast.LENGTH_SHORT).show();
