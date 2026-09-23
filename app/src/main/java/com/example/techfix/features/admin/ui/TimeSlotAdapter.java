@@ -39,6 +39,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
     public void onBindViewHolder(@NonNull TimeSlotViewHolder holder, int position) {
         TimeSlot ts = list.get(position);
         holder.tvSlotName.setText(ts.getSlotName());
+        holder.tvSlotBranch.setText("Branch: " + (ts.getBranchName() != null ? ts.getBranchName() : "Colombo Main"));
         holder.tvSlotStatus.setText(ts.getStatus());
 
         if ("Available".equalsIgnoreCase(ts.getStatus())) {
@@ -55,12 +56,13 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
     public int getItemCount() { return list.size(); }
 
     static class TimeSlotViewHolder extends RecyclerView.ViewHolder {
-        TextView tvSlotName, tvSlotStatus;
+        TextView tvSlotName, tvSlotBranch, tvSlotStatus;
         View btnEditSlot, btnDeleteSlot;
 
         public TimeSlotViewHolder(@NonNull View itemView) {
             super(itemView);
             tvSlotName = itemView.findViewById(R.id.tvSlotName);
+            tvSlotBranch = itemView.findViewById(R.id.tvSlotBranch);
             tvSlotStatus = itemView.findViewById(R.id.tvSlotStatus);
             btnEditSlot = itemView.findViewById(R.id.btnEditSlot);
             btnDeleteSlot = itemView.findViewById(R.id.btnDeleteSlot);

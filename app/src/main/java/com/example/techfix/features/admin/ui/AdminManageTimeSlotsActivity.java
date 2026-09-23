@@ -17,8 +17,10 @@ import com.example.techfix.R;
 import com.example.techfix.common.data.DatabaseHelper;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.data.TimeSlot;
+import com.example.techfix.features.branches.data.Branch;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminManageTimeSlotsActivity extends AppCompatActivity {
@@ -77,39 +79,58 @@ public class AdminManageTimeSlotsActivity extends AppCompatActivity {
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_time_slot, null);
         EditText etSlotName = view.findViewById(R.id.etSlotName);
+        AutoCompleteTextView autoBranch = view.findViewById(R.id.autoSlotBranch);
         AutoCompleteTextView autoStatus = view.findViewById(R.id.autoSlotStatus);
+
+        // Load branches
+        List<Branch> branches = dbHelper.getAllBranches();
+        List<String> branchNames = new ArrayList<>();
+        for (Branch b : branches) {
+            branchNames.add(b.getName());
+        }
+        if (branchNames.isEmpty()) {
+            branchNames.add("Colombo Main");
+            branchNames.add("Kandy Branch");
+        }
+        autoBranch.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, branchNames));
 
         String[] statuses = {"Available", "Unavailable"};
         autoStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, statuses));
 
         if (slot != null) {
             etSlotName.setText(slot.getSlotName());
+            autoBranch.setText(slot.getBranchName(), false);
             autoStatus.setText(slot.getStatus(), false);
         } else {
+            autoBranch.setText("Colombo Main", false);
             autoStatus.setText("Available", false);
         }
 
         builder.setView(view);
         builder.setPositiveButton(slot == null ? "Add" : "Update", (dialog, which) -> {
             String name = etSlotName.getText().toString().trim();
+            String branch = autoBranch.getText().toString().trim();
             String status = autoStatus.getText().toString().trim();
 
+            if (branch.isEmpty()) {
+                branch = "Colombo Main";
+            }
             if (status.isEmpty()) {
                 status = "Available";
             }
 
             if (!name.isEmpty()) {
                 if (slot == null) {
-                    long newId = dbHelper.addTimeSlot(name, status);
+                    long newId = dbHelper.addTimeSlot(name, status, branch);
                     if (newId != -1) {
-                        syncRepo.syncTimeSlot(new TimeSlot((int) newId, name, status));
+                        syncRepo.syncTimeSlot(new TimeSlot((int) newId, name, status, branch));
                         loadData();
                         Toast.makeText(this, "Time slot added", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    boolean success = dbHelper.updateTimeSlot(slot.getId(), name, status);
+                    boolean success = dbHelper.updateTimeSlot(slot.getId(), name, status, branch);
                     if (success) {
-                        syncRepo.syncTimeSlot(new TimeSlot(slot.getId(), name, status));
+                        syncRepo.syncTimeSlot(new TimeSlot(slot.getId(), name, status, branch));
                         loadData();
                         Toast.makeText(this, "Time slot updated", Toast.LENGTH_SHORT).show();
                     }

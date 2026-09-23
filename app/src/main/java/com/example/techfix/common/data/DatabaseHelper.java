@@ -87,6 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_TIME_SLOTS = "time_slots";
     public static final String COL_SLOT_NAME = "slot_name";
     public static final String COL_SLOT_STATUS = "status";
+    public static final String COL_SLOT_BRANCH = "branch_name";
 
     public static final String TABLE_TECH_AVAILABILITY = "technician_availability";
     public static final String COL_AVAIL_ID = "id";
@@ -235,7 +236,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TIME_SLOTS + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_SLOT_NAME + " TEXT NOT NULL, "
-                + COL_SLOT_STATUS + " TEXT NOT NULL)");
+                + COL_SLOT_STATUS + " TEXT NOT NULL, "
+                + COL_SLOT_BRANCH + " TEXT)");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -309,11 +311,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "05:00 PM - 05:15 PM", "05:15 PM - 05:30 PM",
             "05:30 PM - 05:45 PM", "05:45 PM - 06:00 PM"
         };
-        for (String slot : slots) {
-            ContentValues v = new ContentValues();
-            v.put(COL_SLOT_NAME, slot);
-            v.put(COL_SLOT_STATUS, "Available");
-            db.insert(TABLE_TIME_SLOTS, null, v);
+        String[] branches = {"Colombo Main", "Kandy Branch"};
+        for (String branch : branches) {
+            for (String slot : slots) {
+                ContentValues v = new ContentValues();
+                v.put(COL_SLOT_NAME, slot);
+                v.put(COL_SLOT_STATUS, "Available");
+                v.put(COL_SLOT_BRANCH, branch);
+                db.insert(TABLE_TIME_SLOTS, null, v);
+            }
         }
     }
 
@@ -736,19 +742,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<TimeSlot> getAllTimeSlots() {
         List<TimeSlot> list = new ArrayList<>();
         try {
-            getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TIME_SLOTS + " (" +
-                    COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COL_SLOT_NAME + " TEXT NOT NULL, " +
-                    COL_SLOT_STATUS + " TEXT NOT NULL)");
+            getWritableDatabase().execSQL("ALTER TABLE " + TABLE_TIME_SLOTS + " ADD COLUMN " + COL_SLOT_BRANCH + " TEXT");
         } catch (Exception ignored) {}
 
         try (Cursor cursor = getReadableDatabase().query(TABLE_TIME_SLOTS, null, null, null, null, null, COL_ID + " ASC")) {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
+                    int branchIdx = cursor.getColumnIndex(COL_SLOT_BRANCH);
+                    String branch = (branchIdx != -1 && !cursor.isNull(branchIdx)) ? cursor.getString(branchIdx) : "Colombo Main";
+
                     list.add(new TimeSlot(
                             cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                             cursor.getString(cursor.getColumnIndexOrThrow(COL_SLOT_NAME)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_SLOT_STATUS))
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_SLOT_STATUS)),
+                            branch
                     ));
                 }
             }
@@ -764,18 +771,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    public long addTimeSlot(String slotName, String status) {
+    public List<TimeSlot> getTimeSlotsByBranch(String branchName) {
+        List<TimeSlot> allSlots = getAllTimeSlots();
+        List<TimeSlot> filtered = new ArrayList<>();
+        for (TimeSlot ts : allSlots) {
+            if (branchName.equalsIgnoreCase(ts.getBranchName())) {
+                filtered.add(ts);
+            }
+        }
+        return filtered;
+    }
+
+    public long addTimeSlot(String slotName, String status, String branchName) {
         ContentValues v = new ContentValues();
         v.put(COL_SLOT_NAME, slotName);
         v.put(COL_SLOT_STATUS, status);
+        v.put(COL_SLOT_BRANCH, branchName);
         return getWritableDatabase().insert(TABLE_TIME_SLOTS, null, v);
     }
 
-    public boolean updateTimeSlot(int id, String slotName, String status) {
+    public long addTimeSlot(String slotName, String status) {
+        return addTimeSlot(slotName, status, "Colombo Main");
+    }
+
+    public boolean updateTimeSlot(int id, String slotName, String status, String branchName) {
         ContentValues v = new ContentValues();
         v.put(COL_SLOT_NAME, slotName);
         v.put(COL_SLOT_STATUS, status);
+        v.put(COL_SLOT_BRANCH, branchName);
         return getWritableDatabase().update(TABLE_TIME_SLOTS, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean updateTimeSlot(int id, String slotName, String status) {
+        return updateTimeSlot(id, slotName, status, "Colombo Main");
     }
 
     public boolean deleteTimeSlot(int id) {
@@ -787,6 +815,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         v.put(COL_ID, slot.getId());
         v.put(COL_SLOT_NAME, slot.getSlotName());
         v.put(COL_SLOT_STATUS, slot.getStatus());
+        v.put(COL_SLOT_BRANCH, slot.getBranchName());
         return getWritableDatabase().insertWithOnConflict(TABLE_TIME_SLOTS, null, v, SQLiteDatabase.CONFLICT_REPLACE) != -1;
     }
 

@@ -31,10 +31,20 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvSlotBranch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Branch: Colombo Main"
+                android:textColor="@color/brand_blue"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/tvSlotStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:text="Available"
                 android:textColor="@color/success_green"
                 android:textSize="13sp"

@@ -292,10 +292,10 @@ public class BookRepairActivity extends AppCompatActivity {
             techCount = 1;
         }
 
-        List<TimeSlot> allSlots = dbHelper.getAllTimeSlots();
+        List<TimeSlot> branchSlots = dbHelper.getTimeSlotsByBranch(branch);
         List<String> displaySlots = new ArrayList<>();
 
-        for (TimeSlot ts : allSlots) {
+        for (TimeSlot ts : branchSlots) {
             if (ts == null) continue;
             String slotName = ts.getSlotName();
             if ("Unavailable".equalsIgnoreCase(ts.getStatus())) {
