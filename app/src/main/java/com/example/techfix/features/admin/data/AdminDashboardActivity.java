@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.techfix.R;
 import com.example.techfix.common.sync.FirebaseSyncRepository;
 import com.example.techfix.features.admin.ui.AdminInventoryActivity;
+import com.example.techfix.features.admin.ui.AdminManageTimeSlotsActivity;
 import com.example.techfix.features.auth.data.LoginActivity;
 import com.example.techfix.features.booking.ui.AdminManageBookingsActivity;
 import com.example.techfix.features.branches.ui.BranchesActivity;
@@ -65,6 +66,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
         menuAdminProfile.setOnClickListener(v -> {
             drawerLayout.closeDrawer(GravityCompat.START);
             startActivity(new Intent(this, AdminProfileActivity.class));
+        });
+        findViewById(R.id.menuTimeSlots).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this, AdminManageTimeSlotsActivity.class));
         });
         menuLogout.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminLoginActivity.class);

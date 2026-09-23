@@ -42,6 +42,7 @@
         <activity android:name=".features.admin.ui.AdminDeviceManagementActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminManageBrandsActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminManageModelsActivity" android:exported="false" />
+        <activity android:name=".features.admin.ui.AdminManageTimeSlotsActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.TechnicianEditActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminInventoryActivity" android:exported="false" />
         <activity android:name=".features.admin.ui.AdminViewInventoryActivity" android:exported="false" />

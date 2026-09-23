@@ -11,6 +11,7 @@ public class Booking implements Serializable {
     private String model;
     private String description;
     private String appointmentDate;
+    private String appointmentTime;
     private String imagePath;
     private String status;
     private int userId;
@@ -22,6 +23,12 @@ public class Booking implements Serializable {
     public Booking(int id, int serviceId, String deviceType, String brand, String model, 
                    String description, String appointmentDate, String imagePath, String status, 
                    int userId, String branchName, String technicianName) {
+        this(id, serviceId, deviceType, brand, model, description, appointmentDate, "", imagePath, status, userId, branchName, technicianName);
+    }
+
+    public Booking(int id, int serviceId, String deviceType, String brand, String model, 
+                   String description, String appointmentDate, String appointmentTime, String imagePath, 
+                   String status, int userId, String branchName, String technicianName) {
         this.id = id;
         this.serviceId = serviceId;
         this.deviceType = deviceType;
@@ -29,6 +36,7 @@ public class Booking implements Serializable {
         this.model = model;
         this.description = description;
         this.appointmentDate = appointmentDate;
+        this.appointmentTime = appointmentTime;
         this.imagePath = imagePath;
         this.status = status;
         this.userId = userId;
@@ -44,6 +52,7 @@ public class Booking implements Serializable {
     public String getModel() { return model; }
     public String getDescription() { return description; }
     public String getAppointmentDate() { return appointmentDate; }
+    public String getAppointmentTime() { return appointmentTime != null ? appointmentTime : ""; }
     public String getImagePath() { return imagePath; }
     public String getStatus() { return status; }
     public int getUserId() { return userId; }
@@ -52,6 +61,7 @@ public class Booking implements Serializable {
 
     // Setters
     public void setId(int id) { this.id = id; }
+    public void setAppointmentTime(String appointmentTime) { this.appointmentTime = appointmentTime; }
     public void setStatus(String status) { this.status = status; }
     public void setTechnicianName(String technicianName) { this.technicianName = technicianName; }
 }

@@ -19,6 +19,7 @@ import com.example.techfix.features.admin.data.Brand;
 import com.example.techfix.features.admin.data.DeviceModel;
 import com.example.techfix.features.admin.data.ServiceCategory;
 import com.example.techfix.features.admin.data.PartQuality;
+import com.example.techfix.features.admin.data.TimeSlot;
 import com.example.techfix.features.auth.data.User;
 import com.example.techfix.features.booking.data.Review;
 import com.example.techfix.features.services.data.Service;
@@ -156,6 +157,12 @@ public class FirebaseSyncRepository {
                 }
             }
         } catch (Exception e) { Log.e(TAG, "Sync Error (service_categories): " + e.getMessage()); }
+
+        // 13. time_slots
+        try {
+            List<TimeSlot> timeSlots = dbHelper.getAllTimeSlots();
+            for (TimeSlot ts : timeSlots) syncTimeSlot(ts);
+        } catch (Exception e) { Log.e(TAG, "Sync Error (time_slots): " + e.getMessage()); }
     }
 
     public void syncUser(User u) {
@@ -240,6 +247,16 @@ public class FirebaseSyncRepository {
         firestore.collection("service_categories").document(String.valueOf(catId)).delete()
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Category deleted from Firebase: " + catId))
                 .addOnFailureListener(e -> Log.e(TAG, "Error deleting category from Firebase: " + catId, e));
+    }
+
+    public void syncTimeSlot(TimeSlot slot) {
+        firestore.collection("time_slots").document(String.valueOf(slot.getId())).set(slot, SetOptions.merge());
+    }
+
+    public void deleteTimeSlot(int slotId) {
+        firestore.collection("time_slots").document(String.valueOf(slotId)).delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Time slot deleted from Firebase: " + slotId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting time slot from Firebase: " + slotId, e));
     }
 
     public void syncReview(Review r) {
@@ -387,7 +404,16 @@ public class FirebaseSyncRepository {
                             if (sc != null) remoteCats.add(sc);
                         }
                         syncServiceCategoriesLocally(remoteCats);
-                        listener.onSyncComplete(true);
+
+                        firestore.collection("time_slots").get().addOnSuccessListener(timeSlots -> {
+                            List<TimeSlot> remoteSlots = new ArrayList<>();
+                            for (DocumentSnapshot d : timeSlots) {
+                                TimeSlot ts = d.toObject(TimeSlot.class);
+                                if (ts != null) remoteSlots.add(ts);
+                            }
+                            syncTimeSlotsLocally(remoteSlots);
+                            listener.onSyncComplete(true);
+                        });
                     });
                 });
             });
@@ -505,6 +531,35 @@ public class FirebaseSyncRepository {
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.e(TAG, "Error syncing service categories locally", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void syncTimeSlotsLocally(List<TimeSlot> remoteSlots) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<Integer> remoteIds = new ArrayList<>();
+            for (TimeSlot ts : remoteSlots) {
+                if (ts == null) continue;
+                remoteIds.add(ts.getId());
+                dbHelper.syncTimeSlot(ts);
+            }
+            if (remoteIds.isEmpty()) {
+                db.delete(DatabaseHelper.TABLE_TIME_SLOTS, null, null);
+            } else {
+                StringBuilder where = new StringBuilder(DatabaseHelper.COL_ID + " NOT IN (");
+                for (int i = 0; i < remoteIds.size(); i++) {
+                    where.append(remoteIds.get(i));
+                    if (i < remoteIds.size() - 1) where.append(",");
+                }
+                where.append(")");
+                db.delete(DatabaseHelper.TABLE_TIME_SLOTS, where.toString(), null);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, "Error syncing time slots locally", e);
         } finally {
             db.endTransaction();
         }

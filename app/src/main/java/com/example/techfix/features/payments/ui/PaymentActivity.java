@@ -51,15 +51,22 @@ public class PaymentActivity extends AppCompatActivity {
         setupViewModel();
         setupListeners();
         
-        tvBookingId.setText("Booking ID: TF" + String.format(Locale.US, "%04d", bookingId));
-        if (serviceName != null) {
-            tvServiceName.setText("Service: " + serviceName);
-        }
-        if (currentAmount > 0) {
-            tvAmount.setText(String.format(Locale.US, "LKR %.2f", currentAmount));
-        }
-
-        if (bookingId != -1) {
+        if (booking != null) {
+            tvBookingId.setText("Booking ID: New Booking Request");
+            if (serviceName != null) {
+                tvServiceName.setText("Service: " + serviceName);
+            }
+            if (currentAmount > 0) {
+                tvAmount.setText(String.format(Locale.US, "LKR %.2f", currentAmount));
+            }
+        } else if (bookingId != -1) {
+            tvBookingId.setText("Booking ID: TF" + String.format(Locale.US, "%04d", bookingId));
+            if (serviceName != null) {
+                tvServiceName.setText("Service: " + serviceName);
+            }
+            if (currentAmount > 0) {
+                tvAmount.setText(String.format(Locale.US, "LKR %.2f", currentAmount));
+            }
             viewModel.loadBookingDetails(bookingId);
         }
     }
@@ -127,16 +134,21 @@ public class PaymentActivity extends AppCompatActivity {
         String expiry = etExpiryDate.getText().toString().trim();
         String cvv = etCvv.getText().toString().trim();
 
-        viewModel.processPayment(bookingId, currentAmount, method, cardNumber, expiry, cvv);
+        if (booking != null) {
+            viewModel.processBookingPayment(booking, currentAmount, method, cardNumber, expiry, cvv);
+        } else {
+            viewModel.processPayment(bookingId, currentAmount, method, cardNumber, expiry, cvv);
+        }
     }
 
     private void showSuccessDialog() {
+        int finalBookingId = (booking != null && booking.getId() > 0) ? booking.getId() : bookingId;
         new AlertDialog.Builder(this)
                 .setTitle("Payment Successful!")
                 .setMessage("Thank you for your payment. Your receipt has been generated.")
                 .setPositiveButton("OK", (dialog, which) -> {
                     Intent intent = new Intent(this, PaymentReceiptActivity.class);
-                    intent.putExtra("booking_id", bookingId);
+                    intent.putExtra("booking_id", finalBookingId);
                     intent.putExtra("service_name", tvServiceName.getText().toString().replace("Service: ", ""));
                     startActivity(intent);
                     finish();

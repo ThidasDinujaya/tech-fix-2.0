@@ -37,6 +37,7 @@ public class BookingRepository {
         values.put(DatabaseHelper.COL_BOOKING_MODEL, booking.getModel());
         values.put(DatabaseHelper.COL_BOOKING_DESC, booking.getDescription());
         values.put(DatabaseHelper.COL_BOOKING_DATE, booking.getAppointmentDate());
+        values.put(DatabaseHelper.COL_BOOKING_TIME, booking.getAppointmentTime());
         values.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
         values.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
         values.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
@@ -137,6 +138,9 @@ public class BookingRepository {
 
     // Helper method to map a cursor row to a Booking object
     private Booking mapCursorToBooking(Cursor cursor) {
+        int timeIdx = cursor.getColumnIndex(DatabaseHelper.COL_BOOKING_TIME);
+        String timeStr = (timeIdx != -1 && !cursor.isNull(timeIdx)) ? cursor.getString(timeIdx) : "";
+
         return new Booking(
                 cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_ID)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_SERVICE_ID)),
@@ -145,6 +149,7 @@ public class BookingRepository {
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_MODEL)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DESC)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_DATE)),
+                timeStr,
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_IMAGE)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_STATUS)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOOKING_USER_ID)),
@@ -183,6 +188,7 @@ public class BookingRepository {
         values.put(DatabaseHelper.COL_BOOKING_MODEL, booking.getModel());
         values.put(DatabaseHelper.COL_BOOKING_DESC, booking.getDescription());
         values.put(DatabaseHelper.COL_BOOKING_DATE, booking.getAppointmentDate());
+        values.put(DatabaseHelper.COL_BOOKING_TIME, booking.getAppointmentTime());
         values.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
         values.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
         values.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());

@@ -18,6 +18,7 @@ import com.example.techfix.features.admin.data.Brand;
 import com.example.techfix.features.admin.data.DeviceModel;
 import com.example.techfix.features.admin.data.PartQuality;
 import com.example.techfix.features.admin.data.ServiceCategory;
+import com.example.techfix.features.admin.data.TimeSlot;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_BOOKING_USER_ID = "user_id";
     public static final String COL_BOOKING_BRANCH_NAME = "branch_name";
     public static final String COL_BOOKING_TECH_NAME = "technician_name";
+    public static final String COL_BOOKING_TIME = "appointment_time";
 
     public static final String TABLE_PAYMENTS = "payments";
     public static final String COL_ID_PAYMENT = "id";
@@ -81,6 +83,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_MODELS = "models";
     public static final String TABLE_QUALITIES = "qualities";
     public static final String TABLE_SERVICE_CATEGORIES = "service_categories";
+
+    public static final String TABLE_TIME_SLOTS = "time_slots";
+    public static final String COL_SLOT_NAME = "slot_name";
+    public static final String COL_SLOT_STATUS = "status";
 
     public static final String TABLE_TECH_AVAILABILITY = "technician_availability";
     public static final String COL_AVAIL_ID = "id";
@@ -129,6 +135,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             db.execSQL("ALTER TABLE " + TABLE_SPARE_PARTS + " ADD COLUMN " + COL_SPARE_PART_BRANCH + " TEXT");
         } catch (Exception ignored) {}
+        try {
+            db.execSQL("ALTER TABLE " + TABLE_BOOKINGS + " ADD COLUMN " + COL_BOOKING_TIME + " TEXT");
+        } catch (Exception ignored) {}
     }
 
     @Override
@@ -161,6 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_BOOKING_MODEL + " TEXT, " +
                 COL_BOOKING_DESC + " TEXT, " +
                 COL_BOOKING_DATE + " TEXT, " +
+                COL_BOOKING_TIME + " TEXT, " +
                 COL_BOOKING_IMAGE + " TEXT, " +
                 COL_BOOKING_STATUS + " TEXT, " +
                 COL_BOOKING_USER_ID + " INTEGER, " +
@@ -222,6 +232,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT NOT NULL)");
 
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TIME_SLOTS + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_SLOT_NAME + " TEXT NOT NULL, "
+                + COL_SLOT_STATUS + " TEXT NOT NULL)");
+
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_SERVICE_CATEGORIES + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT UNIQUE NOT NULL)");
@@ -268,6 +283,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         insertQuality(db, "Original");
         insertQuality(db, "Grade A");
+
+        seedInitialTimeSlots(db);
+    }
+
+    private void seedInitialTimeSlots(SQLiteDatabase db) {
+        String[] slots = {
+            "08:30 AM - 08:45 AM", "08:45 AM - 09:00 AM",
+            "09:00 AM - 09:15 AM", "09:15 AM - 09:30 AM",
+            "09:30 AM - 09:45 AM", "09:45 AM - 10:00 AM",
+            "10:00 AM - 10:15 AM", "10:15 AM - 10:30 AM",
+            "10:30 AM - 10:45 AM", "10:45 AM - 11:00 AM",
+            "11:00 AM - 11:15 AM", "11:15 AM - 11:30 AM",
+            "11:30 AM - 11:45 AM", "11:45 AM - 12:00 PM",
+            "12:00 PM - 12:15 PM", "12:15 PM - 12:30 PM",
+            "12:30 PM - 12:45 PM", "12:45 PM - 01:00 PM",
+            "01:00 PM - 01:15 PM", "01:15 PM - 01:30 PM",
+            "01:30 PM - 01:45 PM", "01:45 PM - 02:00 PM",
+            "02:00 PM - 02:15 PM", "02:15 PM - 02:30 PM",
+            "02:30 PM - 02:45 PM", "02:45 PM - 03:00 PM",
+            "03:00 PM - 03:15 PM", "03:15 PM - 03:30 PM",
+            "03:30 PM - 03:45 PM", "03:45 PM - 04:00 PM",
+            "04:00 PM - 04:15 PM", "04:15 PM - 04:30 PM",
+            "04:30 PM - 04:45 PM", "04:45 PM - 05:00 PM",
+            "05:00 PM - 05:15 PM", "05:15 PM - 05:30 PM",
+            "05:30 PM - 05:45 PM", "05:45 PM - 06:00 PM"
+        };
+        for (String slot : slots) {
+            ContentValues v = new ContentValues();
+            v.put(COL_SLOT_NAME, slot);
+            v.put(COL_SLOT_STATUS, "Available");
+            db.insert(TABLE_TIME_SLOTS, null, v);
+        }
     }
 
     private long insertServiceCategory(SQLiteDatabase db, String name) {
@@ -685,6 +732,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().delete(TABLE_SERVICE_CATEGORIES, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
+    // Time slot CRUD
+    public List<TimeSlot> getAllTimeSlots() {
+        List<TimeSlot> list = new ArrayList<>();
+        try {
+            getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TIME_SLOTS + " (" +
+                    COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COL_SLOT_NAME + " TEXT NOT NULL, " +
+                    COL_SLOT_STATUS + " TEXT NOT NULL)");
+        } catch (Exception ignored) {}
+
+        try (Cursor cursor = getReadableDatabase().query(TABLE_TIME_SLOTS, null, null, null, null, null, COL_ID + " ASC")) {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    list.add(new TimeSlot(
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_SLOT_NAME)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_SLOT_STATUS))
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error loading time slots", e);
+        }
+
+        if (list.isEmpty()) {
+            SQLiteDatabase db = getWritableDatabase();
+            seedInitialTimeSlots(db);
+            return getAllTimeSlots();
+        }
+        return list;
+    }
+
+    public long addTimeSlot(String slotName, String status) {
+        ContentValues v = new ContentValues();
+        v.put(COL_SLOT_NAME, slotName);
+        v.put(COL_SLOT_STATUS, status);
+        return getWritableDatabase().insert(TABLE_TIME_SLOTS, null, v);
+    }
+
+    public boolean updateTimeSlot(int id, String slotName, String status) {
+        ContentValues v = new ContentValues();
+        v.put(COL_SLOT_NAME, slotName);
+        v.put(COL_SLOT_STATUS, status);
+        return getWritableDatabase().update(TABLE_TIME_SLOTS, v, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean deleteTimeSlot(int id) {
+        return getWritableDatabase().delete(TABLE_TIME_SLOTS, COL_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    public boolean syncTimeSlot(TimeSlot slot) {
+        ContentValues v = new ContentValues();
+        v.put(COL_ID, slot.getId());
+        v.put(COL_SLOT_NAME, slot.getSlotName());
+        v.put(COL_SLOT_STATUS, slot.getStatus());
+        return getWritableDatabase().insertWithOnConflict(TABLE_TIME_SLOTS, null, v, SQLiteDatabase.CONFLICT_REPLACE) != -1;
+    }
+
     // Availability methods
     public boolean setTechAvailability(int techId, String date, boolean available) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -756,6 +861,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return count;
+    }
+
+    public int getBookingCountForSlot(String branchName, String date, String timeSlot) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_BOOKINGS + 
+                " WHERE " + COL_BOOKING_BRANCH_NAME + "=? AND " + COL_BOOKING_DATE + "=? AND " + COL_BOOKING_TIME + "=? AND " + COL_BOOKING_STATUS + " != 'Cancelled'",
+                new String[]{branchName, date, timeSlot});
+        
+        int count = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+            cursor.close();
+        }
+        return count;
+    }
+
+    public String getAvailableTechnicianForSlot(String branchName, String date, String timeSlot) {
+        List<Technician> branchTechs = getAvailableTechsForBranch(branchName, date);
+        if (branchTechs.isEmpty()) {
+            return "General Tech";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> assignedTechs = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT " + COL_BOOKING_TECH_NAME + " FROM " + TABLE_BOOKINGS +
+                " WHERE " + COL_BOOKING_BRANCH_NAME + "=? AND " + COL_BOOKING_DATE + "=? AND " + COL_BOOKING_TIME + "=? AND " + COL_BOOKING_STATUS + " != 'Cancelled'",
+                new String[]{branchName, date, timeSlot});
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String tName = cursor.getString(0);
+                if (tName != null && !tName.isEmpty()) {
+                    assignedTechs.add(tName);
+                }
+            }
+            cursor.close();
+        }
+
+        for (Technician tech : branchTechs) {
+            if (!assignedTechs.contains(tech.getName())) {
+                return tech.getName();
+            }
+        }
+        return null;
     }
 
     public List<Technician> getAvailableTechsForBranch(String branchName, String date) {

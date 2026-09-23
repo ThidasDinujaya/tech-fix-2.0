@@ -80,7 +80,12 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             tvStatus.setText(booking.getStatus());
             tvServiceName.setText("Repair Request");
             tvDeviceModel.setText(booking.getBrand() + " " + booking.getModel());
-            tvDateTime.setText(booking.getAppointmentDate());
+            
+            String dateTimeStr = booking.getAppointmentDate();
+            if (booking.getAppointmentTime() != null && !booking.getAppointmentTime().isEmpty()) {
+                dateTimeStr += " • " + booking.getAppointmentTime();
+            }
+            tvDateTime.setText(dateTimeStr);
 
             if (hasPayment) {
                 btnReceipt.setVisibility(View.VISIBLE);

@@ -49,6 +49,7 @@ public class PaymentRepository {
             bValues.put(DatabaseHelper.COL_BOOKING_MODEL, booking.getModel());
             bValues.put(DatabaseHelper.COL_BOOKING_DESC, booking.getDescription());
             bValues.put(DatabaseHelper.COL_BOOKING_DATE, booking.getAppointmentDate());
+            bValues.put(DatabaseHelper.COL_BOOKING_TIME, booking.getAppointmentTime());
             bValues.put(DatabaseHelper.COL_BOOKING_IMAGE, booking.getImagePath());
             bValues.put(DatabaseHelper.COL_BOOKING_STATUS, booking.getStatus());
             bValues.put(DatabaseHelper.COL_BOOKING_USER_ID, booking.getUserId());
